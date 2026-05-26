@@ -19,6 +19,7 @@ import {
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined'
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
@@ -31,13 +32,14 @@ const drawerWidth = 300
 
 const sectionIcons = {
   'visao-geral': <DashboardOutlinedIcon fontSize="small" />,
+  graficos: <InsightsOutlinedIcon fontSize="small" />,
   familias: <GroupsOutlinedIcon fontSize="small" />,
   cadastro: <AppRegistrationOutlinedIcon fontSize="small" />,
   atendimentos: <EventNoteOutlinedIcon fontSize="small" />,
   calendario: <CalendarMonthOutlinedIcon fontSize="small" />,
 }
 
-function DashboardLayout({ sectionSlug, formId }) {
+function DashboardLayout({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
@@ -179,7 +181,7 @@ function DashboardLayout({ sectionSlug, formId }) {
           p: { xs: 1.5, sm: 2.5, md: 4 },
         }}
       >
-        <DashboardContent sectionSlug={sectionSlug} formId={formId} />
+        <DashboardContent sectionSlug={sectionSlug} formId={formId} actionSlug={actionSlug} />
       </Box>
     </Box>
   )

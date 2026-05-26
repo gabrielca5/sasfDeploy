@@ -11,6 +11,7 @@ function App() {
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/dashboard" element={<Navigate to="/dashboard/visao-geral" replace />} />
       <Route path="/dashboard/cadastro/:formId" element={<DashboardPage />} />
+      <Route path="/dashboard/:sectionSlug/:actionSlug" element={<DashboardPage />} />
       <Route path="/dashboard/:sectionSlug" element={<DashboardPage />} />
     </Routes>
   )
