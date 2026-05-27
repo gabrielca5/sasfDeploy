@@ -228,28 +228,6 @@ const priorityOptions = ['Todas', 'Alta', 'Média', 'Baixa']
 const districtOptions = ['Todos', 'Ipiranga', 'Vila Prudente', 'Sacomã']
 const benefitOptions = ['Todos', 'Bolsa Família', 'Renda Cidadã', 'BPC', 'Sem benefício']
 
-const orientadorPalette = [
-  { id: 'orientador1', backgroundColor: '#FDECEC', color: '#B91C1C' },
-  { id: 'orientador2', backgroundColor: '#FEF9C3', color: '#A16207' },
-  { id: 'orientador3', backgroundColor: '#DCFCE7', color: '#15803D' },
-  { id: 'orientador4', backgroundColor: '#DBEAFE', color: '#1D4ED8' },
-  { id: 'orientador5', backgroundColor: '#F3E8FF', color: '#7E22CE' },
-  { id: 'orientador6', backgroundColor: '#FFEDD5', color: '#C2410C' },
-  { id: 'orientador7', backgroundColor: '#FCE7F3', color: '#BE185D' },
-  { id: 'orientador8', backgroundColor: '#EFE2D6', color: '#7C2D12' },
-]
-
-function getOrientadorLabel(seed) {
-  const value = String(seed || '')
-  let hash = 0
-
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash + value.charCodeAt(i) * (i + 1)) % 2147483647
-  }
-
-  return orientadorPalette[hash % orientadorPalette.length]
-}
-
 function formatDate(value) {
   if (!value) {
     return '—'
@@ -296,8 +274,6 @@ function FamilySummaryChip({ label, color = 'default' }) {
 }
 
 function FamilyPreviewCard({ family, selected, onSelect }) {
-  const orientador = getOrientadorLabel(family.nome_representante)
-
   return (
     <Paper
       elevation={0}
@@ -326,15 +302,6 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
         <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ minWidth: 0 }}>
           <Chip label={family.status} size="small" color={family.status === 'Prioritária' ? 'error' : 'primary'} variant={family.status === 'Ativa' ? 'outlined' : 'filled'} />
           <Chip label={`Prioridade ${family.prioridade}`} size="small" variant="outlined" />
-          <Chip
-            label={orientador.id}
-            size="small"
-            sx={{
-              backgroundColor: orientador.backgroundColor,
-              color: orientador.color,
-              fontWeight: 700,
-            }}
-          />
         </Stack>
 
         <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0 }}>
@@ -347,8 +314,6 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
 
 function FamilyDetailPanel({ family }) {
   if (!family) return null
-
-  const orientadorRepresentante = getOrientadorLabel(family.nome_representante)
 
   return (
     <Stack spacing={1.5} sx={{ minWidth: 0 }}>
@@ -370,15 +335,6 @@ function FamilyDetailPanel({ family }) {
             <FamilySummaryChip label={family.status} color={family.status === 'Prioritária' ? 'error' : 'primary'} />
             <FamilySummaryChip label={`Prioridade ${family.prioridade}`} />
             <FamilySummaryChip label={family.cras} />
-            <Chip
-              label={orientadorRepresentante.id}
-              size="small"
-              sx={{
-                backgroundColor: orientadorRepresentante.backgroundColor,
-                color: orientadorRepresentante.color,
-                fontWeight: 700,
-              }}
-            />
           </Stack>
         </Stack>
       </Paper>
@@ -423,38 +379,24 @@ function FamilyDetailPanel({ family }) {
 
       <SectionBlock title="Composição familiar" subtitle="Pessoas vinculadas à família no cadastro.">
         <Stack spacing={1} sx={{ minWidth: 0 }}>
-          {family.composicao_familiar.map((member) => {
-            const orientadorMembro = getOrientadorLabel(`${family.id}-${member.nome}`)
-
-            return (
-              <Paper key={`${family.id}-${member.nome}`} elevation={0} variant="outlined" sx={{ p: 1.5, borderRadius: 2, borderColor: 'divider', backgroundColor: '#ffffff', minWidth: 0 }}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.25} justifyContent="space-between" sx={{ minWidth: 0 }}>
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="body1" fontWeight={800} sx={cardTextSx}>
-                      {member.nome}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={cardTextSx}>
-                      {member.parentesco} • {member.idade} anos
-                    </Typography>
-                  </Box>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ minWidth: 0 }}>
-                    <Chip
-                      label={orientadorMembro.id}
-                      size="small"
-                      sx={{
-                        maxWidth: '100%',
-                        backgroundColor: orientadorMembro.backgroundColor,
-                        color: orientadorMembro.color,
-                        fontWeight: 700,
-                      }}
-                    />
-                    <Chip label={`Renda ${member.renda === '—' ? 'não informada' : `R$ ${member.renda}`}`} size="small" variant="outlined" sx={{ maxWidth: '100%' }} />
-                    <Chip label={member.fator} size="small" variant="outlined" sx={{ maxWidth: '100%' }} />
-                  </Stack>
+          {family.composicao_familiar.map((member) => (
+            <Paper key={`${family.id}-${member.nome}`} elevation={0} variant="outlined" sx={{ p: 1.5, borderRadius: 2, borderColor: 'divider', backgroundColor: '#ffffff', minWidth: 0 }}>
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.25} justifyContent="space-between" sx={{ minWidth: 0 }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant="body1" fontWeight={800} sx={cardTextSx}>
+                    {member.nome}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={cardTextSx}>
+                    {member.parentesco} • {member.idade} anos
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ minWidth: 0 }}>
+                  <Chip label={`Renda ${member.renda === '—' ? 'não informada' : `R$ ${member.renda}`}`} size="small" variant="outlined" sx={{ maxWidth: '100%' }} />
+                  <Chip label={member.fator} size="small" variant="outlined" sx={{ maxWidth: '100%' }} />
                 </Stack>
-              </Paper>
-            )
-          })}
+              </Stack>
+            </Paper>
+          ))}
         </Stack>
       </SectionBlock>
 

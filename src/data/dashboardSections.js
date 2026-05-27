@@ -3,13 +3,7 @@ export const dashboardSections = [
     label: 'Visão Geral',
     slug: 'visao-geral',
     title: 'Visão Geral',
-    description: 'Ações rápidas do painel para operações mais frequentes.',
-  },
-  {
-    label: 'Gráficos',
-    slug: 'graficos',
-    title: 'Gráficos',
-    description: 'Central analítica com os gráficos de acompanhamento mockados.',
+    description: 'Base inicial para os principais indicadores do painel.',
   },
   {
     label: 'Famílias',
