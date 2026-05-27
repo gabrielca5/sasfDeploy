@@ -3,7 +3,13 @@ export const dashboardSections = [
     label: 'Visão Geral',
     slug: 'visao-geral',
     title: 'Visão Geral',
-    description: 'Base inicial para os principais indicadores do painel.',
+    description: 'Ações rápidas do painel para operações mais frequentes.',
+  },
+  {
+    label: 'Gráficos',
+    slug: 'graficos',
+    title: 'Gráficos',
+    description: 'Central analítica com os gráficos de acompanhamento mockados.',
   },
   {
     label: 'Famílias',
@@ -28,6 +34,13 @@ export const dashboardSections = [
     slug: 'calendario',
     title: 'Calendário',
     description: 'Agenda integrada para acompanhar prazos e visitas.',
+  },
+
+  {
+    label: 'Perfil',
+    slug: 'perfil',
+    title: 'Perfil',
+    description: 'Informações do usuário autenticado.',
   },
 
 ]

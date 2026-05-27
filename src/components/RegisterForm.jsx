@@ -1,12 +1,29 @@
 import { useState } from 'react'
 import { Alert, Button, Link as MuiLink, Paper, Stack, TextField, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const registerSchema = z.object({
+  nome: z.string().min(2, 'Informe seu nome'),
+  cpf: z.string().min(11, 'CPF incompleto'),
+  email: z.string().email('Email inválido'),
+  senha: z.string().min(6, 'Senha muito curta'),
+  repetirSenha: z.string(),
+}).refine((data) => data.senha === data.repetirSenha, {
+  message: 'As senhas não conferem',
+  path: ['repetirSenha'],
+})
 
 function RegisterForm() {
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(registerSchema),
+  })
+
+  const onSubmit = () => {
     setSubmitted(true)
   }
 
@@ -16,7 +33,7 @@ function RegisterForm() {
         elevation={0}
         variant="outlined"
         component="form"
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         sx={{
           p: 2,
           borderRadius: 2,
@@ -25,43 +42,15 @@ function RegisterForm() {
         }}
       >
         <Stack spacing={1.5}>
-          <TextField id="nome" name="nome" label="Nome" autoComplete="name" required />
+          <TextField {...register('nome')} id="nome" name="nome" label="Nome" autoComplete="name" error={!!errors.nome} helperText={errors.nome?.message} />
 
-          <TextField
-            id="cpf"
-            name="cpf"
-            label="Cpf"
-            inputMode="numeric"
-            autoComplete="off"
-            required
-          />
+          <TextField {...register('cpf')} id="cpf" name="cpf" label="Cpf" inputMode="numeric" autoComplete="off" error={!!errors.cpf} helperText={errors.cpf?.message} />
 
-          <TextField
-            id="email"
-            name="email"
-            label="Email"
-            type="email"
-            autoComplete="email"
-            required
-          />
+          <TextField {...register('email')} id="email" name="email" label="Email" type="email" autoComplete="email" error={!!errors.email} helperText={errors.email?.message} />
 
-          <TextField
-            id="senha"
-            name="senha"
-            label="Senha"
-            type="password"
-            autoComplete="current-password"
-            required
-          />
+          <TextField {...register('senha')} id="senha" name="senha" label="Senha" type="password" autoComplete="current-password" error={!!errors.senha} helperText={errors.senha?.message} />
 
-          <TextField
-            id="repetir-senha"
-            name="repetirSenha"
-            label="Repetir Senha"
-            type="password"
-            autoComplete="new-password"
-            required
-          />
+          <TextField {...register('repetirSenha')} id="repetir-senha" name="repetirSenha" label="Repetir Senha" type="password" autoComplete="new-password" error={!!errors.repetirSenha} helperText={errors.repetirSenha?.message} />
 
           <Button type="submit" fullWidth sx={{ mt: 0.5 }}>
             Enviar

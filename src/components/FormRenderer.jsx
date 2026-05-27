@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useForm, useFieldArray } from 'react-hook-form'
 import {
   Alert,
   Box,
@@ -14,7 +15,9 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
+  CircularProgress,
   MenuItem,
+  InputAdornment,
   Paper,
   Radio,
   RadioGroup,
@@ -28,6 +31,8 @@ import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
+import FlowStepper from './FlowStepper'
+import { useCepLookup } from '../hooks/useCepLookup'
 
 const pageSx = {
   maxWidth: 1120,
@@ -104,13 +109,197 @@ function createFormDraft(form) {
       return accumulator
     }
 
+    if (section.tipo === 'lista_numerada' && section.campo) {
+      accumulator[section.id] = [{ [section.campo.id]: getInitialFieldValue(section.campo) }]
+      return accumulator
+    }
+
     accumulator[section.id] = {}
     return accumulator
   }, {})
 }
 
-function FieldInput({ field, value, onChange, rowNumber }) {
-  const helperText = field.nota || field.mascara || ''
+function SignatureField({ field, value, onChange, helperText }) {
+  const canvasRef = useRef(null)
+  const isDrawingRef = useRef(false)
+
+  const paintCanvasBackground = () => {
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+    if (!context) {
+      return
+    }
+
+    context.fillStyle = '#ffffff'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.lineCap = 'round'
+    context.lineJoin = 'round'
+    context.strokeStyle = '#111827'
+    context.lineWidth = 2
+  }
+
+  useEffect(() => {
+    paintCanvasBackground()
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+    if (!context) {
+      return
+    }
+
+    paintCanvasBackground()
+
+    if (typeof value === 'string' && value.startsWith('data:image')) {
+      const image = new Image()
+      image.onload = () => {
+        context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      }
+      image.src = value
+    }
+  }, [value])
+
+  const getPointerPosition = (event) => {
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return { x: 0, y: 0 }
+    }
+
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+
+    return {
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
+    }
+  }
+
+  const handlePointerDown = (event) => {
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+    if (!context) {
+      return
+    }
+
+    const { x, y } = getPointerPosition(event)
+    isDrawingRef.current = true
+    context.beginPath()
+    context.moveTo(x, y)
+    canvas.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event) => {
+    if (!isDrawingRef.current) {
+      return
+    }
+
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+    if (!context) {
+      return
+    }
+
+    const { x, y } = getPointerPosition(event)
+    context.lineTo(x, y)
+    context.stroke()
+  }
+
+  const finishDrawing = () => {
+    if (!isDrawingRef.current) {
+      return
+    }
+
+    isDrawingRef.current = false
+    const canvas = canvasRef.current
+    if (!canvas) {
+      return
+    }
+
+    onChange(canvas.toDataURL('image/png'))
+  }
+
+  const clearSignature = () => {
+    paintCanvasBackground()
+    onChange('')
+  }
+
+  return (
+    <Paper
+      elevation={0}
+      variant="outlined"
+      sx={{
+        p: 1.5,
+        borderRadius: 2,
+        borderColor: 'rgba(17, 24, 39, 0.08)',
+        backgroundColor: '#ffffff',
+      }}
+    >
+      <Stack spacing={1}>
+        <Typography variant="subtitle2" fontWeight={700}>
+          {field.label}
+        </Typography>
+
+        <Box
+          sx={{
+            border: '1px dashed',
+            borderColor: 'divider',
+            borderRadius: 2,
+            overflow: 'hidden',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <Box
+            component="canvas"
+            ref={canvasRef}
+            width={720}
+            height={220}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={finishDrawing}
+            onPointerLeave={finishDrawing}
+            sx={{
+              width: '100%',
+              height: 160,
+              display: 'block',
+              touchAction: 'none',
+              cursor: 'crosshair',
+            }}
+          />
+        </Box>
+
+        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+          <Typography variant="caption" color="text.secondary">
+            {helperText || 'Assine no quadro acima usando mouse, touch ou caneta.'}
+          </Typography>
+          <Button variant="text" color="error" size="small" onClick={clearSignature}>
+            Limpar assinatura
+          </Button>
+        </Stack>
+      </Stack>
+    </Paper>
+  )
+}
+
+function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextOverride, disabled = false, endAdornment = null, rhfSetValue = null }) {
+  const helperText = helperTextOverride ?? field.nota ?? field.mascara ?? ''
   const inputSx = {
     '& .MuiInputBase-root': {
       backgroundColor: '#ffffff',
@@ -147,6 +336,7 @@ function FieldInput({ field, value, onChange, rowNumber }) {
         fullWidth
         size="small"
         helperText={helperText}
+        disabled={disabled}
         sx={inputSx}
       />
     )
@@ -265,6 +455,7 @@ function FieldInput({ field, value, onChange, rowNumber }) {
         fullWidth
         size="small"
         helperText={helperText}
+        disabled={disabled}
       >
         {(field.opcoes ?? []).map((option) => (
           <MenuItem key={option} value={option}>
@@ -277,27 +468,7 @@ function FieldInput({ field, value, onChange, rowNumber }) {
 
   if (field.tipo === 'assinatura') {
     return (
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{
-          p: 1.5,
-          borderRadius: 2,
-          borderColor: 'rgba(17, 24, 39, 0.08)',
-          backgroundColor: '#ffffff',
-          minHeight: 84,
-        }}
-      >
-        <Stack spacing={1}>
-          <Typography variant="subtitle2" fontWeight={700}>
-            {field.label}
-          </Typography>
-          <Box sx={{ height: 1, borderBottom: '1px solid', borderColor: 'text.secondary' }} />
-          <Typography variant="caption" color="text.secondary">
-            {helperText}
-          </Typography>
-        </Stack>
-      </Paper>
+      <SignatureField field={field} value={value} onChange={onChange} helperText={helperText} />
     )
   }
 
@@ -314,6 +485,7 @@ function FieldInput({ field, value, onChange, rowNumber }) {
         fullWidth
         size="small"
         helperText={helperText}
+        disabled={disabled}
         sx={inputSx}
       />
     )
@@ -330,6 +502,7 @@ function FieldInput({ field, value, onChange, rowNumber }) {
         fullWidth
         size="small"
         helperText={helperText}
+        disabled={disabled}
         sx={inputSx}
       />
     )
@@ -339,19 +512,59 @@ function FieldInput({ field, value, onChange, rowNumber }) {
     <TextField
       label={field.label}
       value={value}
-      onChange={(event) => onChange(event.target.value)}
+      onChange={(event) => {
+        const nextValue = event.target.value
+        onChange(nextValue)
+        if (rhfSetValue) rhfSetValue(field.id, nextValue)
+      }}
       type={field.tipo === 'tel' ? 'tel' : 'text'}
+      placeholder={field.placeholder}
       fullWidth
       size="small"
       helperText={helperText}
+      disabled={disabled}
+      InputProps={endAdornment ? { endAdornment } : undefined}
       sx={inputSx}
+      onBlur={() => {
+        if (rhfSetValue) rhfSetValue(field.id, value)
+      }}
     />
   )
 }
 
-function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }) {
+function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, rhfSetValue = null, control = null }) {
   const columns = section.colunas ?? section.campos_por_item ?? []
   const rowLimit = section.max_linhas ?? section.max_itens ?? 1
+
+  // useFieldArray for RHF sync
+  const { fields, append, remove, update, replace } = useFieldArray({ control, name: section.id })
+
+  // when draft rows change, ensure RHF fields are in sync
+  useEffect(() => {
+    const draftRows = Array.isArray(rows) ? rows : []
+    if (JSON.stringify(draftRows) !== JSON.stringify(fields.map((f) => ({ ...f })))) {
+      replace(draftRows)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows?.length])
+
+  const handleAdd = () => {
+    const template = getRowTemplate(columns)
+    append(template)
+    onAddRow()
+  }
+
+  const handleRemove = (index) => {
+    remove(index)
+    onRemoveRow(index)
+  }
+
+  const handleChange = (index, fieldId, nextValue) => {
+    const current = fields[index] ?? {}
+    const updated = { ...current, [fieldId]: nextValue }
+    update(index, updated)
+    onChangeRow(index, fieldId, nextValue)
+  }
 
   return (
     <Paper
@@ -370,9 +583,9 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }
         </Stack>
 
         <Stack spacing={1}>
-          {rows.map((row, rowIndex) => (
+          {fields.map((fieldObj, rowIndex) => (
             <Paper
-              key={`${section.id}-${rowIndex}`}
+              key={`${section.id}-${fieldObj.id ?? rowIndex}`}
               elevation={0}
               variant="outlined"
               sx={{ p: 1.25, borderRadius: 2, borderColor: 'rgba(17, 24, 39, 0.08)', backgroundColor: '#ffffff' }}
@@ -380,8 +593,8 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }
               <Stack spacing={1}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Chip label={`Linha ${rowIndex + 1}`} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
-                  {rows.length > 1 && (
-                    <Button variant="text" color="error" onClick={() => onRemoveRow(rowIndex)}>
+                  {fields.length > 1 && (
+                    <Button variant="text" color="error" onClick={() => handleRemove(rowIndex)}>
                       Remover
                     </Button>
                   )}
@@ -393,8 +606,9 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }
                       <FieldInput
                         field={field}
                         rowNumber={rowIndex + 1}
-                        value={row[field.id] ?? ''}
-                        onChange={(nextValue) => onChangeRow(rowIndex, field.id, nextValue)}
+                        value={fieldObj[field.id] ?? ''}
+                        onChange={(nextValue) => handleChange(rowIndex, field.id, nextValue)}
+                        rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
                       />
                     </Box>
                   ))}
@@ -404,8 +618,8 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }
           ))}
         </Stack>
 
-        {rows.length < rowLimit && (
-          <Button variant="outlined" onClick={onAddRow} sx={{ alignSelf: 'flex-start' }}>
+        {fields.length < rowLimit && (
+          <Button variant="outlined" onClick={handleAdd} sx={{ alignSelf: 'flex-start' }}>
             Adicionar linha
           </Button>
         )}
@@ -414,7 +628,102 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow }
   )
 }
 
-function QuantitySection({ section, values, onChange }) {
+function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, rhfSetValue = null, control = null }) {
+  const itemField = section.campo
+  const rowLimit = section.max_itens ?? 1
+
+  if (!itemField) {
+    return (
+      <Paper elevation={0} variant="outlined" sx={sectionSx}>
+        <Typography variant="body2" color="text.secondary">
+          Estrutura não reconhecida para esta seção.
+        </Typography>
+      </Paper>
+    )
+  }
+
+  // useFieldArray for numbered lists
+  const { fields, append, remove, update, replace } = useFieldArray({ control, name: section.id })
+
+  useEffect(() => {
+    const draftRows = Array.isArray(rows) ? rows : []
+    if (JSON.stringify(draftRows) !== JSON.stringify(fields.map((f) => ({ ...f })))) {
+      replace(draftRows)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows?.length])
+
+  const handleAdd = () => {
+    append({ [itemField.id]: getInitialFieldValue(itemField) })
+    onAddRow()
+  }
+
+  const handleRemove = (index) => {
+    remove(index)
+    onRemoveRow(index)
+  }
+
+  const handleChange = (index, fid, nextValue) => {
+    const current = fields[index] ?? {}
+    const updated = { ...current, [fid]: nextValue }
+    update(index, updated)
+    onChangeRow(index, fid, nextValue)
+  }
+
+  return (
+    <Paper elevation={0} variant="outlined" sx={sectionSx}>
+      <Stack spacing={1.25}>
+        <Stack spacing={0.25}>
+          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 800 }}>
+            {section.titulo}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Registre os itens na ordem de prioridade. Limite de linhas: {rowLimit}.
+          </Typography>
+        </Stack>
+
+        <Stack spacing={1}>
+          {fields.map((fieldObj, rowIndex) => (
+            <Paper
+              key={`${section.id}-${fieldObj.id ?? rowIndex}`}
+              elevation={0}
+              variant="outlined"
+              sx={{ p: 1.25, borderRadius: 2, borderColor: 'rgba(17, 24, 39, 0.08)', backgroundColor: '#ffffff' }}
+            >
+              <Stack spacing={1}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Chip label={`Item ${rowIndex + 1}`} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
+                  {fields.length > 1 && (
+                    <Button variant="text" color="error" onClick={() => handleRemove(rowIndex)}>
+                      Remover
+                    </Button>
+                  )}
+                </Stack>
+
+                <Paper elevation={0} variant="outlined" sx={nestedFieldSx}>
+                  <FieldInput
+                    field={itemField}
+                    value={fieldObj[itemField.id] ?? ''}
+                    onChange={(nextValue) => handleChange(rowIndex, itemField.id, nextValue)}
+                    rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
+                  />
+                </Paper>
+              </Stack>
+            </Paper>
+          ))}
+        </Stack>
+
+        {fields.length < rowLimit && (
+          <Button variant="outlined" onClick={handleAdd} sx={{ alignSelf: 'flex-start' }}>
+            Adicionar item
+          </Button>
+        )}
+      </Stack>
+    </Paper>
+  )
+}
+
+function QuantitySection({ section, values, onChange, rhfSetValue = null }) {
   const columns = section.colunas ?? []
 
   return (
@@ -440,6 +749,7 @@ function QuantitySection({ section, values, onChange }) {
                 field={field}
                 value={values[field.id] ?? ''}
                 onChange={(nextValue) => onChange(field.id, nextValue)}
+                rhfSetValue={rhfSetValue}
               />
             </Box>
           ))}
@@ -449,11 +759,17 @@ function QuantitySection({ section, values, onChange }) {
   )
 }
 
-export function FormRenderer({ form, onBack }) {
+export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm }) {
   const [draft, setDraft] = useState(() => createFormDraft(form))
   const [saved, setSaved] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState(null)
+  const { lookup: lookupCep, loading: cepLoading, error: cepError } = useCepLookup()
+  const { register: rhfRegister, setValue: rhfSetValue, control } = useForm()
+  const lastCepLookupRef = useRef(0)
+  const currentFlowIndex = Math.max(0, flowForms.findIndex((flowForm) => flowForm.id === form.id))
+  const previousFlowForm = currentFlowIndex > 0 ? flowForms[currentFlowIndex - 1] : undefined
+  const nextFlowForm = currentFlowIndex >= 0 && currentFlowIndex < flowForms.length - 1 ? flowForms[currentFlowIndex + 1] : undefined
 
   const actionConfig = {
     save: {
@@ -513,6 +829,55 @@ export function FormRenderer({ form, onBack }) {
     }))
   }
 
+  const syncAddressFromCep = async (cepValue) => {
+    const currentCep = (cepValue || '').replace(/\D/g, '')
+
+    if (currentCep.length !== 8) {
+      return
+    }
+
+    const lookupId = lastCepLookupRef.current + 1
+    lastCepLookupRef.current = lookupId
+
+    const addressData = await lookupCep(currentCep)
+
+    if (!addressData || lastCepLookupRef.current !== lookupId) {
+      return
+    }
+
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      endereco: {
+        ...(currentDraft.endereco ?? {}),
+        uf: addressData.uf ?? currentDraft.endereco?.uf ?? '',
+        cidade: addressData.cidade ?? currentDraft.endereco?.cidade ?? '',
+        bairro: addressData.bairro ?? currentDraft.endereco?.bairro ?? '',
+        endereco: addressData.endereco ?? currentDraft.endereco?.endereco ?? '',
+      },
+    }))
+
+    // update react-hook-form values for these address fields as well
+    try {
+      if (rhfSetValue) {
+        rhfSetValue('uf', addressData.uf ?? '')
+        rhfSetValue('cidade', addressData.cidade ?? '')
+        rhfSetValue('bairro', addressData.bairro ?? '')
+        rhfSetValue('endereco', addressData.endereco ?? '')
+      }
+    } catch (e) {
+      // ignore if rhf not available in this context
+    }
+
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => {
+        const numeroField = document.getElementById('numero')
+        if (numeroField && typeof numeroField.focus === 'function') {
+          numeroField.focus()
+        }
+      }, 0)
+    }
+  }
+
   const updateRowField = (sectionId, rowIndex, fieldId, value) => {
     setDraft((currentDraft) => ({
       ...currentDraft,
@@ -547,6 +912,31 @@ export function FormRenderer({ form, onBack }) {
     requestAction('save')
   }
 
+  useEffect(() => {
+    if (!draft.endereco) {
+      return
+    }
+
+    const cepValue = draft.endereco.cep || ''
+    const cepDigits = cepValue.replace(/\D/g, '')
+
+    if (cepDigits.length !== 8) {
+      return
+    }
+
+    let active = true
+
+    syncAddressFromCep(cepValue).then(() => {
+      if (!active) {
+        return
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [draft.endereco?.cep])
+
   const renderSection = (section) => {
     if (Array.isArray(section.campos)) {
       return (
@@ -574,6 +964,10 @@ export function FormRenderer({ form, onBack }) {
                       field={field}
                       value={draft[section.id]?.[field.id] ?? ''}
                       onChange={(nextValue) => updateField(section.id, field.id, nextValue)}
+                      helperText={field.id === 'cep' && cepError ? cepError : undefined}
+                      disabled={section.id === 'endereco' && cepLoading && ['uf', 'cidade', 'bairro', 'endereco'].includes(field.id)}
+                      endAdornment={field.id === 'cep' && cepLoading ? <InputAdornment position="end"><CircularProgress size={16} /></InputAdornment> : null}
+                      rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
                     />
                   </Paper>
                 </Box>
@@ -587,13 +981,15 @@ export function FormRenderer({ form, onBack }) {
     if (section.tipo === 'tabela' || section.tipo === 'lista_repetivel') {
       const rows = draft[section.id] ?? []
       return (
-        <RepeatableSection
+            <RepeatableSection
           key={section.id}
           section={section}
-          rows={rows}
-          onAddRow={() => addRow(section.id, section)}
-          onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
-          onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
+              rows={rows}
+              onAddRow={() => addRow(section.id, section)}
+              onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
+              onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
+              rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+              control={control}
         />
       )
     }
@@ -605,6 +1001,23 @@ export function FormRenderer({ form, onBack }) {
           section={section}
           values={draft[section.id] ?? {}}
           onChange={(fieldId, nextValue) => updateField(section.id, fieldId, nextValue)}
+          rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+        />
+      )
+    }
+
+    if (section.tipo === 'lista_numerada') {
+      const rows = draft[section.id] ?? []
+      return (
+            <NumberedListSection
+          key={section.id}
+          section={section}
+          rows={rows}
+              onAddRow={() => addRow(section.id, { campos_por_item: [section.campo] })}
+              onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
+              onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
+              rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+              control={control}
         />
       )
     }
@@ -625,6 +1038,15 @@ export function FormRenderer({ form, onBack }) {
 
   return (
     <Stack spacing={1.75} component="form" onSubmit={handleSubmit} sx={pageSx}>
+      <FlowStepper
+        forms={flowForms.length ? flowForms : [form]}
+        activeFormId={form.id}
+        onSelectForm={onSelectFlowForm}
+        title="Fluxo do cadastro"
+        subtitle="A etapa atual fica destacada e você pode alternar entre os formulários sem sair do processo."
+        showNavigation
+      />
+
       <Paper
         elevation={0}
         variant="outlined"
@@ -677,13 +1099,18 @@ export function FormRenderer({ form, onBack }) {
           <Button
             variant="outlined"
             startIcon={<ArrowBackRoundedIcon />}
-            onClick={() => requestAction('leave')}
+            onClick={() => (previousFlowForm && onSelectFlowForm ? onSelectFlowForm(previousFlowForm.id) : requestAction('leave'))}
             sx={{ alignSelf: { xs: 'stretch', sm: 'flex-start' }, width: { xs: '100%', sm: 'auto' } }}
           >
-            Sair da página
+            {previousFlowForm ? 'Etapa anterior' : 'Sair da página'}
           </Button>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            {nextFlowForm && onSelectFlowForm && (
+              <Button variant="outlined" onClick={() => onSelectFlowForm(nextFlowForm.id)}>
+                Próxima etapa
+              </Button>
+            )}
             <Button
               variant="outlined"
               color="error"

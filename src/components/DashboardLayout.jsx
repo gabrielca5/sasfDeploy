@@ -19,10 +19,12 @@ import {
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined'
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import logoPng from '../assets/chicoLogo.png'
 import DashboardContent from './DashboardContent'
 import { dashboardSections } from '../data/dashboardSections'
@@ -31,17 +33,18 @@ const drawerWidth = 300
 
 const sectionIcons = {
   'visao-geral': <DashboardOutlinedIcon fontSize="small" />,
+  graficos: <InsightsOutlinedIcon fontSize="small" />,
   familias: <GroupsOutlinedIcon fontSize="small" />,
   cadastro: <AppRegistrationOutlinedIcon fontSize="small" />,
   atendimentos: <EventNoteOutlinedIcon fontSize="small" />,
   calendario: <CalendarMonthOutlinedIcon fontSize="small" />,
+  perfil: <AccountCircleOutlinedIcon fontSize="small" />,
 }
 
-function DashboardLayout({ sectionSlug, formId }) {
+function DashboardLayout({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleNavigate = (nextSection) => {
     if (nextSection?.slug === 'sair') {
@@ -51,7 +54,6 @@ function DashboardLayout({ sectionSlug, formId }) {
 
     if (nextSection) {
       navigate(`/dashboard/${nextSection.slug}`)
-      setMobileOpen(false)
     }
   }
 
@@ -63,7 +65,7 @@ function DashboardLayout({ sectionSlug, formId }) {
           <Typography variant="overline" color="text.secondary" letterSpacing={1.4}>
             SASF
           </Typography>
-          <Typography variant="h6" fontWeight={800} lineHeight={1.1}>
+          <Typography variant="h6" fontWeight={800} sx={{ lineHeight: 1.1 }}>
             Painel
           </Typography>
         </Box>
@@ -73,7 +75,7 @@ function DashboardLayout({ sectionSlug, formId }) {
         <Typography variant="caption" color="text.secondary" display="block">
           Navegação
         </Typography>
-        <Typography variant="body2" fontWeight={700} color="text.primary">
+        <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.1 }}>
           Estrutura responsiva com padrões clássicos de dashboard.
         </Typography>
       </Box>
@@ -129,34 +131,17 @@ function DashboardLayout({ sectionSlug, formId }) {
         position="sticky"
         elevation={0}
         sx={{
-          display: { md: 'none' },
+          display: 'none',
           backgroundColor: '#ffffff',
           color: 'text.primary',
           borderBottom: '1px solid',
           borderColor: 'divider',
         }}
-      >
-        <Toolbar sx={{ minHeight: 64, gap: 1 }}>
-          <IconButton edge="start" onClick={() => setMobileOpen(true)} aria-label="Abrir navegação">
-            <MenuRoundedIcon />
-          </IconButton>
-          <Box component="img" src={logoPng} alt="Logo SASF" sx={{ width: 34, height: 34, objectFit: 'contain' }} />
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="subtitle2" fontWeight={800} lineHeight={1.1}>
-              SASF Painel
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Navegação responsiva
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      />
 
       <Drawer
-        variant={isDesktop ? 'permanent' : 'temporary'}
-        open={isDesktop ? true : mobileOpen}
-        onClose={() => setMobileOpen(false)}
-        ModalProps={{ keepMounted: true }}
+        variant="permanent"
+        open
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -179,7 +164,7 @@ function DashboardLayout({ sectionSlug, formId }) {
           p: { xs: 1.5, sm: 2.5, md: 4 },
         }}
       >
-        <DashboardContent sectionSlug={sectionSlug} formId={formId} />
+        <DashboardContent sectionSlug={sectionSlug} formId={formId} actionSlug={actionSlug} />
       </Box>
     </Box>
   )

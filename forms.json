@@ -82,6 +82,7 @@
             { "id": "numero", "label": "Nº", "tipo": "text" },
             { "id": "complemento", "label": "Complemento", "tipo": "text" },
             { "id": "cep", "label": "CEP", "tipo": "text", "mascara": "00000-000" },
+            { "id": "cidade", "label": "Cidade", "tipo": "text" },
             { "id": "bairro", "label": "Bairro", "tipo": "text" },
             { "id": "distrito", "label": "Distrito", "tipo": "text" },
             { "id": "telefone_residencial", "label": "Telefone Residencial", "tipo": "tel" },
@@ -347,7 +348,8 @@
             { "id": "rg_autorizante", "label": "Cédula de Identidade (RG)", "tipo": "text" },
             { "id": "cpf_autorizante", "label": "CPF", "tipo": "text", "mascara": "000.000.000-00" },
             { "id": "nomes_criancas", "label": "Nome(s) da(s) criança(s) sob responsabilidade (se houver)", "tipo": "textarea", "linhas": 3 },
-            { "id": "data_assinatura", "label": "Data de Assinatura", "tipo": "date" }
+            { "id": "data_assinatura", "label": "Data de Assinatura", "tipo": "date" },
+            { "id": "assinatura_autorizante", "label": "Assinatura Digital do Autorizante", "tipo": "assinatura", "nota": "Assine no quadro abaixo para registrar a autorização." }
           ]
         }
       ]
