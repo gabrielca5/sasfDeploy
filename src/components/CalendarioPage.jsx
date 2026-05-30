@@ -83,7 +83,7 @@ function CalendarioPage() {
           </Box>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-            <Chip label="Mockup funcional" sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700 }} />
+            <Chip label="Mockup funcional" sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700 }} />
             <Chip label="Foco em Google Agenda" variant="outlined" />
           </Stack>
         </Stack>
@@ -160,7 +160,7 @@ function CalendarioPage() {
                       p: 1,
                       borderRadius: 1.75,
                       borderColor: isToday ? 'primary.main' : 'divider',
-                      backgroundColor: isToday ? '#e8f2ec' : eventTitle ? '#f7fbf8' : '#ffffff',
+                      backgroundColor: isToday ? '#e8f5ff' : eventTitle ? '#f7fbf8' : '#ffffff',
                       opacity: day ? 1 : 0.5,
                     }}
                   >
@@ -204,7 +204,7 @@ function CalendarioPage() {
                   <Chip
                     size="small"
                     label={event.status}
-                    sx={{ mt: 0.75, backgroundColor: '#edf5f0', color: 'primary.dark' }}
+                    sx={{ mt: 0.75, backgroundColor: '#fffaf0', color: 'primary.dark' }}
                   />
                 </Paper>
               ))}

@@ -38,7 +38,7 @@ const channelData = [
   { name: 'Demanda espontânea', value: 7 },
 ]
 
-const statusColors = ['#2f7a54', '#5b7c6e', '#a9b8b0', '#d6ded9']
+const statusColors = ['#1e88e5', '#5b9bd9', '#a9c6ea', '#d6e9fb']
 
 const stats = [
   { label: 'Famílias acompanhadas', value: '43', help: '+12% no mês' },
@@ -97,7 +97,7 @@ function GraficosPage() {
             </Typography>
           </Box>
 
-          <Chip label="Mock data ativo" sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700 }} />
+          <Chip label="Mock data ativo" sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700 }} />
         </Stack>
       </Paper>
 
@@ -153,7 +153,7 @@ function GraficosPage() {
               </Typography>
             </Box>
 
-            <Chip label="Dados mockados" sx={{ alignSelf: 'flex-start', backgroundColor: '#edf5f0', color: 'primary.dark' }} />
+            <Chip label="Dados mockados" sx={{ alignSelf: 'flex-start', backgroundColor: '#fffaf0', color: 'primary.dark' }} />
           </Stack>
 
           <Box sx={{ height: { xs: 260, sm: 300, md: 320 } }}>
@@ -164,8 +164,8 @@ function GraficosPage() {
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip content={<DashboardTooltip />} />
                 <Legend />
-                <Area type="monotone" dataKey="familias" name="Famílias" stroke="#2f7a54" fill="#2f7a54" fillOpacity={0.18} strokeWidth={2} />
-                <Area type="monotone" dataKey="cadastros" name="Cadastros" stroke="#5b7c6e" fill="#5b7c6e" fillOpacity={0.16} strokeWidth={2} />
+                <Area type="monotone" dataKey="familias" name="Famílias" stroke="#1e88e5" fill="#1e88e5" fillOpacity={0.18} strokeWidth={2} />
+                <Area type="monotone" dataKey="cadastros" name="Cadastros" stroke="#5b9bd9" fill="#5b9bd9" fillOpacity={0.16} strokeWidth={2} />
                 <Area type="monotone" dataKey="atendimentos" name="Atendimentos" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.14} strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
@@ -242,7 +242,7 @@ function GraficosPage() {
               </Typography>
             </Box>
 
-            <Chip label="Preparado para troca de dados reais" sx={{ alignSelf: 'flex-start', backgroundColor: '#edf5f0', color: 'primary.dark' }} />
+            <Chip label="Preparado para troca de dados reais" sx={{ alignSelf: 'flex-start', backgroundColor: '#fffaf0', color: 'primary.dark' }} />
           </Stack>
 
           <Box sx={{ height: { xs: 240, sm: 280, md: 300 } }}>
@@ -252,7 +252,7 @@ function GraficosPage() {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip content={<DashboardTooltip />} />
-                <Bar dataKey="value" name="Cadastros" fill="#2f7a54" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="value" name="Cadastros" fill="#1e88e5" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Box>

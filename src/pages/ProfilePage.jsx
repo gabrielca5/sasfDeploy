@@ -29,7 +29,7 @@ function ProfileField({ label, value, icon }) {
             borderRadius: '50%',
             display: 'grid',
             placeItems: 'center',
-            backgroundColor: '#edf5f0',
+            backgroundColor: '#fffaf0',
             color: 'primary.main',
             flexShrink: 0,
           }}
@@ -66,7 +66,7 @@ function ProfilePage() {
         placeItems: 'center',
         px: 2,
         py: 4,
-        background: 'linear-gradient(135deg, rgba(47, 122, 84, 0.08) 0%, rgba(243, 244, 246, 1) 55%, rgba(255, 255, 255, 1) 100%)',
+        background: 'linear-gradient(135deg, rgba(30, 136, 229, 0.08) 0%, rgba(243, 244, 246, 1) 55%, rgba(255, 255, 255, 1) 100%)',
       }}
     >
       <Paper

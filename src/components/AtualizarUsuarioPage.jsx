@@ -72,7 +72,7 @@ function AtualizarUsuarioPage({ users = [], onBack, onOpenForm }) {
                     key={user.id}
                     elevation={0}
                     variant="outlined"
-                    sx={{ borderRadius: 2.5, borderColor: selected ? 'primary.main' : 'divider', backgroundColor: selected ? '#edf5f0' : '#ffffff' }}
+                    sx={{ borderRadius: 2.5, borderColor: selected ? 'primary.main' : 'divider', backgroundColor: selected ? '#fffaf0' : '#ffffff' }}
                   >
                     <CardActionArea onClick={() => setSelectedUserId(user.id)} sx={{ alignItems: 'stretch' }}>
                       <CardContent sx={{ p: 2 }}>
@@ -92,7 +92,7 @@ function AtualizarUsuarioPage({ users = [], onBack, onOpenForm }) {
                           <Divider />
 
                           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} flexWrap="wrap">
-                            <Chip label={user.status} size="small" sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700 }} />
+                            <Chip label={user.status} size="small" sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700 }} />
                             {user.cpf && <Chip label={user.cpf} size="small" variant="outlined" />}
                             {user.ultimaAtualizacao && <Chip label={`Atualizado em ${user.ultimaAtualizacao}`} size="small" variant="outlined" />}
                           </Stack>
@@ -128,7 +128,7 @@ function AtualizarUsuarioPage({ users = [], onBack, onOpenForm }) {
                 </Box>
 
                 <Stack spacing={1}>
-                  <Chip label={selectedUser.status} sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700, width: 'fit-content' }} />
+                  <Chip label={selectedUser.status} sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700, width: 'fit-content' }} />
                   {selectedUser.documento && <Typography variant="body2" color="text.secondary">Documento: {selectedUser.documento}</Typography>}
                   {selectedUser.cpf && <Typography variant="body2" color="text.secondary">CPF: {selectedUser.cpf}</Typography>}
                   {selectedUser.ultimaAtualizacao && <Typography variant="body2" color="text.secondary">Última atualização: {selectedUser.ultimaAtualizacao}</Typography>}

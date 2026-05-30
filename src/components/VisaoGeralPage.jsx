@@ -38,10 +38,10 @@ function ActionCard({ action, onOpenAction }) {
   const toneStyles = {
     primary: {
       borderColor: 'primary.main',
-      backgroundColor: alpha('#2f7a54', 0.08),
+      backgroundColor: alpha('#1e88e5', 0.08),
     },
     secondary: {
-      borderColor: 'rgba(47, 122, 84, 0.28)',
+      borderColor: 'rgba(30, 136, 229, 0.28)',
       backgroundColor: '#ffffff',
     },
     neutral: {
@@ -78,7 +78,7 @@ function ActionCard({ action, onOpenAction }) {
                   display: 'grid',
                   placeItems: 'center',
                   color: action.tone === 'primary' ? 'primary.main' : 'text.primary',
-                  backgroundColor: action.tone === 'primary' ? alpha('#2f7a54', 0.14) : '#f8faf9',
+                  backgroundColor: action.tone === 'primary' ? alpha('#1e88e5', 0.14) : '#f8faf9',
                   flex: '0 0 auto',
                 }}
               >
@@ -89,7 +89,7 @@ function ActionCard({ action, onOpenAction }) {
                 size="small"
                 sx={{
                   fontWeight: 700,
-                  backgroundColor: action.tone === 'primary' ? alpha('#2f7a54', 0.12) : '#edf5f0',
+                  backgroundColor: action.tone === 'primary' ? alpha('#1e88e5', 0.12) : '#fffaf0',
                   color: action.tone === 'neutral' ? 'text.secondary' : 'primary.dark',
                 }}
               />
@@ -130,7 +130,7 @@ function VisaoGeralPage({ onOpenAction }) {
           borderRadius: 3,
           borderColor: 'divider',
           background:
-            'linear-gradient(135deg, rgba(47, 122, 84, 0.08) 0%, rgba(255, 255, 255, 1) 42%, rgba(237, 245, 240, 0.9) 100%)',
+            'linear-gradient(135deg, rgba(30, 136, 229, 0.08) 0%, rgba(255, 255, 255, 1) 42%, rgba(237, 245, 240, 0.9) 100%)',
         }}
       >
         <Stack spacing={2.5}>
@@ -147,7 +147,7 @@ function VisaoGeralPage({ onOpenAction }) {
           </Box>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25} flexWrap="wrap">
-            <Chip label="Acesso guiado" sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700 }} />
+            <Chip label="Acesso guiado" sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700 }} />
             <Chip label="3 caminhos principais" variant="outlined" />
             <Chip label="Pensado para usuários não técnicos" variant="outlined" />
           </Stack>

@@ -287,7 +287,7 @@ function SignatureField({ field, value, onChange, helperText }) {
 
         <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
           <Typography variant="caption" color="text.secondary">
-            {helperText || 'Assine no quadro acima usando mouse, touch ou caneta.'}
+            {helperText || 'Assine dentro do quadro acima (mouse, touch ou caneta). A assinatura será salva como imagem PNG.'}
           </Typography>
           <Button variant="text" color="error" size="small" onClick={clearSignature}>
             Limpar assinatura
@@ -578,7 +578,7 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, 
             {section.titulo}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Estrutura baseada no JSON. Limite de linhas: {rowLimit}.
+            Seção gerada a partir do arquivo forms.json. Máximo de linhas permitidas: {rowLimit}.
           </Typography>
         </Stack>
 
@@ -632,11 +632,11 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
   const itemField = section.campo
   const rowLimit = section.max_itens ?? 1
 
-  if (!itemField) {
+    if (!itemField) {
     return (
       <Paper elevation={0} variant="outlined" sx={sectionSx}>
         <Typography variant="body2" color="text.secondary">
-          Estrutura não reconhecida para esta seção.
+          Formato de seção não reconhecido. Verifique o JSON do formulário (campo "tipo") ou contate a equipe de desenvolvimento.
         </Typography>
       </Paper>
     )
@@ -840,29 +840,40 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
     lastCepLookupRef.current = lookupId
 
     const addressData = await lookupCep(currentCep)
+    const normalizedAddressData = addressData?.data ?? addressData ?? {}
+    const normalizedCidade = normalizedAddressData.cidade ?? normalizedAddressData.localidade ?? normalizedAddressData.municipio ?? ''
+    const normalizedBairro = normalizedAddressData.bairro ?? ''
+    const normalizedEndereco = normalizedAddressData.endereco ?? normalizedAddressData.logradouro ?? normalizedAddressData.rua ?? ''
+    const normalizedComplemento = normalizedAddressData.complemento ?? ''
 
-    if (!addressData || lastCepLookupRef.current !== lookupId) {
+    if (!normalizedAddressData || lastCepLookupRef.current !== lookupId) {
       return
     }
 
     setDraft((currentDraft) => ({
       ...currentDraft,
+      dados_representante: {
+        ...(currentDraft.dados_representante ?? {}),
+        uf: normalizedAddressData.uf ?? currentDraft.dados_representante?.uf ?? '',
+      },
       endereco: {
         ...(currentDraft.endereco ?? {}),
-        uf: addressData.uf ?? currentDraft.endereco?.uf ?? '',
-        cidade: addressData.cidade ?? currentDraft.endereco?.cidade ?? '',
-        bairro: addressData.bairro ?? currentDraft.endereco?.bairro ?? '',
-        endereco: addressData.endereco ?? currentDraft.endereco?.endereco ?? '',
+        uf: normalizedAddressData.uf ?? currentDraft.endereco?.uf ?? '',
+        cidade: normalizedCidade || currentDraft.endereco?.cidade || '',
+        bairro: normalizedBairro || currentDraft.endereco?.bairro || '',
+        endereco: normalizedEndereco || currentDraft.endereco?.endereco || '',
+        complemento: normalizedComplemento || currentDraft.endereco?.complemento || '',
       },
     }))
 
     // update react-hook-form values for these address fields as well
     try {
       if (rhfSetValue) {
-        rhfSetValue('uf', addressData.uf ?? '')
-        rhfSetValue('cidade', addressData.cidade ?? '')
-        rhfSetValue('bairro', addressData.bairro ?? '')
-        rhfSetValue('endereco', addressData.endereco ?? '')
+        rhfSetValue('uf', normalizedAddressData.uf ?? '')
+        rhfSetValue('cidade', normalizedCidade)
+        rhfSetValue('bairro', normalizedBairro)
+        rhfSetValue('endereco', normalizedEndereco)
+        rhfSetValue('complemento', normalizedComplemento)
       }
     } catch (e) {
       // ignore if rhf not available in this context
@@ -952,7 +963,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
                 {section.titulo}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Bloco principal da ficha, seguindo a ordem do JSON.
+                Campos principais renderizados conforme definidos no JSON do formulário.
               </Typography>
             </Box>
 
@@ -1030,7 +1041,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
         sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 2, borderColor: 'divider', backgroundColor: '#ffffff' }}
       >
         <Typography variant="body2" color="text.secondary">
-          Estrutura não reconhecida para esta seção.
+          Formato de seção não reconhecido. Verifique o JSON do formulário (campo "tipo") ou contate a equipe de desenvolvimento.
         </Typography>
       </Paper>
     )
@@ -1076,7 +1087,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
 
           <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
             {form.folhas && (
-              <Chip label={`Folhas ${form.folhas}`} size="small" sx={{ backgroundColor: 'rgba(47, 122, 84, 0.12)', color: 'primary.dark', fontWeight: 700 }} />
+              <Chip label={`Folhas ${form.folhas}`} size="small" sx={{ backgroundColor: 'rgba(30, 136, 229, 0.12)', color: 'primary.dark', fontWeight: 700 }} />
             )}
           </Stack>
         </Stack>

@@ -53,8 +53,8 @@ function FlowStepper({
                 sx={{
                   p: 1.5,
                   borderRadius: 2.5,
-                  borderColor: isActive ? 'primary.main' : isCompleted ? 'rgba(47, 122, 84, 0.45)' : 'divider',
-                  backgroundColor: isActive ? '#edf5f0' : isCompleted ? '#f4faf6' : '#ffffff',
+                  borderColor: isActive ? 'primary.main' : isCompleted ? 'rgba(30, 136, 229, 0.45)' : 'divider',
+                  backgroundColor: isActive ? '#e8f5ff' : isCompleted ? '#fffaf0' : '#ffffff',
                   textAlign: 'left',
                   cursor: 'pointer',
                   transition: 'border-color 160ms ease, background-color 160ms ease, transform 160ms ease',
@@ -71,7 +71,7 @@ function FlowStepper({
                       label={`Etapa ${index + 1}`}
                       sx={{
                         fontWeight: 700,
-                        backgroundColor: isActive ? 'primary.main' : isCompleted ? '#d9ecdf' : '#eef2f7',
+                        backgroundColor: isActive ? 'primary.main' : isCompleted ? '#fff7d6' : '#eef7ff',
                         color: isActive ? '#ffffff' : 'text.primary',
                       }}
                     />

@@ -3,6 +3,7 @@ import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import DashboardLayout from './components/DashboardLayout'
+import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/dashboard/cadastro/formulario/:formId" element={<DashboardPage />} />
       <Route path="/dashboard/:sectionSlug/:actionSlug" element={<DashboardPage />} />
       <Route path="/dashboard/:sectionSlug" element={<DashboardPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

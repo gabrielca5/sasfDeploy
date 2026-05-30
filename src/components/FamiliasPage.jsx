@@ -156,7 +156,7 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
         borderRadius: 2.5,
         cursor: 'pointer',
         borderColor: selected ? 'primary.main' : 'divider',
-        backgroundColor: selected ? '#edf5f0' : '#ffffff',
+        backgroundColor: selected ? '#fffaf0' : '#ffffff',
         transition: 'border-color 160ms ease, transform 160ms ease, background-color 160ms ease',
         '&:hover': { transform: 'translateY(-1px)', borderColor: 'primary.main' },
       }}
@@ -486,7 +486,7 @@ function FamiliesPage() {
             </Typography>
           </Box>
 
-          <Chip label={`${families.length} famílias mockadas`} sx={{ backgroundColor: '#edf5f0', color: 'primary.dark', fontWeight: 700, maxWidth: '100%' }} />
+          <Chip label={`${families.length} famílias mockadas`} sx={{ backgroundColor: '#fffaf0', color: 'primary.dark', fontWeight: 700, maxWidth: '100%' }} />
         </Stack>
       </Paper>
 
