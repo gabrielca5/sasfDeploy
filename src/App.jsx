@@ -6,6 +6,7 @@ import DashboardLayout from './components/DashboardLayout'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import CalendarioCallbackPage from './pages/CalendarioCallbackPage'
 
 const ADMIN_GESTOR = ['ADMIN', 'GESTOR']
 
@@ -16,6 +17,14 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/cadastro" element={<RegisterPage />} />
+        <Route
+          path="/calendario/callback"
+          element={
+            <ProtectedRoute>
+              <CalendarioCallbackPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/perfil"

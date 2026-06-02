@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import Button from '../components/ui/button'
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded'
 import GoogleIcon from '@mui/icons-material/Google'
@@ -7,10 +8,13 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded'
 import familiesMock from '../data/familiesMock'
 import useFamilias from '../hooks/useFamilias'
+import { get, del } from '../lib/apiClient'
 import {
+  AuthAlert,
   CalendarMonthGrid,
   DetailItem,
   EmptyState,
@@ -59,26 +63,88 @@ const upcomingEvents = [
   },
 ]
 
-function GoogleCalendarPlaceholder() {
+function GoogleCalendarCard() {
+  const queryClient = useQueryClient()
+  const [connectError, setConnectError] = useState(null)
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ['google-calendar-status'],
+    queryFn: () => get('/google-calendar/status'),
+    staleTime: 60_000,
+  })
+
+  const disconnectMutation = useMutation({
+    mutationFn: () => del('/google-calendar/conexao'),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['google-calendar-status'] }),
+  })
+
+  const handleConnect = async () => {
+    setConnectError(null)
+    try {
+      const data = await get('/google-calendar/auth-url')
+      window.location.href = data.authorizationUrl
+    } catch (e) {
+      setConnectError(
+        e.status === 500
+          ? 'Credenciais do Google não configuradas no servidor.'
+          : 'Não foi possível iniciar a conexão.',
+      )
+    }
+  }
+
+  const credenciaisOk =
+    status?.clientIdConfigured && status?.clientSecretConfigured && status?.redirectUriConfigured
+
   return (
     <PageCard
       title="Google Agenda"
-      subtitle="Integração futura"
+      subtitle={status?.applicationName ?? 'Sincronização de atendimentos'}
       icon={<GoogleIcon fontSize="small" />}
-      actions={<StatusChip label="Em desenvolvimento" tone="highlight" icon={<InfoOutlinedIcon />} />}
     >
-      <Typography variant="body2" color="text.secondary">
-        Esta área será conectada ao Google Agenda via OAuth 2.0 para sincronização bidirecional de atendimentos, visitas e compromissos da equipe. Os dados exibidos acima são apenas para fins de demonstração.
-      </Typography>
-      {[
-        'Conectar OAuth 2.0 com conta institucional',
-        'Mapear eventos SASF para calendar.events',
-        'Sincronização bidirecional com fila de conflitos',
-      ].map((item) => (
-        <Typography key={item} variant="caption" color="text.secondary">
-          · {item}
-        </Typography>
-      ))}
+      <Stack spacing={1.5}>
+        {connectError && <AuthAlert severity="error">{connectError}</AuthAlert>}
+
+        {!isLoading && !credenciaisOk && (
+          <AuthAlert severity="warning">
+            Credenciais OAuth não configuradas no servidor. Contate o administrador.
+          </AuthAlert>
+        )}
+
+        {status?.conectado ? (
+          <>
+            <StatusChip label="Conectado" tone="success" icon={<CheckCircleRoundedIcon />} />
+            <DetailItem label="Conectado em" value={status.conectadoEm ?? '—'} />
+            <DetailItem label="Token expira em" value={status.tokenExpiraEm ?? '—'} />
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              startIcon={<LinkOffRoundedIcon />}
+              disabled={disconnectMutation.isPending}
+              onClick={() => disconnectMutation.mutate()}
+            >
+              {disconnectMutation.isPending ? 'Desconectando…' : 'Desconectar'}
+            </Button>
+          </>
+        ) : (
+          <>
+            {!isLoading && credenciaisOk && (
+              <Typography variant="body2" color="text.secondary">
+                Conecte sua conta Google para sincronizar atendimentos e visitas com o Google Agenda.
+              </Typography>
+            )}
+            <Button
+              variant="contained"
+              startIcon={<GoogleIcon />}
+              onClick={handleConnect}
+              disabled={isLoading || !credenciaisOk}
+              sx={{ alignSelf: 'flex-start' }}
+            >
+              Conectar Google Agenda
+            </Button>
+          </>
+        )}
+      </Stack>
     </PageCard>
   )
 }
@@ -199,7 +265,7 @@ function CalendarioPage() {
             <EmptyState message="Nenhuma solicitação pendente." icon={<CalendarMonthRoundedIcon />} />
           </SectionBlock>
 
-          <GoogleCalendarPlaceholder />
+          <GoogleCalendarCard />
         </PageStack>
       </PageGrid>
 
