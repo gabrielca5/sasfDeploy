@@ -1,10 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState } from 'react'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import {
+  AuthAlert,
   AuthCard,
   AuthFooter,
   AuthForm,
@@ -14,6 +15,7 @@ import {
   AuthSubmitButton,
   AuthTextField,
 } from '../pages/ui'
+import { useAuth } from '../contexts/AuthContext'
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -22,13 +24,22 @@ const loginSchema = z.object({
 
 function LoginForm() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(loginSchema) })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     setIsLoading(true)
-    // TODO: POST /api/usuario/login
-    setTimeout(() => { setIsLoading(false); navigate('/dashboard/visao-geral') }, 600)
+    setError(null)
+    try {
+      await login(data.email, data.senha)
+      navigate('/dashboard/visao-geral')
+    } catch (e) {
+      setError(e.status === 401 ? 'Email ou senha incorretos.' : 'Erro ao conectar. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -40,6 +51,7 @@ function LoginForm() {
       />
 
       <AuthForm onSubmit={handleSubmit(onSubmit)}>
+        {error && <AuthAlert severity="error">{error}</AuthAlert>}
         <AuthTextField
           {...register('email')}
           label="Email institucional"
@@ -66,7 +78,6 @@ function LoginForm() {
         Não possui cadastro? <AuthLink to="/cadastro">Criar conta</AuthLink>
       </AuthFooter>
     </AuthCard>
-    
   )
 }
 

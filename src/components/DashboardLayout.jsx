@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import {
   AppBar, Avatar, Box, Chip, Divider, Drawer, IconButton,
   List, ListItemButton, ListItemIcon, ListItemText,
@@ -28,13 +29,23 @@ const sectionIcons = {
   perfil: <AccountCircleOutlinedIcon fontSize="small" />,
 }
 
-const currentUser = {
-  nome: 'Carlos Eduardo Silva',
-  cargo: 'Técnico de referência',
-  initials: 'CE',
+const cargoLabels = {
+  ADMIN: 'Administrador',
+  GESTOR: 'Gestor',
+  TECNICO: 'Técnico',
+  ORIENTADOR: 'Orientador',
 }
 
-function SidebarContent({ sectionSlug, onNavigate, onClose }) {
+function initials(email) {
+  if (!email) return '?'
+  const name = email.split('@')[0]
+  const parts = name.split(/[._-]/)
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase()
+}
+
+function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
   const visibleSections = dashboardSections.filter((s) => !s.hidden)
 
   return (
@@ -138,14 +149,14 @@ function SidebarContent({ sectionSlug, onNavigate, onClose }) {
             backgroundColor: 'primary.main',
             fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
           }}>
-            {currentUser.initials}
+            {initials(user?.email)}
           </Avatar>
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {currentUser.nome}
+              {user?.email ?? ''}
             </Typography>
             <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', lineHeight: 1.3, mt: 0.2 }}>
-              {currentUser.cargo}
+              {cargoLabels[user?.cargo] ?? user?.cargo ?? ''}
             </Typography>
           </Box>
           <Tooltip title="Sair" placement="top">
@@ -165,13 +176,14 @@ function SidebarContent({ sectionSlug, onNavigate, onClose }) {
 
 function DashboardLayout({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleNavigate = (section) => {
     setMobileOpen(false)
-    if (section?.slug === 'sair') { navigate('/login'); return }
+    if (section?.slug === 'sair') { logout(); navigate('/login'); return }
     if (section) navigate(`/dashboard/${section.slug}`)
   }
 
@@ -195,7 +207,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           },
         }}
       >
-        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} />
+        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={user} />
       </Drawer>
 
       {/* Mobile drawer */}
@@ -209,7 +221,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: '#ffffff' },
         }}
       >
-        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} onClose={() => setMobileOpen(false)} />
+        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={user} onClose={() => setMobileOpen(false)} />
       </Drawer>
 
       {/* Main */}
@@ -235,7 +247,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
               {currentSection?.label ?? 'SASF'}
             </Typography>
             <Avatar sx={{ width: 28, height: 28, backgroundColor: 'primary.main', fontSize: '0.7rem', fontWeight: 700 }}>
-              {currentUser.initials}
+              {initials(user?.email)}
             </Avatar>
           </Toolbar>
         </AppBar>

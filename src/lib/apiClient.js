@@ -1,9 +1,15 @@
-// Simple HTTP client wrapper used by services
-const BASE = import.meta.env.NEXT_PUBLIC_API_URL || import.meta.env.VITE_API_URL || ''
+import { getToken } from '../services/auth.service'
+
+const BASE = import.meta.env.VITE_API_URL || ''
+
+function authHeaders() {
+  const token = getToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 async function request(path, opts = {}) {
   const url = path.startsWith('http') ? path : `${BASE.replace(/\/$/, '')}${path.startsWith('/') ? '' : '/'}${path}`
-  const res = await fetch(url, opts)
+  const res = await fetch(url, { ...opts, headers: { ...authHeaders(), ...opts.headers } })
   const text = await res.text()
   let data = null
   try {
