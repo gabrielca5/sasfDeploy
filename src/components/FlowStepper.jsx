@@ -1,6 +1,17 @@
-import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
+import { Box, Chip, Paper, Stack, Typography } from '@mui/material'
+import Button from './ui/button'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
+import {
+  formStepCardSx,
+  formStepChipSx,
+  formStepperGridSx,
+  formStepperNavigationButtonSx,
+  formStepperNavigationCountSx,
+  formStepperNavigationSx,
+  formStepperShellSx,
+  textSx,
+} from '../pages/ui/uiStyles'
 
 function FlowStepper({
   forms = [],
@@ -20,24 +31,18 @@ function FlowStepper({
   const nextForm = hasActiveForm ? forms[activeStepIndex + 1] : undefined
 
   return (
-    <Paper elevation={0} variant="outlined" sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 3, borderColor: 'divider', backgroundColor: '#ffffff' }}>
-      <Stack spacing={2}>
+    <Paper elevation={0} variant="outlined" sx={formStepperShellSx}>
+      <Stack spacing={1.25}>
         <Box>
           <Typography variant="overline" color="primary" letterSpacing={1.8}>
             {title}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.55, ...textSx }}>
             {subtitle}
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
-            gap: 1.25,
-          }}
-        >
+        <Box sx={formStepperGridSx}>
           {forms.map((form, index) => {
             const isActive = index === activeStepIndex
             const isCompleted = index < activeStepIndex
@@ -50,34 +55,18 @@ function FlowStepper({
                 onClick={() => onSelectForm?.(form.id)}
                 elevation={0}
                 variant="outlined"
-                sx={{
-                  p: 1.5,
-                  borderRadius: 2.5,
-                  borderColor: isActive ? 'primary.main' : isCompleted ? 'rgba(30, 136, 229, 0.45)' : 'divider',
-                  backgroundColor: isActive ? '#e8f5ff' : isCompleted ? '#fffaf0' : '#ffffff',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'border-color 160ms ease, background-color 160ms ease, transform 160ms ease',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    transform: 'translateY(-1px)',
-                  },
-                }}
+                sx={formStepCardSx({ isActive, isCompleted })}
               >
-                <Stack spacing={1}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                <Stack spacing={0.75}>
+                  <Stack direction="row" justifyContent="space-between"   spacing={1}>
                     <Chip
                       size="small"
                       label={`Etapa ${index + 1}`}
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: isActive ? 'primary.main' : isCompleted ? '#fff7d6' : '#eef7ff',
-                        color: isActive ? '#ffffff' : 'text.primary',
-                      }}
+                      sx={formStepChipSx({ isActive, isCompleted })}
                     />
                   </Stack>
 
-                  <Typography variant="body2" fontWeight={800} sx={{ lineHeight: 1.35 }}>
+                  <Typography variant="body2" fontWeight={800} sx={{ lineHeight: 1.25, ...textSx }}>
                     {form.titulo}
                   </Typography>
                 </Stack>
@@ -87,18 +76,18 @@ function FlowStepper({
         </Box>
 
         {showNavigation && hasActiveForm && (
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }}>
+          <Box sx={formStepperNavigationSx}>
             <Button
               variant="outlined"
               startIcon={<ArrowBackRoundedIcon />}
               onClick={() => previousForm && onSelectForm?.(previousForm.id)}
               disabled={!previousForm}
-              sx={{ alignSelf: { xs: 'stretch', sm: 'flex-start' } }}
+              sx={formStepperNavigationButtonSx}
             >
               Etapa anterior
             </Button>
 
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: { xs: 'left', sm: 'center' } }}>
+            <Typography variant="body2" color="text.secondary" sx={formStepperNavigationCountSx}>
               {activeStepIndex + 1} de {forms.length}
             </Typography>
 
@@ -107,11 +96,11 @@ function FlowStepper({
               endIcon={<ArrowForwardRoundedIcon />}
               onClick={() => nextForm && onSelectForm?.(nextForm.id)}
               disabled={!nextForm}
-              sx={{ alignSelf: { xs: 'stretch', sm: 'flex-end' } }}
+              sx={formStepperNavigationButtonSx}
             >
               Próxima etapa
             </Button>
-          </Stack>
+          </Box>
         )}
       </Stack>
     </Paper>

@@ -1,30 +1,26 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
+import Button from '../components/ui/button'
 import { useNavigate } from 'react-router-dom'
+import { PageSection, PageToolbar, PageWrapper } from './ui'
 
 function NotFoundPage() {
   const navigate = useNavigate()
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2 }}>
-      <Stack spacing={2} sx={{ maxWidth: 720, textAlign: 'center' }}>
-        <Typography variant="h1" sx={{ fontSize: '4rem', fontWeight: 900 }}>
-          404
-        </Typography>
-
-        <Typography variant="h5" fontWeight={800}>
-          Página não encontrada
-        </Typography>
-
-        <Typography color="text.secondary" sx={{ maxWidth: 720 }}>
-          A página que você tentou acessar não existe ou foi removida. Verifique o endereço ou volte para a área principal.
-        </Typography>
-
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="center">
+    <PageWrapper maxWidth={1200} spacing={3}>
+      <PageSection
+        eyebrow="404"
+        title="Página não encontrada"
+        description="A página que você tentou acessar não existe ou foi removida. Verifique o endereço ou volte para a área principal."
+        direction="column"
+        alignItems="center"
+        contentSx={{ textAlign: 'center' }}
+      >
+        <PageToolbar direction={{ xs: 'column', sm: 'row' }} justifyContent="center" alignItems="center">
           <Button variant="contained" onClick={() => navigate('/dashboard')}>Ir para o painel</Button>
           <Button variant="outlined" onClick={() => navigate('/login')}>Voltar ao login</Button>
-        </Stack>
-      </Stack>
-    </Box>
+        </PageToolbar>
+      </PageSection>
+    </PageWrapper>
   )
 }
 

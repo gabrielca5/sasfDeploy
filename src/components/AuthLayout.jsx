@@ -1,38 +1,12 @@
-import { Box } from '@mui/material'
 import BackgroundIllustration from './BackgroundIllustration'
-import BrandHeader from './BrandHeader'
+import ilustracao from '../assets/ilustracao.png'
+import { AuthShell } from '../pages/ui'
 
-function AuthLayout({ illustrationSrc, logoSrc, subtitle, ariaLabel, children }) {
+function AuthLayout({ children, ariaLabel, illustrationSrc = ilustracao }) {
   return (
-    <Box
-      component="main"
-      sx={{
-        position: 'relative',
-        minHeight: '100vh',
-        overflow: 'hidden',
-        px: { xs: 2, sm: 3 },
-        py: { xs: 3, sm: 4 },
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-      }}
-    >
-      <BackgroundIllustration src={illustrationSrc} />
-
-      <Box
-        component="section"
-        aria-label={ariaLabel}
-        sx={{
-          position: 'relative',
-          zIndex: 1,
-          width: '100%',
-          maxWidth: 360,
-        }}
-      >
-        <BrandHeader logoSrc={logoSrc} subtitle={subtitle} />
-        {children}
-      </Box>
-    </Box>
+    <AuthShell ariaLabel={ariaLabel} illustration={<BackgroundIllustration src={illustrationSrc} />}>
+      {children}
+    </AuthShell>
   )
 }
 

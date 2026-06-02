@@ -1,9 +1,19 @@
 import { useState } from 'react'
-import { Alert, Button, Link as MuiLink, Paper, Stack, TextField, Typography } from '@mui/material'
-import { Link as RouterLink } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
+import {
+  AuthAlert,
+  AuthCard,
+  AuthFooter,
+  AuthForm,
+  AuthFormHeader,
+  AuthLink,
+  AuthPasswordField,
+  AuthSubmitButton,
+  AuthTextField,
+} from '../pages/ui'
 
 const registerSchema = z.object({
   nome: z.string().min(2, 'Informe seu nome'),
@@ -18,71 +28,36 @@ const registerSchema = z.object({
 
 function RegisterForm() {
   const [submitted, setSubmitted] = useState(false)
-
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(registerSchema),
-  })
-
-  const onSubmit = () => {
-    setSubmitted(true)
-  }
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(registerSchema) })
+  const onSubmit = () => setSubmitted(true)
 
   return (
-    <Stack spacing={2}>
-      <Paper
-        elevation={0}
-        variant="outlined"
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          borderColor: 'divider',
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Stack spacing={1.5}>
-          <TextField {...register('nome')} id="nome" name="nome" label="Nome" autoComplete="name" error={!!errors.nome} helperText={errors.nome?.message} />
+    <AuthCard>
+      <AuthFormHeader
+        icon={PersonAddOutlinedIcon}
+        title="Criar conta"
+        subtitle="Preencha os dados para solicitar acesso"
+      />
 
-          <TextField {...register('cpf')} id="cpf" name="cpf" label="Cpf" inputMode="numeric" autoComplete="off" error={!!errors.cpf} helperText={errors.cpf?.message} />
+      <AuthForm id="register-form" onSubmit={handleSubmit(onSubmit)}>
+        <AuthTextField {...register('nome')} label="Nome completo" autoComplete="name" error={!!errors.nome} helperText={errors.nome?.message} autoFocus />
+        <AuthTextField {...register('cpf')} label="CPF" inputMode="numeric" autoComplete="off" error={!!errors.cpf} helperText={errors.cpf?.message} />
+        <AuthTextField {...register('email')} label="Email institucional" type="email" autoComplete="email" error={!!errors.email} helperText={errors.email?.message} />
+        <AuthPasswordField {...register('senha')} label="Senha" autoComplete="new-password" error={!!errors.senha} helperText={errors.senha?.message} />
+        <AuthPasswordField {...register('repetirSenha')} label="Confirmar senha" autoComplete="new-password" error={!!errors.repetirSenha} helperText={errors.repetirSenha?.message} />
 
-          <TextField {...register('email')} id="email" name="email" label="Email" type="email" autoComplete="email" error={!!errors.email} helperText={errors.email?.message} />
-
-          <TextField {...register('senha')} id="senha" name="senha" label="Senha" type="password" autoComplete="current-password" error={!!errors.senha} helperText={errors.senha?.message} />
-
-          <TextField {...register('repetirSenha')} id="repetir-senha" name="repetirSenha" label="Repetir Senha" type="password" autoComplete="new-password" error={!!errors.repetirSenha} helperText={errors.repetirSenha?.message} />
-
-          <Button type="submit" fullWidth sx={{ mt: 0.5 }}>
-            Enviar
-          </Button>
-
-          {submitted && (
-            <Alert severity="success" variant="outlined" sx={{ mt: 0.5 }}>
-              O administrador recebeu sua solicitação e vai analisar.
-            </Alert>
-          )}
-        </Stack>
-      </Paper>
-
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{
-          p: 2,
-          textAlign: 'center',
-          borderRadius: 2,
-          borderColor: 'divider',
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          Ja possui cadastro?{' '}
-          <MuiLink component={RouterLink} to="/login" underline="hover">
-            Fazer login
-          </MuiLink>
-        </Typography>
-      </Paper>
-    </Stack>
+        {submitted ? (
+          <AuthAlert>
+            Solicitação enviada. O administrador irá analisar e liberar seu acesso.
+          </AuthAlert>
+        ) : (
+          <AuthSubmitButton>Enviar solicitação</AuthSubmitButton>
+        )}
+      </AuthForm>
+      <AuthFooter inline>
+        Já possui cadastro? <AuthLink to="/login">Fazer login</AuthLink>
+      </AuthFooter>
+    </AuthCard>
   )
 }
 

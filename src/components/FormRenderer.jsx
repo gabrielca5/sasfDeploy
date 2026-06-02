@@ -3,13 +3,8 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import {
   Alert,
   Box,
-  Button,
   Checkbox,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -18,7 +13,6 @@ import {
   CircularProgress,
   MenuItem,
   InputAdornment,
-  Paper,
   Radio,
   RadioGroup,
   Select,
@@ -27,48 +21,41 @@ import {
   Typography,
 } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import FlowStepper from './FlowStepper'
 import { useCepLookup } from '../hooks/useCepLookup'
-
-const pageSx = {
-  maxWidth: 1120,
-  mx: 'auto',
-  px: { xs: 0, sm: 0.25, md: 0 },
-}
-
-const heroSx = {
-  p: { xs: 1.75, sm: 2, md: 2.25 },
-  borderRadius: 3,
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: '#ffffff',
-}
-
-const sectionSx = {
-  p: { xs: 1.5, sm: 1.75, md: 2 },
-  borderRadius: 3,
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: '#ffffff',
-  boxShadow: 'none',
-}
-
-const nestedFieldSx = {
-  p: 1,
-  borderRadius: 2,
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: '#ffffff',
-}
-
-const footerSx = {
-  p: { xs: 1.5, sm: 1.75, md: 2 },
-  borderRadius: 3,
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: '#ffffff',
-  boxShadow: 'none',
-}
+import {
+  ActionButton,
+  FormActionsBar,
+  FormField,
+  FormGrid,
+  FormHeader,
+  FormSection,
+  FormTextArea,
+  PageDialog,
+  PageStack,
+  PageToolbar,
+  PageWrapper,
+  RepeatableFormItem,
+  SignatureField,
+  YesNoField,
+} from '../pages/ui'
+import {
+  formAddRowButtonSx,
+  formAlertSx,
+  formChipWrapSx,
+  formControlSx,
+  formHelperTextSx,
+  formInputSx,
+  formLabelSx,
+  formMultiSelectSx,
+  formOptionControlSx,
+  formOptionGroupSx,
+} from '../pages/ui/uiStyles'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
@@ -119,197 +106,165 @@ function createFormDraft(form) {
   }, {})
 }
 
-function SignatureField({ field, value, onChange, helperText }) {
-  const canvasRef = useRef(null)
-  const isDrawingRef = useRef(false)
-
-  const paintCanvasBackground = () => {
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
-
-    const context = canvas.getContext('2d')
-    if (!context) {
-      return
-    }
-
-    context.fillStyle = '#ffffff'
-    context.fillRect(0, 0, canvas.width, canvas.height)
-    context.lineCap = 'round'
-    context.lineJoin = 'round'
-    context.strokeStyle = '#111827'
-    context.lineWidth = 2
-  }
-
-  useEffect(() => {
-    paintCanvasBackground()
-  }, [])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
-
-    const context = canvas.getContext('2d')
-    if (!context) {
-      return
-    }
-
-    paintCanvasBackground()
-
-    if (typeof value === 'string' && value.startsWith('data:image')) {
-      const image = new Image()
-      image.onload = () => {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height)
-      }
-      image.src = value
-    }
-  }, [value])
-
-  const getPointerPosition = (event) => {
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return { x: 0, y: 0 }
-    }
-
-    const rect = canvas.getBoundingClientRect()
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
-
-    return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY,
-    }
-  }
-
-  const handlePointerDown = (event) => {
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
-
-    const context = canvas.getContext('2d')
-    if (!context) {
-      return
-    }
-
-    const { x, y } = getPointerPosition(event)
-    isDrawingRef.current = true
-    context.beginPath()
-    context.moveTo(x, y)
-    canvas.setPointerCapture(event.pointerId)
-  }
-
-  const handlePointerMove = (event) => {
-    if (!isDrawingRef.current) {
-      return
-    }
-
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
-
-    const context = canvas.getContext('2d')
-    if (!context) {
-      return
-    }
-
-    const { x, y } = getPointerPosition(event)
-    context.lineTo(x, y)
-    context.stroke()
-  }
-
-  const finishDrawing = () => {
-    if (!isDrawingRef.current) {
-      return
-    }
-
-    isDrawingRef.current = false
-    const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
-
-    onChange(canvas.toDataURL('image/png'))
-  }
-
-  const clearSignature = () => {
-    paintCanvasBackground()
-    onChange('')
-  }
-
-  return (
-    <Paper
-      elevation={0}
-      variant="outlined"
-      sx={{
-        p: 1.5,
-        borderRadius: 2,
-        borderColor: 'rgba(17, 24, 39, 0.08)',
-        backgroundColor: '#ffffff',
-      }}
-    >
-      <Stack spacing={1}>
-        <Typography variant="subtitle2" fontWeight={700}>
-          {field.label}
-        </Typography>
-
-        <Box
-          sx={{
-            border: '1px dashed',
-            borderColor: 'divider',
-            borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: '#ffffff',
-          }}
-        >
-          <Box
-            component="canvas"
-            ref={canvasRef}
-            width={720}
-            height={220}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={finishDrawing}
-            onPointerLeave={finishDrawing}
-            sx={{
-              width: '100%',
-              height: 160,
-              display: 'block',
-              touchAction: 'none',
-              cursor: 'crosshair',
-            }}
-          />
-        </Box>
-
-        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-          <Typography variant="caption" color="text.secondary">
-            {helperText || 'Assine dentro do quadro acima (mouse, touch ou caneta). A assinatura será salva como imagem PNG.'}
-          </Typography>
-          <Button variant="text" color="error" size="small" onClick={clearSignature}>
-            Limpar assinatura
-          </Button>
-        </Stack>
-      </Stack>
-    </Paper>
-  )
+function onlyDigits(value) {
+  return String(value || '').replace(/\D/g, '')
 }
 
-function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextOverride, disabled = false, endAdornment = null, rhfSetValue = null }) {
-  const helperText = helperTextOverride ?? field.nota ?? field.mascara ?? ''
-  const inputSx = {
-    '& .MuiInputBase-root': {
-      backgroundColor: '#ffffff',
-      borderRadius: 2,
-    },
-    '& .MuiFormHelperText-root': {
-      ml: 0,
-      mt: 0.5,
-    },
+function formatCpf(value) {
+  const digits = onlyDigits(value).slice(0, 11)
+  const part1 = digits.slice(0, 3)
+  const part2 = digits.slice(3, 6)
+  const part3 = digits.slice(6, 9)
+  const part4 = digits.slice(9, 11)
+  return [part1, part2, part3].filter(Boolean).join('.') + (part4 ? `-${part4}` : '')
+}
+
+function formatCep(value) {
+  const digits = onlyDigits(value).slice(0, 8)
+  const part1 = digits.slice(0, 5)
+  const part2 = digits.slice(5, 8)
+  return part2 ? `${part1}-${part2}` : part1
+}
+
+function formatPhone(value) {
+  const digits = onlyDigits(value).slice(0, 11)
+  if (digits.length <= 10) {
+    const part1 = digits.slice(0, 2)
+    const part2 = digits.slice(2, 6)
+    const part3 = digits.slice(6, 10)
+    return part3 ? `(${part1}) ${part2}-${part3}` : part2 ? `(${part1}) ${part2}` : part1
   }
+  const part1 = digits.slice(0, 2)
+  const part2 = digits.slice(2, 7)
+  const part3 = digits.slice(7, 11)
+  return `(${part1}) ${part2}-${part3}`
+}
+
+function formatFieldValue(field, value) {
+  if (field?.id?.includes('cpf')) {
+    return formatCpf(value)
+  }
+  if (field?.id === 'cep' || field?.mascara === '00000-000') {
+    return formatCep(value)
+  }
+  if (field?.tipo === 'tel' || field?.id?.includes('telefone')) {
+    return formatPhone(value)
+  }
+  return value
+}
+
+function isYesNoOptions(options = []) {
+  if (options.length !== 2) {
+    return false
+  }
+
+  const normalizedOptions = options.map((option) =>
+    String(option)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''),
+  )
+
+  return normalizedOptions.includes('sim') && normalizedOptions.includes('nao')
+}
+
+function isRequiredFlag(value) {
+  return value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value).toLowerCase() === 'sim'
+}
+
+function isFieldRequired(field) {
+  return isRequiredFlag(field.required ?? field.obrigatorio ?? field.obrigatório ?? field.requerido)
+}
+
+function isEmptyFieldValue(value) {
+  if (Array.isArray(value)) {
+    return value.length === 0
+  }
+
+  return value === undefined || value === null || String(value).trim() === ''
+}
+
+function getFieldErrorKey(sectionId, fieldId) {
+  return `${sectionId}.${fieldId}`
+}
+
+function getRowFieldErrorKey(sectionId, rowIndex, fieldId) {
+  return `${sectionId}.${rowIndex}.${fieldId}`
+}
+
+function getRequiredErrorMessage(field) {
+  return `${field.label} é obrigatório.`
+}
+
+function collectRequiredFieldError(errors, key, field, value) {
+  if (isFieldRequired(field) && isEmptyFieldValue(value)) {
+    errors[key] = getRequiredErrorMessage(field)
+  }
+}
+
+function validateFormDraft(form, draft) {
+  const errors = {}
+
+  form.secoes.forEach((section) => {
+    if (Array.isArray(section.campos)) {
+      section.campos.forEach((field) => {
+        collectRequiredFieldError(errors, getFieldErrorKey(section.id, field.id), field, draft[section.id]?.[field.id])
+      })
+      return
+    }
+
+    if (Array.isArray(section.colunas) || Array.isArray(section.campos_por_item)) {
+      const fields = section.colunas ?? section.campos_por_item ?? []
+      const rows = draft[section.id] ?? []
+      rows.forEach((row, rowIndex) => {
+        fields.forEach((field) => {
+          collectRequiredFieldError(errors, getRowFieldErrorKey(section.id, rowIndex, field.id), field, row?.[field.id])
+        })
+      })
+      return
+    }
+
+    if (section.tipo === 'lista_numerada' && section.campo) {
+      const rows = draft[section.id] ?? []
+      rows.forEach((row, rowIndex) => {
+        collectRequiredFieldError(errors, getRowFieldErrorKey(section.id, rowIndex, section.campo.id), section.campo, row?.[section.campo.id])
+      })
+    }
+  })
+
+  return errors
+}
+
+function getTextareaRows(field) {
+  const maxRows = Math.max(field.linhas ?? 8, 6)
+  const minRows = Math.min(field.linhas ?? 3, 4)
+
+  return { minRows: Math.max(minRows, 3), maxRows }
+}
+
+function getFieldSpan(field, section) {
+  if (field.tipo === 'assinatura') {
+    return 'full'
+  }
+
+  if (section?.id === 'estrategias_intervencao') {
+    return field.id === 'estrategia' || field.id === 'resultados_esperados' ? 'full' : 'auto'
+  }
+
+  if (field.tipo === 'textarea' || field.tipo === 'checkbox' || field.tipo === 'multiselect') {
+    return 'full'
+  }
+
+  return 'auto'
+}
+
+function getRepeatableGridVariant(section) {
+  return section.id === 'estrategias_intervencao' ? 'strategy' : 'compact'
+}
+
+function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextOverride, disabled = false, endAdornment = null, rhfSetValue = null, required = false, error = false, errorMessage = '' }) {
+  const baseHelperText = helperTextOverride ?? field.nota ?? field.mascara ?? ''
+  const helperText = errorMessage || baseHelperText
 
   if (field.tipo === 'static') {
     return (
@@ -320,61 +275,70 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
         size="small"
         InputProps={{ readOnly: true }}
         helperText={helperText}
-        sx={inputSx}
+        required={required}
+        error={error}
+        sx={formInputSx}
       />
     )
   }
 
   if (field.tipo === 'textarea') {
+    const { minRows, maxRows } = getTextareaRows(field)
+
     return (
-      <TextField
+      <FormTextArea
         label={field.label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        multiline
-        rows={field.linhas ?? 4}
-        fullWidth
-        size="small"
+        minRows={minRows}
+        maxRows={maxRows}
         helperText={helperText}
         disabled={disabled}
-        sx={inputSx}
+        required={required}
+        error={error}
       />
     )
   }
 
   if (field.tipo === 'radio') {
+    if (isYesNoOptions(field.opcoes ?? [])) {
+      return (
+        <YesNoField
+          label={field.label}
+          value={value}
+          options={field.opcoes}
+          onChange={onChange}
+          helperText={helperText}
+          required={required}
+          error={error}
+        />
+      )
+    }
+
     return (
-      <FormControl fullWidth sx={{ gap: 0.5 }}>
-        <FormLabel sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.92rem' }}>{field.label}</FormLabel>
-        <RadioGroup row value={value} onChange={(event) => onChange(event.target.value)} sx={{ gap: 0.5, flexWrap: 'wrap' }}>
+      <FormControl fullWidth required={required} error={error} sx={formControlSx}>
+        <FormLabel required={required} sx={formLabelSx}>{field.label}</FormLabel>
+        <RadioGroup row value={value} onChange={(event) => onChange(event.target.value)} sx={formOptionGroupSx}>
           {(field.opcoes ?? []).map((option) => (
             <FormControlLabel
               key={option}
               value={option}
               control={<Radio size="small" />}
               label={option}
-              sx={{
-                mr: 1,
-                px: 1,
-                py: 0.25,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'rgba(17, 24, 39, 0.08)',
-                backgroundColor: '#ffffff',
-              }}
+              sx={formOptionControlSx}
             />
           ))}
         </RadioGroup>
-        <FormHelperText sx={{ mx: 0 }}>{helperText}</FormHelperText>
+        <FormHelperText sx={formHelperTextSx}>{helperText}</FormHelperText>
       </FormControl>
     )
   }
 
   if (field.tipo === 'checkbox') {
     return (
-      <FormControl fullWidth sx={{ gap: 0.5 }}>
-        <FormLabel sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.92rem' }}>{field.label}</FormLabel>
-        <FormGroup sx={{ gap: 0.25 }}>
+      <FormControl fullWidth required={required} error={error} sx={formControlSx}>
+        <FormLabel required={required} sx={formLabelSx}>{field.label}</FormLabel>
+        <FormGroup sx={formOptionGroupSx}>
           {(field.opcoes ?? []).map((option) => {
             const checked = Array.isArray(value) && value.includes(option)
 
@@ -395,20 +359,12 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
                   />
                 }
                 label={option}
-                sx={{
-                  ml: 0,
-                  px: 1,
-                  py: 0.25,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'rgba(17, 24, 39, 0.08)',
-                  backgroundColor: '#ffffff',
-                }}
+                sx={formOptionControlSx}
               />
             )
           })}
         </FormGroup>
-        <FormHelperText sx={{ mx: 0 }}>{helperText}</FormHelperText>
+        <FormHelperText sx={formHelperTextSx}>{helperText}</FormHelperText>
       </FormControl>
     )
   }
@@ -417,21 +373,22 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
     const selectedValues = Array.isArray(value) ? value : []
 
     return (
-      <FormControl fullWidth size="small" sx={{ gap: 0.5 }}>
-        <FormLabel sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.92rem' }}>{field.label}</FormLabel>
+      <FormControl fullWidth size="small" required={required} error={error} sx={formControlSx}>
+        <FormLabel required={required} sx={formLabelSx}>{field.label}</FormLabel>
         <Select
           multiple
           value={selectedValues}
           onChange={(event) => onChange(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value)}
           inputProps={{ 'aria-label': field.label }}
+          error={error}
           renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            <Box sx={formChipWrapSx}>
               {selected.map((item) => (
                 <Chip key={item} label={item} size="small" variant="outlined" />
               ))}
             </Box>
           )}
-          sx={{ backgroundColor: '#ffffff' }}
+          sx={formMultiSelectSx}
         >
           {(field.opcoes ?? []).map((option) => (
             <MenuItem key={option} value={option}>
@@ -440,7 +397,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
             </MenuItem>
           ))}
         </Select>
-        <FormHelperText sx={{ mx: 0 }}>{helperText}</FormHelperText>
+        <FormHelperText sx={formHelperTextSx}>{helperText}</FormHelperText>
       </FormControl>
     )
   }
@@ -456,6 +413,9 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
         size="small"
         helperText={helperText}
         disabled={disabled}
+        required={required}
+        error={error}
+        sx={formInputSx}
       >
         {(field.opcoes ?? []).map((option) => (
           <MenuItem key={option} value={option}>
@@ -468,7 +428,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
 
   if (field.tipo === 'assinatura') {
     return (
-      <SignatureField field={field} value={value} onChange={onChange} helperText={helperText} />
+      <SignatureField field={field} value={value} onChange={onChange} helperText={helperText} required={required} error={error} />
     )
   }
 
@@ -486,7 +446,9 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
         size="small"
         helperText={helperText}
         disabled={disabled}
-        sx={inputSx}
+        required={required}
+        error={error}
+        sx={formInputSx}
       />
     )
   }
@@ -503,7 +465,9 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
         size="small"
         helperText={helperText}
         disabled={disabled}
-        sx={inputSx}
+        required={required}
+        error={error}
+        sx={formInputSx}
       />
     )
   }
@@ -513,7 +477,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
       label={field.label}
       value={value}
       onChange={(event) => {
-        const nextValue = event.target.value
+        const nextValue = formatFieldValue(field, event.target.value)
         onChange(nextValue)
         if (rhfSetValue) rhfSetValue(field.id, nextValue)
       }}
@@ -523,8 +487,10 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
       size="small"
       helperText={helperText}
       disabled={disabled}
+      required={required}
+      error={error}
       InputProps={endAdornment ? { endAdornment } : undefined}
-      sx={inputSx}
+      sx={formInputSx}
       onBlur={() => {
         if (rhfSetValue) rhfSetValue(field.id, value)
       }}
@@ -532,7 +498,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
   )
 }
 
-function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, rhfSetValue = null, control = null }) {
+function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, validationErrors = {}, rhfSetValue = null, control = null }) {
   const columns = section.colunas ?? section.campos_por_item ?? []
   const rowLimit = section.max_linhas ?? section.max_itens ?? 1
 
@@ -567,82 +533,53 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, 
   }
 
   return (
-    <Paper
-      elevation={0}
-      variant="outlined"
-      sx={sectionSx}
+    <FormSection
+      title={section.titulo}
     >
-      <Stack spacing={1.25}>
-        <Stack spacing={0.25}>
-          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 800 }}>
-            {section.titulo}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Seção gerada a partir do arquivo forms.json. Máximo de linhas permitidas: {rowLimit}.
-          </Typography>
-        </Stack>
+      <Stack spacing={1}>
+        {fields.map((fieldObj, rowIndex) => (
+          <RepeatableFormItem
+            key={`${section.id}-${fieldObj.id ?? rowIndex}`}
+            label={`Linha ${rowIndex + 1}`}
+            canRemove={fields.length > 1}
+            onRemove={() => handleRemove(rowIndex)}
+          >
+            <FormGrid variant={getRepeatableGridVariant(section)}>
+              {columns.map((field) => {
+                const errorKey = getRowFieldErrorKey(section.id, rowIndex, field.id)
 
-        <Stack spacing={1}>
-          {fields.map((fieldObj, rowIndex) => (
-            <Paper
-              key={`${section.id}-${fieldObj.id ?? rowIndex}`}
-              elevation={0}
-              variant="outlined"
-              sx={{ p: 1.25, borderRadius: 2, borderColor: 'rgba(17, 24, 39, 0.08)', backgroundColor: '#ffffff' }}
-            >
-              <Stack spacing={1}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Chip label={`Linha ${rowIndex + 1}`} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
-                  {fields.length > 1 && (
-                    <Button variant="text" color="error" onClick={() => handleRemove(rowIndex)}>
-                      Remover
-                    </Button>
-                  )}
-                </Stack>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1 }}>
-                  {columns.map((field) => (
-                    <Box key={field.id}>
-                      <FieldInput
-                        field={field}
-                        rowNumber={rowIndex + 1}
-                        value={fieldObj[field.id] ?? ''}
-                        onChange={(nextValue) => handleChange(rowIndex, field.id, nextValue)}
-                        rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              </Stack>
-            </Paper>
-          ))}
-        </Stack>
+                return (
+                <FormField key={field.id} span={getFieldSpan(field, section)}>
+                  <FieldInput
+                    field={field}
+                    rowNumber={rowIndex + 1}
+                    value={fieldObj[field.id] ?? ''}
+                    onChange={(nextValue) => handleChange(rowIndex, field.id, nextValue)}
+                    required={isFieldRequired(field)}
+                    error={Boolean(validationErrors[errorKey])}
+                    errorMessage={validationErrors[errorKey]}
+                    rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
+                  />
+                </FormField>
+                )
+              })}
+            </FormGrid>
+          </RepeatableFormItem>
+        ))}
 
         {fields.length < rowLimit && (
-          <Button variant="outlined" onClick={handleAdd} sx={{ alignSelf: 'flex-start' }}>
+          <ActionButton variant="outlined" startIcon={<AddRoundedIcon />} onClick={handleAdd} sx={formAddRowButtonSx}>
             Adicionar linha
-          </Button>
+          </ActionButton>
         )}
       </Stack>
-    </Paper>
+    </FormSection>
   )
 }
 
-function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, rhfSetValue = null, control = null }) {
+function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, validationErrors = {}, rhfSetValue = null, control = null }) {
   const itemField = section.campo
   const rowLimit = section.max_itens ?? 1
-
-    if (!itemField) {
-    return (
-      <Paper elevation={0} variant="outlined" sx={sectionSx}>
-        <Typography variant="body2" color="text.secondary">
-          Formato de seção não reconhecido. Verifique o JSON do formulário (campo "tipo") ou contate a equipe de desenvolvimento.
-        </Typography>
-      </Paper>
-    )
-  }
-
-  // useFieldArray for numbered lists
   const { fields, append, remove, update, replace } = useFieldArray({ control, name: section.id })
 
   useEffect(() => {
@@ -652,6 +589,16 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows?.length])
+
+  if (!itemField) {
+    return (
+      <FormSection title={section.titulo}>
+        <Typography variant="body2" color="text.secondary">
+          Formato de seção não reconhecido. Verifique o JSON do formulário (campo "tipo") ou contate a equipe de desenvolvimento.
+        </Typography>
+      </FormSection>
+    )
+  }
 
   const handleAdd = () => {
     append({ [itemField.id]: getInitialFieldValue(itemField) })
@@ -671,91 +618,68 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
   }
 
   return (
-    <Paper elevation={0} variant="outlined" sx={sectionSx}>
-      <Stack spacing={1.25}>
-        <Stack spacing={0.25}>
-          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 800 }}>
-            {section.titulo}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Registre os itens na ordem de prioridade. Limite de linhas: {rowLimit}.
-          </Typography>
-        </Stack>
+    <FormSection title={section.titulo} description={`Registre os itens na ordem de prioridade. Limite de linhas: ${rowLimit}.`}>
+      <Stack spacing={1}>
+        {fields.map((fieldObj, rowIndex) => (
+          <RepeatableFormItem
+            key={`${section.id}-${fieldObj.id ?? rowIndex}`}
+            label={`Item ${rowIndex + 1}`}
+            canRemove={fields.length > 1}
+            onRemove={() => handleRemove(rowIndex)}
+          >
+            {(() => {
+              const errorKey = getRowFieldErrorKey(section.id, rowIndex, itemField.id)
 
-        <Stack spacing={1}>
-          {fields.map((fieldObj, rowIndex) => (
-            <Paper
-              key={`${section.id}-${fieldObj.id ?? rowIndex}`}
-              elevation={0}
-              variant="outlined"
-              sx={{ p: 1.25, borderRadius: 2, borderColor: 'rgba(17, 24, 39, 0.08)', backgroundColor: '#ffffff' }}
-            >
-              <Stack spacing={1}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Chip label={`Item ${rowIndex + 1}`} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
-                  {fields.length > 1 && (
-                    <Button variant="text" color="error" onClick={() => handleRemove(rowIndex)}>
-                      Remover
-                    </Button>
-                  )}
-                </Stack>
-
-                <Paper elevation={0} variant="outlined" sx={nestedFieldSx}>
-                  <FieldInput
-                    field={itemField}
-                    value={fieldObj[itemField.id] ?? ''}
-                    onChange={(nextValue) => handleChange(rowIndex, itemField.id, nextValue)}
-                    rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
-                  />
-                </Paper>
-              </Stack>
-            </Paper>
-          ))}
-        </Stack>
+              return (
+            <FieldInput
+              field={itemField}
+              value={fieldObj[itemField.id] ?? ''}
+              onChange={(nextValue) => handleChange(rowIndex, itemField.id, nextValue)}
+              required={isFieldRequired(itemField)}
+              error={Boolean(validationErrors[errorKey])}
+              errorMessage={validationErrors[errorKey]}
+              rhfSetValue={(fid, v) => rhfSetValue && rhfSetValue(`${section.id}.${rowIndex}.${fid}`, v)}
+            />
+              )
+            })()}
+          </RepeatableFormItem>
+        ))}
 
         {fields.length < rowLimit && (
-          <Button variant="outlined" onClick={handleAdd} sx={{ alignSelf: 'flex-start' }}>
+          <ActionButton variant="outlined" startIcon={<AddRoundedIcon />} onClick={handleAdd} sx={formAddRowButtonSx}>
             Adicionar item
-          </Button>
+          </ActionButton>
         )}
       </Stack>
-    </Paper>
+    </FormSection>
   )
 }
 
-function QuantitySection({ section, values, onChange, rhfSetValue = null }) {
+function QuantitySection({ section, values, onChange, validationErrors = {}, rhfSetValue = null }) {
   const columns = section.colunas ?? []
 
   return (
-    <Paper
-      elevation={0}
-      variant="outlined"
-      sx={sectionSx}
-    >
-      <Stack spacing={1.25}>
-        <Box>
-          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 800 }}>
-            {section.titulo}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Preencha as quantidades para cada indicador do quadro situacional.
-          </Typography>
-        </Box>
+    <FormSection title={section.titulo} description="Preencha as quantidades para cada indicador do quadro situacional.">
+      <FormGrid>
+        {columns.map((field) => {
+          const errorKey = getFieldErrorKey(section.id, field.id)
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1 }}>
-          {columns.map((field) => (
-            <Box key={field.id}>
-              <FieldInput
-                field={field}
-                value={values[field.id] ?? ''}
-                onChange={(nextValue) => onChange(field.id, nextValue)}
-                rhfSetValue={rhfSetValue}
-              />
-            </Box>
-          ))}
-        </Box>
-      </Stack>
-    </Paper>
+          return (
+          <FormField key={field.id} span={getFieldSpan(field, section)}>
+            <FieldInput
+              field={field}
+              value={values[field.id] ?? ''}
+              onChange={(nextValue) => onChange(field.id, nextValue)}
+              required={isFieldRequired(field)}
+              error={Boolean(validationErrors[errorKey])}
+              errorMessage={validationErrors[errorKey]}
+              rhfSetValue={rhfSetValue}
+            />
+          </FormField>
+          )
+        })}
+      </FormGrid>
+    </FormSection>
   )
 }
 
@@ -764,8 +688,9 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
   const [saved, setSaved] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState(null)
+  const [validationErrors, setValidationErrors] = useState({})
   const { lookup: lookupCep, loading: cepLoading, error: cepError } = useCepLookup()
-  const { register: rhfRegister, setValue: rhfSetValue, control } = useForm()
+  const { setValue: rhfSetValue, control } = useForm()
   const lastCepLookupRef = useRef(0)
   const currentFlowIndex = Math.max(0, flowForms.findIndex((flowForm) => flowForm.id === form.id))
   const previousFlowForm = currentFlowIndex > 0 ? flowForms[currentFlowIndex - 1] : undefined
@@ -802,14 +727,28 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
     setPendingAction(null)
   }
 
+  const clearValidationError = (key) => {
+    setValidationErrors((currentErrors) => {
+      if (!currentErrors[key]) {
+        return currentErrors
+      }
+
+      const nextErrors = { ...currentErrors }
+      delete nextErrors[key]
+      return nextErrors
+    })
+  }
+
   const confirmAction = () => {
     if (pendingAction === 'save') {
       setSaved(true)
+      setValidationErrors({})
     }
 
     if (pendingAction === 'clear') {
       setDraft(createFormDraft(form))
       setSaved(false)
+      setValidationErrors({})
     }
 
     if (pendingAction === 'leave') {
@@ -820,6 +759,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
   }
 
   const updateField = (sectionId, fieldId, value) => {
+    clearValidationError(getFieldErrorKey(sectionId, fieldId))
     setDraft((currentDraft) => ({
       ...currentDraft,
       [sectionId]: {
@@ -875,7 +815,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
         rhfSetValue('endereco', normalizedEndereco)
         rhfSetValue('complemento', normalizedComplemento)
       }
-    } catch (e) {
+    } catch {
       // ignore if rhf not available in this context
     }
 
@@ -890,6 +830,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
   }
 
   const updateRowField = (sectionId, rowIndex, fieldId, value) => {
+    clearValidationError(getRowFieldErrorKey(sectionId, rowIndex, fieldId))
     setDraft((currentDraft) => ({
       ...currentDraft,
       [sectionId]: (currentDraft[sectionId] ?? []).map((row, index) =>
@@ -920,6 +861,15 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    const nextValidationErrors = validateFormDraft(form, draft)
+
+    setValidationErrors(nextValidationErrors)
+
+    if (Object.keys(nextValidationErrors).length > 0) {
+      setSaved(false)
+      return
+    }
+
     requestAction('save')
   }
 
@@ -948,44 +898,39 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
     }
   }, [draft.endereco?.cep])
 
+  const validationErrorCount = Object.keys(validationErrors).length
+
   const renderSection = (section) => {
     if (Array.isArray(section.campos)) {
       return (
-        <Paper
+        <FormSection
           key={section.id}
-          elevation={0}
-          variant="outlined"
-          sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 2, borderColor: 'divider', backgroundColor: '#ffffff' }}
+          title={section.titulo}
+          description="Campos principais renderizados conforme definidos no JSON do formulário."
         >
-          <Stack spacing={2}>
-            <Box>
-              <Typography variant="subtitle2" color="primary" gutterBottom>
-                {section.titulo}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Campos principais renderizados conforme definidos no JSON do formulário.
-              </Typography>
-            </Box>
+          <FormGrid>
+            {section.campos.map((field) => {
+              const errorKey = getFieldErrorKey(section.id, field.id)
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-              {section.campos.map((field) => (
-                <Box key={field.id} sx={{ flex: '1 1 260px', minWidth: 260 }}>
-                  <Paper elevation={0} variant="outlined" sx={nestedFieldSx}>
-                    <FieldInput
-                      field={field}
-                      value={draft[section.id]?.[field.id] ?? ''}
-                      onChange={(nextValue) => updateField(section.id, field.id, nextValue)}
-                      helperText={field.id === 'cep' && cepError ? cepError : undefined}
-                      disabled={section.id === 'endereco' && cepLoading && ['uf', 'cidade', 'bairro', 'endereco'].includes(field.id)}
-                      endAdornment={field.id === 'cep' && cepLoading ? <InputAdornment position="end"><CircularProgress size={16} /></InputAdornment> : null}
-                      rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
-                    />
-                  </Paper>
-                </Box>
-              ))}
-            </Box>
-          </Stack>
-        </Paper>
+              return (
+              <FormField key={field.id} span={getFieldSpan(field, section)}>
+                <FieldInput
+                  field={field}
+                  value={draft[section.id]?.[field.id] ?? ''}
+                  onChange={(nextValue) => updateField(section.id, field.id, nextValue)}
+                  helperText={field.id === 'cep' && cepError ? cepError : undefined}
+                  disabled={section.id === 'endereco' && cepLoading && ['uf', 'cidade', 'bairro', 'endereco'].includes(field.id)}
+                  endAdornment={field.id === 'cep' && cepLoading ? <InputAdornment position="end"><CircularProgress size={16} /></InputAdornment> : null}
+                  required={isFieldRequired(field)}
+                  error={Boolean(validationErrors[errorKey])}
+                  errorMessage={validationErrors[errorKey]}
+                  rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+                />
+              </FormField>
+              )
+            })}
+          </FormGrid>
+        </FormSection>
       )
     }
 
@@ -999,6 +944,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
               onAddRow={() => addRow(section.id, section)}
               onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
               onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
+              validationErrors={validationErrors}
               rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
               control={control}
         />
@@ -1012,6 +958,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
           section={section}
           values={draft[section.id] ?? {}}
           onChange={(fieldId, nextValue) => updateField(section.id, fieldId, nextValue)}
+          validationErrors={validationErrors}
           rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
         />
       )
@@ -1027,6 +974,7 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
               onAddRow={() => addRow(section.id, { campos_por_item: [section.campo] })}
               onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
               onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
+              validationErrors={validationErrors}
               rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
               control={control}
         />
@@ -1034,21 +982,16 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
     }
 
     return (
-      <Paper
-        key={section.id}
-        elevation={0}
-        variant="outlined"
-        sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 2, borderColor: 'divider', backgroundColor: '#ffffff' }}
-      >
+      <FormSection key={section.id} title={section.titulo || 'Seção do formulário'}>
         <Typography variant="body2" color="text.secondary">
           Formato de seção não reconhecido. Verifique o JSON do formulário (campo "tipo") ou contate a equipe de desenvolvimento.
         </Typography>
-      </Paper>
+      </FormSection>
     )
   }
 
   return (
-    <Stack spacing={1.75} component="form" onSubmit={handleSubmit} sx={pageSx}>
+    <PageWrapper maxWidth={1200} spacing={3} component="form" onSubmit={handleSubmit} >
       <FlowStepper
         forms={flowForms.length ? flowForms : [form]}
         activeFormId={form.id}
@@ -1058,110 +1001,92 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
         showNavigation
       />
 
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={heroSx}
-      >
-        <Stack spacing={1.25} direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'flex-start' }}>
-          <Box>
-            <Typography variant="overline" color="primary" letterSpacing={1.4}>
-              Formulário
-            </Typography>
-            <Typography variant="h4" fontWeight={800} sx={{ mt: 0.25 }}>
-              {form.titulo}
-            </Typography>
-            <Typography color="text.secondary" sx={{ maxWidth: 820 }}>
-              {form.orgao}
-            </Typography>
-            <Button
-              variant="text"
-              size="small"
-              startIcon={<ArrowBackRoundedIcon />}
-              onClick={() => requestAction('leave')}
-              sx={{ mt: 0.75, px: 0.5, minWidth: 'auto', width: 'fit-content', alignSelf: 'flex-start' }}
-            >
-              Voltar ao catálogo
-            </Button>
-          </Box>
-
-          <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
-            {form.folhas && (
-              <Chip label={`Folhas ${form.folhas}`} size="small" sx={{ backgroundColor: 'rgba(30, 136, 229, 0.12)', color: 'primary.dark', fontWeight: 700 }} />
-            )}
-          </Stack>
-        </Stack>
-      </Paper>
+      <FormHeader
+        title={form.titulo}
+        subtitle={form.orgao}
+        meta={form.folhas ? `Folhas ${form.folhas}` : null}
+        backLabel="Voltar ao catálogo"
+        backIcon={<ArrowBackRoundedIcon />}
+        onBack={() => requestAction('leave')}
+      />
 
       {saved && (
-        <Alert severity="success" variant="outlined" sx={{ borderRadius: 2 }}>
+        <Alert severity="success" variant="outlined" sx={formAlertSx}>
           Formulário preenchido em modo local. Os dados estão na tela, prontos para a próxima etapa.
+        </Alert>
+      )}
+
+      {validationErrorCount > 0 && (
+        <Alert severity="error" variant="outlined" sx={formAlertSx}>
+          Revise os campos obrigatórios destacados antes de salvar.
         </Alert>
       )}
 
       {form.secoes.map((section) => renderSection(section))}
 
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={footerSx}
-      >
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }}>
-          <Button
+      <FormActionsBar
+        leading={
+          <ActionButton
             variant="outlined"
             startIcon={<ArrowBackRoundedIcon />}
             onClick={() => (previousFlowForm && onSelectFlowForm ? onSelectFlowForm(previousFlowForm.id) : requestAction('leave'))}
-            sx={{ alignSelf: { xs: 'stretch', sm: 'flex-start' }, width: { xs: '100%', sm: 'auto' } }}
           >
             {previousFlowForm ? 'Etapa anterior' : 'Sair da página'}
-          </Button>
-
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+          </ActionButton>
+        }
+        actions={
+          <PageToolbar direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent="center">
             {nextFlowForm && onSelectFlowForm && (
-              <Button variant="outlined" onClick={() => onSelectFlowForm(nextFlowForm.id)}>
+              <ActionButton variant="outlined" onClick={() => onSelectFlowForm(nextFlowForm.id)}>
                 Próxima etapa
-              </Button>
+              </ActionButton>
             )}
-            <Button
+            <ActionButton
               variant="outlined"
               color="error"
               startIcon={<DeleteOutlineRoundedIcon />}
               onClick={() => requestAction('clear')}
             >
               Limpar tudo
-            </Button>
-            <Button
+            </ActionButton>
+            <ActionButton
               type="submit"
               variant="contained"
               startIcon={<SaveOutlinedIcon />}
             >
               Salvar
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
+            </ActionButton>
+          </PageToolbar>
+        }
+      />
 
-      <Dialog open={confirmOpen} onClose={closeConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>{pendingAction ? actionConfig[pendingAction].title : 'Você tem certeza?'}</DialogTitle>
-        <DialogContent>
+      <PageDialog
+        open={confirmOpen}
+        onClose={closeConfirm}
+        maxWidth="xs"
+        title={pendingAction ? actionConfig[pendingAction].title : 'Você tem certeza?'}
+        actions={
+          <>
+            <ActionButton variant="text" startIcon={<CloseRoundedIcon />} onClick={closeConfirm}>
+              Cancelar
+            </ActionButton>
+            <ActionButton
+              variant="contained"
+              startIcon={pendingAction ? actionConfig[pendingAction].confirmIcon : <CheckRoundedIcon fontSize="small" />}
+              onClick={confirmAction}
+            >
+              {pendingAction ? actionConfig[pendingAction].confirmLabel : 'Confirmar'}
+            </ActionButton>
+          </>
+        }
+      >
+        <PageStack spacing={1}>
           <Typography variant="body2" color="text.secondary">
             {pendingAction ? actionConfig[pendingAction].description : ''}
           </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button variant="text" startIcon={<CloseRoundedIcon />} onClick={closeConfirm}>
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={pendingAction ? actionConfig[pendingAction].confirmIcon : <CheckRoundedIcon fontSize="small" />}
-            onClick={confirmAction}
-          >
-            {pendingAction ? actionConfig[pendingAction].confirmLabel : 'Confirmar'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Stack>
+        </PageStack>
+      </PageDialog>
+    </PageWrapper>
   )
 }
 

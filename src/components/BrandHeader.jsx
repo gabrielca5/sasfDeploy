@@ -2,26 +2,38 @@ import { Box, Stack, Typography } from '@mui/material'
 
 function BrandHeader({ logoSrc, subtitle }) {
   return (
-    <Stack spacing={1.2} alignItems="center" sx={{ mb: 2.5, textAlign: 'center' }}>
+    <Stack spacing={1.5} alignItems="center" sx={{ mb: 3, textAlign: 'center' }}>
       <Box
-        component="img"
-        src={logoSrc}
-        alt="Logo SASF"
-        sx={{ width: 64, height: 64, objectFit: 'contain' }}
-      />
-      <Typography
-        component="h1"
-        variant="h5"
-        sx={{ fontWeight: 700, letterSpacing: '-0.02em', color: 'text.primary' }}
+        sx={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+        }}
       >
-        SASF Chico Mendes
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 320 }}>
-        Serviço de Assistência Social à Família e Proteção Social Básica no Domicílio
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {subtitle}
-      </Typography>
+        <Box
+          component="img"
+          src={logoSrc}
+          alt="Logo SASF"
+          sx={{ width: 72, height: 72, objectFit: 'contain', display: 'block' }}
+        />
+      </Box>
+
+      <Box>
+        <Typography
+          component="h1"
+          sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em', color: 'text.primary', lineHeight: 1.2 }}
+        >
+          SASF Chico Mendes
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25, lineHeight: 1.5 }}>
+          Serviço de Assistência Social à Família
+        </Typography>
+        {subtitle && (
+          <Typography variant="body2" color="primary.dark" sx={{ fontWeight: 600, mt: 0.5 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
     </Stack>
   )
 }

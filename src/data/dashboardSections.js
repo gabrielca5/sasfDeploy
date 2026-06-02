@@ -6,41 +6,43 @@ export const dashboardSections = [
     description: 'Ações rápidas do painel para operações mais frequentes.',
   },
   {
-    label: 'Gráficos',
-    slug: 'graficos',
-    title: 'Gráficos',
-    description: 'Central analítica com os gráficos de acompanhamento mockados.',
-  },
-  {
     label: 'Famílias',
     slug: 'familias',
     title: 'Famílias',
     description: 'Espaço para evolução dos dados de acompanhamento das famílias.',
   },
   {
-    label: 'Cadastro',
+    label: 'Novo Registro',
     slug: 'cadastro',
     title: 'Cadastro',
-    description: 'Área reservada para novos registros e formulários.',
+    description: 'Fluxo para adicionar fichas e iniciar prontuários.',
   },
   {
-    label: 'Atendimentos',
-    slug: 'atendimentos',
-    title: 'Atendimentos',
-    description: 'Visão operacional para gestão dos atendimentos em aberto.',
-  },
-  {
-    label: 'Calendário',
+    label: 'Minha Agenda',
     slug: 'calendario',
     title: 'Calendário',
     description: 'Agenda integrada para acompanhar prazos e visitas.',
   },
 
   {
-    label: 'Perfil',
+    label: 'Meu Perfil',
     slug: 'perfil',
     title: 'Perfil',
     description: 'Informações do usuário autenticado.',
+  },
+  {
+    label: 'Gráficos',
+    slug: 'graficos',
+    title: 'Gráficos',
+    description: 'Central analítica com os gráficos de acompanhamento mockados.',
+    hidden: true,
+  },
+  {
+    label: 'Atendimentos',
+    slug: 'atendimentos',
+    title: 'Atendimentos',
+    description: 'Visão operacional para gestão dos atendimentos em aberto.',
+    hidden: true,
   },
 
 ]

@@ -1,87 +1,238 @@
-import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
-import { useMemo } from 'react'
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { dashboardSections } from '../data/dashboardSections'
 import { getFormById, forms } from '../data/formsCatalog'
+import familiesMock from '../data/familiesMock'
 import { usersCatalog } from '../data/usersCatalog'
-import AtualizarUsuarioPage from './AtualizarUsuarioPage'
-import CadastrarUsuarioPage from './CadastrarUsuarioPage'
-import CalendarioPage from './CalendarioPage'
-import FamiliasPage from './FamiliasPage'
+import useFamilias from '../hooks/useFamilias'
+import AtualizarUsuarioPage from '../pages/AtualizarUsuarioPage'
+import CadastrarUsuarioPage from '../pages/CadastrarUsuarioPage'
+import CalendarioPage from '../pages/CalendarioPage'
+import FamiliasPage from '../pages/FamiliasPage'
 import FormRenderer from './FormRenderer'
-import GraficosPage from './GraficosPage'
-import TranscricaoAudioPage from './TranscricaoAudioPage'
-import VisaoGeralPage from './VisaoGeralPage'
+import GraficosPage from '../pages/GraficosPage'
+import TranscricaoAudioPage from '../pages/TranscricaoAudioPage'
+import VisaoGeralPage from '../pages/VisaoGeralPage'
 import ProfilePage from '../pages/ProfilePage'
+import {
+  ActionButton,
+  DetailItem,
+  EmptyState,
+  PageCard,
+  PageDialog,
+  PageGrid,
+  PageList,
+  PageListItem,
+  PageSection,
+  PageStack,
+  PageToolbar,
+  PageWrapper,
+  SectionBlock,
+  StatusChip,
+} from '../pages/ui'
 
-const cardTextSx = {
-  minWidth: 0,
-  overflowWrap: 'anywhere',
-  wordBreak: 'break-word',
+function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
+  const [query, setQuery] = useState('')
+  const [selectedFamilyId, setSelectedFamilyId] = useState('')
+  const [selectedFormId, setSelectedFormId] = useState(formsList[0]?.id ?? '')
+  const { data: familiasData = familiesMock } = useFamilias()
+
+  const familiasList = Array.isArray(familiasData) ? familiasData : familiesMock
+  const resetState = () => {
+    setQuery('')
+    setSelectedFamilyId('')
+    setSelectedFormId(formsList[0]?.id ?? '')
+  }
+  const handleClose = () => {
+    resetState()
+    onClose()
+  }
+  const handleContinue = () => {
+    const payload = { mode, familyId: selectedFamilyId, formId: selectedFormId }
+    resetState()
+    onStartForm(payload)
+  }
+
+  const filteredFamilies = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return familiasList
+    }
+
+    return familiasList.filter((family) =>
+      [family.nome_representante, family.cpf, family.endereco, family.bairro]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedQuery),
+    )
+  }, [familiasList, query])
+
+  const selectedFamily = filteredFamilies.find((family) => family.id === selectedFamilyId) ?? null
+  const canContinue = mode === 'novo' ? Boolean(selectedFormId) : Boolean(selectedFamilyId && selectedFormId)
+
+  return (
+    <PageDialog
+      open={open}
+      onClose={handleClose}
+      title={mode === 'novo' ? 'Abrir novo prontuário' : 'Adicionar ficha a um prontuário'}
+      maxWidth="lg"
+      showClose
+      closeLabel="Fechar seleção de prontuário"
+      actions={
+        <>
+          <ActionButton variant="outlined" onClick={handleClose}>
+            Cancelar
+          </ActionButton>
+          <ActionButton
+            variant="contained"
+            onClick={handleContinue}
+            disabled={!canContinue}
+          >
+            Continuar
+          </ActionButton>
+        </>
+      }
+    >
+      <PageStack spacing={2.25}>
+        <Typography variant="body2" color="text.secondary">
+          {mode === 'novo'
+            ? 'Crie um novo prontuário selecionando a ficha inicial. Os dados serão preenchidos a partir do formulário escolhido.'
+            : 'Busque a família, confirme o prontuário e escolha a ficha que deseja adicionar.'}
+        </Typography>
+
+        {mode === 'existente' && (
+          <SectionBlock title="Buscar família" variant="plain">
+            <PageStack spacing={1.25}>
+              <TextField
+                label="Buscar família"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Nome do representante ou CPF"
+              />
+
+              <PageList variant="embedded">
+                {filteredFamilies.map((family) => {
+                  const selected = family.id === selectedFamilyId
+
+                  return (
+                    <PageListItem
+                      key={family.id}
+                      title={family.nome_representante}
+                      subtitle={`${family.endereco}, ${family.numero} • ${family.bairro}`}
+                      selected={selected}
+                      onClick={() => setSelectedFamilyId(family.id)}
+                      variant="compact"
+                      footer={
+                        <PageToolbar justifyContent="flex-start">
+                          <StatusChip label={family.cpf} />
+                          <StatusChip label={`Prioridade ${family.prioridade}`} />
+                        </PageToolbar>
+                      }
+                    />
+                  )
+                })}
+
+                {filteredFamilies.length === 0 && <EmptyState message="Nenhuma família encontrada." />}
+              </PageList>
+            </PageStack>
+          </SectionBlock>
+        )}
+
+        {mode === 'existente' && (
+          <SectionBlock title="Fichas já registradas" variant="plain">
+            <PageToolbar justifyContent="flex-start">
+              {/* TODO: buscar fichas existentes do prontuário via prontuario-controller */}
+              {formsList.slice(0, 3).map((form) => (
+                <StatusChip key={form.id} label={form.titulo} />
+              ))}
+            </PageToolbar>
+          </SectionBlock>
+        )}
+
+        <SectionBlock title="Tipo de ficha" variant="plain">
+          <FormControl fullWidth>
+            <InputLabel>Tipo de ficha</InputLabel>
+            <Select
+              value={selectedFormId}
+              label="Tipo de ficha"
+              onChange={(event) => setSelectedFormId(event.target.value)}
+            >
+              {formsList.map((form) => (
+                <MenuItem key={form.id} value={form.id}>
+                  {form.titulo}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </SectionBlock>
+
+        {mode === 'existente' && selectedFamily && (
+          <SectionBlock title="Prontuário selecionado" variant="compact">
+            <PageGrid variant="detail2">
+              <DetailItem label="Representante" value={selectedFamily.nome_representante} variant="plain" />
+              <DetailItem label="CPF" value={selectedFamily.cpf} variant="plain" />
+            </PageGrid>
+          </SectionBlock>
+        )}
+      </PageStack>
+    </PageDialog>
+  )
 }
 
-function CadastroLandingPage({ onStartUpdate, onStartCreate }) {
+function CadastroLandingPage({ onStartForm, formsList }) {
+  const [dialogMode, setDialogMode] = useState(null)
+
   return (
-    <Stack spacing={2.5} sx={{ maxWidth: 980 }}>
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 3, borderColor: 'divider', backgroundColor: '#ffffff' }}
-      >
-        <Stack spacing={1.25}>
-          <Typography variant="overline" color="primary" letterSpacing={1.8} sx={cardTextSx}>
-            Cadastro
-          </Typography>
-          <Typography variant="h4" fontWeight={800} gutterBottom sx={cardTextSx}>
-            Por onde você quer começar?
-          </Typography>
-          <Typography color="text.secondary" sx={{ maxWidth: 760, ...cardTextSx }}>
-            Aqui o fluxo deixa de ser um catálogo solto. Primeiro você escolhe entre atualizar um usuário existente ou cadastrar um novo usuário, e depois segue pela ordem definida no forms.json.
-          </Typography>
-        </Stack>
-      </Paper>
+    <PageWrapper maxWidth={1200} spacing={2.5}>
+      <PageSection
+        eyebrow="Novo registro"
+        title="Como você deseja iniciar o atendimento?"
+        description="Escolha entre adicionar uma ficha ao prontuário já existente ou abrir um novo prontuário para iniciar o acompanhamento."
+      />
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
-        <Paper elevation={0} variant="outlined" sx={{ p: 2.5, borderRadius: 3, backgroundColor: '#ffffff', borderColor: 'divider' }}>
-          <Stack spacing={1.25} sx={{ height: '100%' }}>
-            <Typography variant="h6" fontWeight={800}>
-              Atualizar usuário
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              Abre a lista de usuários cadastrados para localizar uma pessoa e seguir para a atualização do cadastro.
-            </Typography>
-            <Button variant="contained" onClick={onStartUpdate} sx={{ alignSelf: 'flex-start', mt: 'auto' }}>
-              Atualizar usuário
+      <PageGrid variant="detail2">
+        <PageCard
+          title="Adicionar ficha ao prontuário"
+          subtitle="Busque a família, revise as fichas já existentes e adicione uma nova etapa ao prontuário atual."
+          footer={
+            <Button variant="contained" onClick={() => setDialogMode('existente')}>
+              Iniciar seleção
             </Button>
-          </Stack>
-        </Paper>
+          }
+        />
 
-        <Paper elevation={0} variant="outlined" sx={{ p: 2.5, borderRadius: 3, backgroundColor: '#ffffff', borderColor: 'divider' }}>
-          <Stack spacing={1.25} sx={{ height: '100%' }}>
-            <Typography variant="h6" fontWeight={800}>
-              Cadastrar novo usuário
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              Abre o fluxo na ordem dos formulários definidos no catálogo, com a sequência visual já organizada para a equipe.
-            </Typography>
-            <Button variant="outlined" onClick={onStartCreate} sx={{ alignSelf: 'flex-start', mt: 'auto' }}>
-              Cadastrar novo usuário
+        <PageCard
+          title="Abrir novo prontuário"
+          subtitle="Crie um prontuário do zero e preencha a ficha cadastral da família com os dados iniciais."
+          footer={
+            <Button variant="contained" onClick={() => setDialogMode('novo')}>
+              Abrir prontuário
             </Button>
-          </Stack>
-        </Paper>
-      </Box>
+          }
+        />
+      </PageGrid>
 
-      <Paper elevation={0} variant="outlined" sx={{ p: 2.5, borderRadius: 2.5, borderColor: 'divider', backgroundColor: '#ffffff' }}>
-        <Typography variant="subtitle2" color="primary" gutterBottom>
-          Como usar
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-          1. Atualize um usuário já existente quando precisar alterar uma ficha.
-          2. Cadastre um novo usuário quando for iniciar um registro do zero.
-          3. A sequência de formulários seguirá a ordem já definida no JSON para evitar pular etapas.
-        </Typography>
-      </Paper>
-    </Stack>
+      <NovoRegistroDialog
+        open={Boolean(dialogMode)}
+        mode={dialogMode}
+        onClose={() => setDialogMode(null)}
+        formsList={formsList}
+        onStartForm={(payload) => {
+          setDialogMode(null)
+          onStartForm(payload)
+        }}
+      />
+    </PageWrapper>
   )
 }
 
@@ -151,8 +302,11 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   if (isCadastroSection) {
     return (
       <CadastroLandingPage
-        onStartUpdate={() => navigate('/dashboard/cadastro/atualizar')}
-        onStartCreate={() => navigate('/dashboard/cadastro/novo')}
+        onStartForm={({ formId: nextFormId }) => {
+          // TODO: enviar identificador de família/prontuário para pré-preenchimento.
+          navigate(`/dashboard/cadastro/formulario/${nextFormId}`)
+        }}
+        formsList={cadastroForms}
       />
     )
   }
@@ -190,23 +344,13 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   }
 
   return (
-    <Stack spacing={2.5} sx={{ maxWidth: 960 }}>
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 3, borderColor: 'divider', backgroundColor: '#ffffff' }}
-      >
-        <Typography variant="overline" color="primary" letterSpacing={1.8} sx={cardTextSx}>
-          {currentSection.title}
-        </Typography>
-        <Typography variant="h4" fontWeight={800} gutterBottom sx={cardTextSx}>
-          Área em preparação
-        </Typography>
-        <Typography color="text.secondary" sx={cardTextSx}>
-          Esta seção está reservada e ainda não possui conteúdo específico.
-        </Typography>
-      </Paper>
-    </Stack>
+    <PageWrapper maxWidth={1200}>
+      <PageSection
+        eyebrow={currentSection.title}
+        title="Área em preparação"
+        description="Esta seção está reservada e ainda não possui conteúdo específico."
+      />
+    </PageWrapper>
   )
 }
 
