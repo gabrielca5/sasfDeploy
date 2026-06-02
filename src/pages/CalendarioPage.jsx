@@ -146,9 +146,8 @@ function CalendarioPage() {
   const [selectedDateTime, setSelectedDateTime] = useState('')
   const [scheduleError, setScheduleError] = useState(null)
 
-  const stripMs = (iso) => iso.replace(/\.\d+Z$/, 'Z')
-  const timeMin = useMemo(() => stripMs(startOfMonth(currentDate).toISOString()), [currentDate])
-  const timeMax = useMemo(() => stripMs(endOfMonth(currentDate).toISOString()), [currentDate])
+  const timeMin = useMemo(() => format(startOfMonth(currentDate), "yyyy-MM-dd'T'HH:mm:ss"), [currentDate])
+  const timeMax = useMemo(() => format(endOfMonth(currentDate), "yyyy-MM-dd'T'23:59:59"), [currentDate])
 
   const { data: gcStatus, isLoading: statusLoading } = useQuery({
     queryKey: ['google-calendar-status'],
