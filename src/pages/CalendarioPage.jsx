@@ -191,7 +191,7 @@ function CalendarioPage() {
       setSelectedDateTime('')
     },
     onError: (e) => {
-      setScheduleError(e.data?.mensagem || 'Erro ao criar evento no Google Agenda.')
+      setScheduleError(e.data?.mensagem || e.message || `Erro ${e.status ?? ''} ao criar evento no Google Agenda.`)
     },
   })
 
@@ -223,11 +223,12 @@ function CalendarioPage() {
   const handleAgendar = () => {
     if (!selectedFamilyId || !selectedDateTime) return
     setScheduleError(null)
-    const inicio = `${selectedDateTime}:00`
+    const TZ = '-03:00'
+    const inicio = `${selectedDateTime}:00${TZ}`
     const [datePart, timePart] = selectedDateTime.split('T')
     const [h, m] = timePart.split(':').map(Number)
     const fimH = String(h + 1 > 23 ? 23 : h + 1).padStart(2, '0')
-    const fim = `${datePart}T${fimH}:${String(m).padStart(2, '0')}:00`
+    const fim = `${datePart}T${fimH}:${String(m).padStart(2, '0')}:00${TZ}`
     scheduleMutation.mutate({
       titulo: eventTitle,
       inicio,
