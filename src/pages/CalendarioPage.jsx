@@ -1,82 +1,66 @@
-import { useMemo, useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
+import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
+import {
+  Box, Chip, FormControl, InputLabel, MenuItem,
+  Select, Stack, TextField, Typography,
+} from '@mui/material'
 import Button from '../components/ui/button'
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded'
 import GoogleIcon from '@mui/icons-material/Google'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
-import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
 import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded'
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
+import { get, post, del } from '../lib/apiClient'
+import { useAuth } from '../contexts/AuthContext'
 import familiesMock from '../data/familiesMock'
 import useFamilias from '../hooks/useFamilias'
-import { get, del } from '../lib/apiClient'
 import {
   AuthAlert,
-  CalendarMonthGrid,
   DetailItem,
   EmptyState,
   PageCard,
   PageDialog,
   PageGrid,
-  PageList,
-  PageListItem,
   PageSection,
   PageStack,
-  PageToolbar,
   PageWrapper,
-  SectionBlock,
   StatusChip,
 } from './ui'
 
-const weekHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
-const MONTH_LABEL = 'Maio 2026'
-const TODAY = 31
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { locale: ptBR }),
+  getDay,
+  locales: { 'pt-BR': ptBR },
+})
 
-// TODO: replace with API data when endpoint /agenda/proximos is available
-const upcomingEvents = [
-  {
-    title: 'Atendimento – Família Silva',
-    dateLabel: 'Seg, 02 Jun 2026 · 09:00',
-    owner: 'Carlos Eduardo Silva',
-    status: 'Confirmado',
-    statusColor: '#e8f5e9',
-    statusTextColor: '#2e7d32',
-  },
-  {
-    title: 'Visita domiciliar – Família Souza',
-    dateLabel: 'Ter, 03 Jun 2026 · 14:30',
-    owner: 'Ana Paula Mendes',
-    status: 'Pendente',
-    statusColor: '#fff8e1',
-    statusTextColor: '#f57f17',
-  },
-  {
-    title: 'Reunião de orientadores',
-    dateLabel: 'Qui, 05 Jun 2026 · 10:00',
-    owner: 'Carlos Eduardo Silva',
-    status: 'Confirmado',
-    statusColor: '#e8f5e9',
-    statusTextColor: '#2e7d32',
-  },
-]
+const messages = {
+  allDay: 'Dia inteiro',
+  previous: '‹',
+  next: '›',
+  today: 'Hoje',
+  month: 'Mês',
+  week: 'Semana',
+  day: 'Dia',
+  agenda: 'Agenda',
+  date: 'Data',
+  time: 'Hora',
+  event: 'Evento',
+  noEventsInRange: 'Nenhum evento neste período.',
+  showMore: (n) => `+${n} mais`,
+}
 
-function GoogleCalendarCard() {
-  const queryClient = useQueryClient()
+function GoogleCalendarCard({ status, isLoading, onDisconnect, isDisconnecting }) {
   const [connectError, setConnectError] = useState(null)
-
-  const { data: status, isLoading } = useQuery({
-    queryKey: ['google-calendar-status'],
-    queryFn: () => get('/google-calendar/status'),
-    staleTime: 60_000,
-  })
-
-  const disconnectMutation = useMutation({
-    mutationFn: () => del('/google-calendar/conexao'),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['google-calendar-status'] }),
-  })
+  const credenciaisOk =
+    status?.clientIdConfigured && status?.clientSecretConfigured && status?.redirectUriConfigured
 
   const handleConnect = async () => {
     setConnectError(null)
@@ -92,13 +76,10 @@ function GoogleCalendarCard() {
     }
   }
 
-  const credenciaisOk =
-    status?.clientIdConfigured && status?.clientSecretConfigured && status?.redirectUriConfigured
-
   return (
     <PageCard
       title="Google Agenda"
-      subtitle={status?.applicationName ?? 'Sincronização de atendimentos'}
+      subtitle={status?.applicationName ?? 'Sincronização de eventos'}
       icon={<GoogleIcon fontSize="small" />}
     >
       <Stack spacing={1.5}>
@@ -106,7 +87,7 @@ function GoogleCalendarCard() {
 
         {!isLoading && !credenciaisOk && (
           <AuthAlert severity="warning">
-            Credenciais OAuth não configuradas no servidor. Contate o administrador.
+            Credenciais OAuth não configuradas. Contate o administrador.
           </AuthAlert>
         )}
 
@@ -120,17 +101,17 @@ function GoogleCalendarCard() {
               color="error"
               size="small"
               startIcon={<LinkOffRoundedIcon />}
-              disabled={disconnectMutation.isPending}
-              onClick={() => disconnectMutation.mutate()}
+              disabled={isDisconnecting}
+              onClick={onDisconnect}
             >
-              {disconnectMutation.isPending ? 'Desconectando…' : 'Desconectar'}
+              {isDisconnecting ? 'Desconectando…' : 'Desconectar'}
             </Button>
           </>
         ) : (
           <>
             {!isLoading && credenciaisOk && (
               <Typography variant="body2" color="text.secondary">
-                Conecte sua conta Google para sincronizar atendimentos e visitas com o Google Agenda.
+                Conecte sua conta Google para sincronizar eventos com o calendário.
               </Typography>
             )}
             <Button
@@ -150,125 +131,244 @@ function GoogleCalendarCard() {
 }
 
 function CalendarioPage() {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
   const { data: familiasData = familiesMock } = useFamilias()
   const familiasList = Array.isArray(familiasData) ? familiasData : familiesMock
+
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentView, setCurrentView] = useState(Views.MONTH)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [confirmationOpen, setConfirmationOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
-  const [professionalName, setProfessionalName] = useState('Carlos Eduardo Silva')
+  const [professionalName, setProfessionalName] = useState(user?.email ?? '')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
+  const [scheduleError, setScheduleError] = useState(null)
+
+  const timeMin = useMemo(() => startOfMonth(currentDate).toISOString(), [currentDate])
+  const timeMax = useMemo(() => endOfMonth(currentDate).toISOString(), [currentDate])
+
+  const { data: gcStatus, isLoading: statusLoading } = useQuery({
+    queryKey: ['google-calendar-status'],
+    queryFn: () => get('/google-calendar/status'),
+    staleTime: 60_000,
+  })
+
+  const { data: rawEvents = [] } = useQuery({
+    queryKey: ['google-calendar-eventos', timeMin, timeMax],
+    queryFn: () =>
+      get(`/google-calendar/eventos?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&maxResults=100`),
+    enabled: !!gcStatus?.conectado,
+    staleTime: 2 * 60_000,
+  })
+
+  const calendarEvents = useMemo(() =>
+    rawEvents.map((e) => ({
+      id: e.id,
+      title: e.titulo ?? '(sem título)',
+      start: new Date(e.inicio),
+      end: e.fim ? new Date(e.fim) : new Date(new Date(e.inicio).getTime() + 60 * 60 * 1000),
+      resource: e,
+    })),
+  [rawEvents])
+
+  const disconnectMutation = useMutation({
+    mutationFn: () => del('/google-calendar/conexao'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['google-calendar-status'] })
+      queryClient.removeQueries({ queryKey: ['google-calendar-eventos'] })
+    },
+  })
+
+  const scheduleMutation = useMutation({
+    mutationFn: (payload) => post('/google-calendar/eventos', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['google-calendar-eventos'] })
+      setScheduleOpen(false)
+      setConfirmationOpen(true)
+      setSelectedFamilyId('')
+      setSelectedDate('')
+      setSelectedTime('')
+    },
+    onError: (e) => {
+      setScheduleError(e.data?.mensagem || 'Erro ao criar evento no Google Agenda.')
+    },
+  })
 
   const selectedFamily = useMemo(
-    () => familiasList.find((family) => family.id === selectedFamilyId) ?? null,
+    () => familiasList.find((f) => f.id === selectedFamilyId) ?? null,
     [familiasList, selectedFamilyId],
   )
-  // TODO: implement getOrientadorBadge when orientador data shape is defined
-  const orientadorBadge = null // selectedFamily ? getOrientadorBadge(selectedFamily) : null
+
   const eventTitle = selectedFamily
     ? `ATENDIMENTO - ${professionalName} - ${selectedFamily.nome_representante}`
     : ''
 
-  const calendarCells = useMemo(() => {
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = today.getMonth()
-
-    const firstDayOfMonth = new Date(year, month, 1)
-    const firstWeekday = firstDayOfMonth.getDay()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const daysInPreviousMonth = new Date(year, month, 0).getDate()
-
-    const cells = []
-
-    for (let i = firstWeekday - 1; i >= 0; i -= 1) {
-      cells.push({
-        day: daysInPreviousMonth - i,
-        date: new Date(year, month - 1, daysInPreviousMonth - i),
-        isCurrentMonth: false,
-      })
-    }
-
-    for (let day = 1; day <= daysInMonth; day += 1) {
-      cells.push({ day, date: new Date(year, month, day), isCurrentMonth: true })
-    }
-
-    let nextDay = 1
-    while (cells.length < 42) {
-      cells.push({
-        day: nextDay,
-        date: new Date(year, month + 1, nextDay),
-        isCurrentMonth: false,
-      })
-      nextDay += 1
-    }
-
-    return cells
+  const handleSelectSlot = useCallback(({ start }) => {
+    const d = new Date(start)
+    setSelectedDate(d.toISOString().split('T')[0])
+    setSelectedTime(
+      d.getHours() === 0 ? '09:00' : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+    )
+    setScheduleError(null)
+    setScheduleOpen(true)
   }, [])
 
+  const handleSelectEvent = useCallback((event) => {
+    setSelectedEvent(event.resource)
+  }, [])
+
+  const handleNavigate = useCallback((date) => setCurrentDate(date), [])
+  const handleViewChange = useCallback((view) => setCurrentView(view), [])
+
+  const handleAgendar = () => {
+    if (!selectedFamilyId || !selectedDate || !selectedTime) return
+    setScheduleError(null)
+    const inicio = new Date(`${selectedDate}T${selectedTime}:00`).toISOString()
+    const fimDate = new Date(`${selectedDate}T${selectedTime}:00`)
+    fimDate.setHours(fimDate.getHours() + 1)
+    scheduleMutation.mutate({
+      titulo: eventTitle,
+      inicio,
+      fim: fimDate.toISOString(),
+      fusoHorario: 'America/Sao_Paulo',
+      descricao: `Família: ${selectedFamily?.nome_representante ?? ''}`,
+    })
+  }
+
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1400} spacing={3}>
       <PageSection
         eyebrow="Minha Agenda"
         title="Calendário de atendimentos"
-        description="Acompanhe seus compromissos e visitas do mês. Integração com Google Agenda em desenvolvimento."
-        actions={(
+        description="Eventos sincronizados com o Google Agenda em tempo real."
+        actions={
           <Button
             variant="contained"
             startIcon={<AddRoundedIcon />}
-            onClick={() => setScheduleOpen(true)}
-            size="medium"
+            onClick={() => { setScheduleError(null); setScheduleOpen(true) }}
+            disabled={!gcStatus?.conectado}
           >
             Agendar atendimento
           </Button>
-        )}
+        }
       />
 
       <PageGrid variant="calendar">
-        <PageCard
-          title={MONTH_LABEL}
-          subtitle="Visão mensal de compromissos"
-          actions={<StatusChip label="Visualização" />}
-        >
-          <CalendarMonthGrid weekHeaders={weekHeaders} cells={calendarCells} today={TODAY} />
-        </PageCard>
+        {/* Calendário principal */}
+        <Box sx={{
+          '& .rbc-calendar': { fontFamily: 'inherit', minHeight: 560 },
+          '& .rbc-toolbar': { mb: 1.5, flexWrap: 'wrap', gap: 1 },
+          '& .rbc-toolbar button': {
+            border: '1px solid #e5e7eb', borderRadius: '8px !important',
+            px: 1.5, py: 0.5, fontSize: '0.8125rem', fontWeight: 600,
+            color: '#374151', cursor: 'pointer', background: '#fff',
+            '&:hover': { background: '#f3f4f6' },
+            '&.rbc-active': { background: '#1e88e5 !important', color: '#fff !important', borderColor: '#1e88e5 !important' },
+          },
+          '& .rbc-month-view': { borderRadius: 2, overflow: 'hidden', border: '1px solid #e5e7eb' },
+          '& .rbc-header': { py: 0.75, fontSize: '0.75rem', fontWeight: 700, color: '#6b7280', borderColor: '#e5e7eb' },
+          '& .rbc-day-bg': { borderColor: '#f3f4f6 !important' },
+          '& .rbc-off-range-bg': { background: '#fafafa' },
+          '& .rbc-today': { background: 'rgba(30,136,229,0.06) !important' },
+          '& .rbc-event': {
+            background: '#1e88e5', borderRadius: '6px !important',
+            fontSize: '0.75rem', fontWeight: 600, border: 'none !important',
+            px: '6px !important',
+          },
+          '& .rbc-show-more': { color: '#1e88e5', fontSize: '0.75rem', fontWeight: 600 },
+          '& .rbc-date-cell': { px: 0.75, pt: 0.5, fontSize: '0.8125rem', fontWeight: 600 },
+          '& .rbc-time-view': { borderRadius: 2, border: '1px solid #e5e7eb' },
+          '& .rbc-agenda-view table': { fontSize: '0.875rem' },
+        }}>
+          <Calendar
+            localizer={localizer}
+            events={calendarEvents}
+            date={currentDate}
+            view={currentView}
+            onNavigate={handleNavigate}
+            onView={handleViewChange}
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+            selectable={!!gcStatus?.conectado}
+            culture="pt-BR"
+            messages={messages}
+            style={{ height: 580 }}
+            popup
+          />
+        </Box>
 
+        {/* Painel lateral */}
         <PageStack spacing={1.5}>
-          <SectionBlock title="Próximos compromissos">
-            <PageList>
-              {upcomingEvents?.length ? (
-                upcomingEvents.map((event) => (
-                  <PageListItem
-                    key={event.title}
-                    title={event.title}
-                    subtitle={event.dateLabel}
-                    actions={<EventOutlinedIcon color="primary" fontSize="small" />}
-                    footer={
-                      <PageToolbar justifyContent="flex-start">
-                        <StatusChip label={event.owner} icon={<PersonOutlinedIcon />} />
-                        <StatusChip
-                          label={event.status}
-                          customColor={event.statusColor}
-                          customTextColor={event.statusTextColor}
-                        />
-                      </PageToolbar>
-                    }
-                  />
-                ))
-              ) : (
-                <EmptyState message="Nenhum compromisso próximo." icon={<EventOutlinedIcon />} />
-              )}
-            </PageList>
-          </SectionBlock>
+          {!gcStatus?.conectado && !statusLoading && (
+            <AuthAlert severity="info">
+              Conecte o Google Agenda para visualizar e criar eventos no calendário.
+            </AuthAlert>
+          )}
 
-          <SectionBlock title="Solicitações de agendamento">
-            <EmptyState message="Nenhuma solicitação pendente." icon={<CalendarMonthRoundedIcon />} />
-          </SectionBlock>
-
-          <GoogleCalendarCard />
+          <GoogleCalendarCard
+            status={gcStatus}
+            isLoading={statusLoading}
+            onDisconnect={() => disconnectMutation.mutate()}
+            isDisconnecting={disconnectMutation.isPending}
+          />
         </PageStack>
       </PageGrid>
 
+      {/* Dialog: Detalhe do evento */}
+      {selectedEvent && (
+        <PageDialog
+          open={!!selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          title={selectedEvent.titulo ?? 'Evento'}
+          titleIcon={<EventOutlinedIcon color="primary" />}
+          maxWidth="xs"
+          showClose
+          actions={
+            selectedEvent.htmlLink ? (
+              <Button
+                variant="outlined"
+                endIcon={<OpenInNewRoundedIcon />}
+                onClick={() => window.open(selectedEvent.htmlLink, '_blank')}
+              >
+                Abrir no Google Agenda
+              </Button>
+            ) : null
+          }
+        >
+          <Stack spacing={1.5}>
+            <DetailItem label="Início" value={
+              selectedEvent.inicio
+                ? new Date(selectedEvent.inicio).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                : '—'
+            } />
+            <DetailItem label="Fim" value={
+              selectedEvent.fim
+                ? new Date(selectedEvent.fim).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                : '—'
+            } />
+            {selectedEvent.descricao && (
+              <DetailItem label="Descrição" value={selectedEvent.descricao} />
+            )}
+            {selectedEvent.local && (
+              <DetailItem label="Local" value={selectedEvent.local} />
+            )}
+            {selectedEvent.status && (
+              <Chip
+                label={selectedEvent.status === 'confirmed' ? 'Confirmado' : selectedEvent.status}
+                size="small"
+                color={selectedEvent.status === 'confirmed' ? 'success' : 'default'}
+                variant="outlined"
+                sx={{ alignSelf: 'flex-start' }}
+              />
+            )}
+          </Stack>
+        </PageDialog>
+      )}
+
+      {/* Dialog: Agendar atendimento */}
       <PageDialog
         open={scheduleOpen}
         onClose={() => setScheduleOpen(false)}
@@ -281,25 +381,20 @@ function CalendarioPage() {
             </Button>
             <Button
               variant="contained"
-              disabled={!selectedFamilyId || !selectedDate || !selectedTime}
-              onClick={() => {
-                setScheduleOpen(false)
-                setConfirmationOpen(true)
-              }}
+              disabled={!selectedFamilyId || !selectedDate || !selectedTime || scheduleMutation.isPending}
+              onClick={handleAgendar}
             >
-              Agendar
+              {scheduleMutation.isPending ? 'Agendando…' : 'Agendar'}
             </Button>
           </>
         }
       >
         <PageStack spacing={2}>
+          {scheduleError && <AuthAlert severity="error">{scheduleError}</AuthAlert>}
+
           <FormControl fullWidth>
             <InputLabel>Família</InputLabel>
-            <Select
-              value={selectedFamilyId}
-              label="Família"
-              onChange={(event) => setSelectedFamilyId(event.target.value)}
-            >
+            <Select value={selectedFamilyId} label="Família" onChange={(e) => setSelectedFamilyId(e.target.value)}>
               {familiasList.map((family) => (
                 <MenuItem key={family.id} value={family.id}>
                   {family.nome_representante} · {family.cpf}
@@ -311,7 +406,7 @@ function CalendarioPage() {
           <TextField
             label="Profissional responsável"
             value={professionalName}
-            onChange={(event) => setProfessionalName(event.target.value)}
+            onChange={(e) => setProfessionalName(e.target.value)}
           />
 
           <PageGrid variant="detail2">
@@ -319,65 +414,41 @@ function CalendarioPage() {
               label="Data"
               type="date"
               value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
+              onChange={(e) => setSelectedDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
             <TextField
               label="Horário"
               type="time"
               value={selectedTime}
-              onChange={(event) => setSelectedTime(event.target.value)}
+              onChange={(e) => setSelectedTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
           </PageGrid>
 
           {selectedFamily && (
-            <PageStack>
-              <DetailItem label="Pré-visualização do evento" value={eventTitle || '—'} icon={<CalendarMonthRoundedIcon fontSize="small" />} />
-              {orientadorBadge && (
-                <StatusChip
-                  label={orientadorBadge.label}
-                  customColor={orientadorBadge.backgroundColor}
-                  customTextColor={orientadorBadge.color}
-                  fit
-                />
-              )}
-            </PageStack>
+            <DetailItem
+              label="Pré-visualização do evento"
+              value={eventTitle || '—'}
+              icon={<CalendarMonthRoundedIcon fontSize="small" />}
+            />
           )}
         </PageStack>
       </PageDialog>
 
+      {/* Dialog: Confirmação */}
       <PageDialog
         open={confirmationOpen}
         onClose={() => setConfirmationOpen(false)}
-        title="Atendimento agendado com sucesso"
+        title="Atendimento agendado!"
         titleIcon={<CheckCircleRoundedIcon color="success" />}
         maxWidth="xs"
         actions={
-          <>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                // TODO: POST /api/notificacao/orientador ou orientador-controller
-                setConfirmationOpen(false)
-              }}
-            >
-              Informar orientador
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                // TODO: POST /api/notificacao/representante ou representante-controller
-                setConfirmationOpen(false)
-              }}
-            >
-              Informar representante
-            </Button>
-          </>
+          <Button variant="contained" onClick={() => setConfirmationOpen(false)}>Fechar</Button>
         }
       >
         <Typography variant="body2" color="text.secondary">
-          O atendimento foi registrado. Deseja notificar o orientador ou o representante da família?
+          O evento foi criado no Google Agenda e já aparece no calendário.
         </Typography>
       </PageDialog>
     </PageWrapper>

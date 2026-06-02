@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import PageGrid from './PageGrid'
 
-function CalendarMonthGrid({ weekHeaders = [], cells = [], today }) {
+function CalendarMonthGrid({ weekHeaders = [], cells = [], today, eventDays = new Set() }) {
   return (
     <Box>
       <PageGrid variant="week">
@@ -18,6 +18,7 @@ function CalendarMonthGrid({ weekHeaders = [], cells = [], today }) {
       <PageGrid variant="week" sx={{ mt: 0.75 }}>
         {cells.map((cell, index) => {
           const isToday = cell.isCurrentMonth && cell.day === today
+          const hasEvent = cell.isCurrentMonth && eventDays.has(cell.day)
 
           return (
             <Box
@@ -37,13 +38,21 @@ function CalendarMonthGrid({ weekHeaders = [], cells = [], today }) {
               }}
             >
               {cell.isCurrentMonth ? (
-                <Typography
-                  variant="body2"
-                  fontWeight={isToday ? 800 : 600}
-                  color={isToday ? 'primary.main' : 'text.primary'}
-                >
-                  {cell.day}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', height: '100%' }}>
+                  <Typography
+                    variant="body2"
+                    fontWeight={isToday ? 800 : 600}
+                    color={isToday ? 'primary.main' : 'text.primary'}
+                  >
+                    {cell.day}
+                  </Typography>
+                  {hasEvent && (
+                    <Box sx={{
+                      width: 6, height: 6, borderRadius: '50%',
+                      backgroundColor: 'primary.main', mt: 0.5,
+                    }} />
+                  )}
+                </Box>
               ) : null}
             </Box>
           )
