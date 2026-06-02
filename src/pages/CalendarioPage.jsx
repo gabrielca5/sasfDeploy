@@ -143,8 +143,7 @@ function CalendarioPage() {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
   const [professionalName, setProfessionalName] = useState(user?.email ?? '')
-  const [selectedDate, setSelectedDate] = useState('')
-  const [selectedTime, setSelectedTime] = useState('')
+  const [selectedDateTime, setSelectedDateTime] = useState('')
   const [scheduleError, setScheduleError] = useState(null)
 
   const timeMin = useMemo(() => startOfMonth(currentDate).toISOString(), [currentDate])
@@ -189,8 +188,7 @@ function CalendarioPage() {
       setScheduleOpen(false)
       setConfirmationOpen(true)
       setSelectedFamilyId('')
-      setSelectedDate('')
-      setSelectedTime('')
+      setSelectedDateTime('')
     },
     onError: (e) => {
       setScheduleError(e.data?.mensagem || 'Erro ao criar evento no Google Agenda.')
@@ -208,10 +206,9 @@ function CalendarioPage() {
 
   const handleSelectSlot = useCallback(({ start }) => {
     const d = new Date(start)
-    setSelectedDate(d.toISOString().split('T')[0])
-    setSelectedTime(
-      d.getHours() === 0 ? '09:00' : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
-    )
+    const date = d.toISOString().split('T')[0]
+    const time = d.getHours() === 0 ? '09:00' : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+    setSelectedDateTime(`${date}T${time}`)
     setScheduleError(null)
     setScheduleOpen(true)
   }, [])
@@ -224,15 +221,17 @@ function CalendarioPage() {
   const handleViewChange = useCallback((view) => setCurrentView(view), [])
 
   const handleAgendar = () => {
-    if (!selectedFamilyId || !selectedDate || !selectedTime) return
+    if (!selectedFamilyId || !selectedDateTime) return
     setScheduleError(null)
-    const inicio = new Date(`${selectedDate}T${selectedTime}:00`).toISOString()
-    const fimDate = new Date(`${selectedDate}T${selectedTime}:00`)
-    fimDate.setHours(fimDate.getHours() + 1)
+    const inicio = `${selectedDateTime}:00`
+    const [datePart, timePart] = selectedDateTime.split('T')
+    const [h, m] = timePart.split(':').map(Number)
+    const fimH = String(h + 1 > 23 ? 23 : h + 1).padStart(2, '0')
+    const fim = `${datePart}T${fimH}:${String(m).padStart(2, '0')}:00`
     scheduleMutation.mutate({
       titulo: eventTitle,
       inicio,
-      fim: fimDate.toISOString(),
+      fim,
       fusoHorario: 'America/Sao_Paulo',
       descricao: `Família: ${selectedFamily?.nome_representante ?? ''}`,
     })
@@ -381,7 +380,7 @@ function CalendarioPage() {
             </Button>
             <Button
               variant="contained"
-              disabled={!selectedFamilyId || !selectedDate || !selectedTime || scheduleMutation.isPending}
+              disabled={!selectedFamilyId || !selectedDateTime || scheduleMutation.isPending}
               onClick={handleAgendar}
             >
               {scheduleMutation.isPending ? 'Agendando…' : 'Agendar'}
@@ -409,22 +408,14 @@ function CalendarioPage() {
             onChange={(e) => setProfessionalName(e.target.value)}
           />
 
-          <PageGrid variant="detail2">
-            <TextField
-              label="Data"
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Horário"
-              type="time"
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </PageGrid>
+          <TextField
+            label="Data e horário"
+            type="datetime-local"
+            fullWidth
+            value={selectedDateTime}
+            onChange={(e) => setSelectedDateTime(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
 
           {selectedFamily && (
             <DetailItem
