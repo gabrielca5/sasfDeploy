@@ -220,19 +220,21 @@ function CalendarioPage() {
   const handleNavigate = useCallback((date) => setCurrentDate(date), [])
   const handleViewChange = useCallback((view) => setCurrentView(view), [])
 
+  const toUTCSeconds = (localDateTimeStr) => {
+    // backend's Google SDK requires RFC3339 with seconds: 2026-06-10T17:00:00Z
+    // sending with offset causes backend to strip seconds on conversion
+    return new Date(`${localDateTimeStr}:00`).toISOString().replace(/\.\d+Z$/, 'Z')
+  }
+
   const handleAgendar = () => {
     if (!selectedFamilyId || !selectedDateTime) return
     setScheduleError(null)
-    const TZ = '-03:00'
-    const inicio = `${selectedDateTime}:00${TZ}`
-    const [datePart, timePart] = selectedDateTime.split('T')
-    const [h, m] = timePart.split(':').map(Number)
-    const fimH = String(h + 1 > 23 ? 23 : h + 1).padStart(2, '0')
-    const fim = `${datePart}T${fimH}:${String(m).padStart(2, '0')}:00${TZ}`
+    const inicioDate = new Date(`${selectedDateTime}:00`)
+    const fimDate = new Date(inicioDate.getTime() + 60 * 60 * 1000)
     scheduleMutation.mutate({
       titulo: eventTitle,
-      inicio,
-      fim,
+      inicio: toUTCSeconds(selectedDateTime),
+      fim: fimDate.toISOString().replace(/\.\d+Z$/, 'Z'),
       fusoHorario: 'America/Sao_Paulo',
       descricao: `Família: ${selectedFamily?.nome_representante ?? ''}`,
     })
