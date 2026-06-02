@@ -1,11 +1,11 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Box, Chip, FormControl, InputLabel, MenuItem,
+  Box, Chip, Divider, FormControl, InputLabel, MenuItem,
   Select, Stack, TextField, Typography,
 } from '@mui/material'
 import Button from '../components/ui/button'
@@ -16,6 +16,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
 import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import { get, post, del } from '../lib/apiClient'
 import { useAuth } from '../contexts/AuthContext'
 import familiesMock from '../data/familiesMock'
@@ -55,6 +56,11 @@ const messages = {
   event: 'Evento',
   noEventsInRange: 'Nenhum evento neste período.',
   showMore: (n) => `+${n} mais`,
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '—'
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')
 }
 
 function GoogleCalendarCard({ status, isLoading, onDisconnect, isDisconnecting }) {
@@ -130,6 +136,68 @@ function GoogleCalendarCard({ status, isLoading, onDisconnect, isDisconnecting }
   )
 }
 
+function TarefasCard({ pdus, userName }) {
+  const hoje = new Date()
+  hoje.setHours(0, 0, 0, 0)
+
+  const upcoming = useMemo(() => {
+    const items = []
+    pdus.forEach((p) => {
+      const label = p.numeroPlano ? `PDU Nº${p.numeroPlano}` : 'PDU'
+      if (p.dataReavaliacao) {
+        const d = new Date(p.dataReavaliacao + 'T00:00:00')
+        items.push({ id: `reav-${p.id}`, label, tipo: 'Reavaliação', date: d, pdu: p })
+      } else if (p.dataValidade) {
+        const d = new Date(p.dataValidade + 'T00:00:00')
+        items.push({ id: `val-${p.id}`, label, tipo: 'Validade', date: d, pdu: p })
+      }
+    })
+    return items.sort((a, b) => a.date - b.date).slice(0, 6)
+  }, [pdus])
+
+  return (
+    <PageCard
+      title="Minhas tarefas"
+      subtitle={userName ?? '—'}
+      icon={<AssignmentOutlinedIcon fontSize="small" />}
+    >
+      {upcoming.length === 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          Nenhuma tarefa encontrada para sua conta.
+        </Typography>
+      ) : (
+        <Stack divider={<Divider />} spacing={0}>
+          {upcoming.map((item) => {
+            const vencida = item.date < hoje
+            return (
+              <Stack key={item.id} direction="row" alignItems="center" justifyContent="space-between" py={1}>
+                <Stack spacing={0.25}>
+                  <Typography variant="body2" fontWeight={600} color="text.primary">
+                    {item.label}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {item.tipo}
+                  </Typography>
+                </Stack>
+                <Chip
+                  label={item.date.toLocaleDateString('pt-BR')}
+                  size="small"
+                  sx={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    bgcolor: vencida ? '#fee2e2' : item.tipo === 'Reavaliação' ? '#fef3c7' : '#fce7f3',
+                    color: vencida ? '#dc2626' : item.tipo === 'Reavaliação' ? '#92400e' : '#9d174d',
+                  }}
+                />
+              </Stack>
+            )
+          })}
+        </Stack>
+      )}
+    </PageCard>
+  )
+}
+
 function CalendarioPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -141,13 +209,14 @@ function CalendarioPage() {
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [confirmationOpen, setConfirmationOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [selectedPdu, setSelectedPdu] = useState(null)
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
-  const [professionalName, setProfessionalName] = useState(user?.email ?? '')
+  const [professionalName, setProfessionalName] = useState('')
   const [selectedDateTime, setSelectedDateTime] = useState('')
   const [scheduleError, setScheduleError] = useState(null)
 
-  const timeMin = useMemo(() => format(startOfMonth(currentDate), "yyyy-MM-dd'T'HH:mm:ss"), [currentDate])
-  const timeMax = useMemo(() => format(endOfMonth(currentDate), "yyyy-MM-dd'T'23:59:59"), [currentDate])
+  const timeMin = useMemo(() => format(startOfMonth(currentDate), "yyyy-MM-dd'T'HH:mm:ssxxx"), [currentDate])
+  const timeMax = useMemo(() => format(endOfMonth(currentDate), "yyyy-MM-dd'T'23:59:59xxx"), [currentDate])
 
   const { data: gcStatus, isLoading: statusLoading } = useQuery({
     queryKey: ['google-calendar-status'],
@@ -155,7 +224,7 @@ function CalendarioPage() {
     staleTime: 60_000,
   })
 
-  const { data: rawEvents = [] } = useQuery({
+  const { data: rawEvents = [], isError: eventosError } = useQuery({
     queryKey: ['google-calendar-eventos', timeMin, timeMax],
     queryFn: () =>
       get(`/google-calendar/eventos?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&maxResults=100`),
@@ -163,15 +232,83 @@ function CalendarioPage() {
     staleTime: 2 * 60_000,
   })
 
+  const { data: profile } = useQuery({
+    queryKey: ['usuario', user?.userId],
+    queryFn: () => get(`/usuario/${user.userId}`),
+    enabled: !!user?.userId,
+    staleTime: 5 * 60_000,
+  })
+
+  const { data: rawPdus = [] } = useQuery({
+    queryKey: ['pdu'],
+    queryFn: () => get('/pdu'),
+    staleTime: 5 * 60_000,
+  })
+
+  useEffect(() => {
+    if (profile?.name && !professionalName) {
+      setProfessionalName(profile.name)
+    }
+  }, [profile?.name])
+
+  const myPdus = useMemo(() =>
+    rawPdus.filter(
+      (p) => p.tecnicoReferenciaId === user?.userId || p.tecnicoAcompanhamentoId === user?.userId,
+    ),
+  [rawPdus, user?.userId])
+
   const calendarEvents = useMemo(() =>
     rawEvents.map((e) => ({
       id: e.id,
       title: e.titulo ?? '(sem título)',
       start: new Date(e.inicio),
       end: e.fim ? new Date(e.fim) : new Date(new Date(e.inicio).getTime() + 60 * 60 * 1000),
-      resource: e,
+      resource: { type: 'google', data: e },
     })),
   [rawEvents])
+
+  const pduEvents = useMemo(() => {
+    const events = []
+    myPdus.forEach((p) => {
+      const label = p.numeroPlano ? `PDU Nº${p.numeroPlano}` : 'PDU'
+      if (p.dataReavaliacao) {
+        const d = new Date(p.dataReavaliacao + 'T00:00:00')
+        events.push({
+          id: `pdu-reav-${p.id}`,
+          title: `Reavaliação — ${label}`,
+          start: d,
+          end: d,
+          allDay: true,
+          resource: { type: 'pdu-reavaliacao', data: p },
+        })
+      }
+      if (p.dataValidade) {
+        const d = new Date(p.dataValidade + 'T00:00:00')
+        events.push({
+          id: `pdu-val-${p.id}`,
+          title: `Validade — ${label}`,
+          start: d,
+          end: d,
+          allDay: true,
+          resource: { type: 'pdu-validade', data: p },
+        })
+      }
+    })
+    return events
+  }, [myPdus])
+
+  const allEvents = useMemo(() => [...calendarEvents, ...pduEvents], [calendarEvents, pduEvents])
+
+  const eventPropGetter = useCallback((event) => {
+    const type = event.resource?.type
+    if (type === 'pdu-reavaliacao') {
+      return { style: { backgroundColor: '#d97706', border: 'none', borderRadius: 6 } }
+    }
+    if (type === 'pdu-validade') {
+      return { style: { backgroundColor: '#db2777', border: 'none', borderRadius: 6 } }
+    }
+    return {}
+  }, [])
 
   const disconnectMutation = useMutation({
     mutationFn: () => del('/google-calendar/conexao'),
@@ -214,17 +351,19 @@ function CalendarioPage() {
   }, [])
 
   const handleSelectEvent = useCallback((event) => {
-    setSelectedEvent(event.resource)
+    const type = event.resource?.type
+    if (type === 'pdu-reavaliacao' || type === 'pdu-validade') {
+      setSelectedPdu({ ...event.resource.data, _tipo: type })
+    } else {
+      setSelectedEvent(event.resource.data)
+    }
   }, [])
 
   const handleNavigate = useCallback((date) => setCurrentDate(date), [])
   const handleViewChange = useCallback((view) => setCurrentView(view), [])
 
-  const toUTCSeconds = (localDateTimeStr) => {
-    // backend's Google SDK requires RFC3339 with seconds: 2026-06-10T17:00:00Z
-    // sending with offset causes backend to strip seconds on conversion
-    return new Date(`${localDateTimeStr}:00`).toISOString().replace(/\.\d+Z$/, 'Z')
-  }
+  const toUTCSeconds = (localDateTimeStr) =>
+    new Date(`${localDateTimeStr}:00`).toISOString().replace(/\.\d+Z$/, 'Z')
 
   const handleAgendar = () => {
     if (!selectedFamilyId || !selectedDateTime) return
@@ -240,12 +379,14 @@ function CalendarioPage() {
     })
   }
 
+  const userName = profile?.name ?? user?.email ?? '—'
+
   return (
     <PageWrapper maxWidth={1400} spacing={3}>
       <PageSection
         eyebrow="Minha Agenda"
         title="Calendário de atendimentos"
-        description="Eventos sincronizados com o Google Agenda em tempo real."
+        description="Eventos do Google Agenda e tarefas do plano de desenvolvimento."
         actions={
           <Button
             variant="contained"
@@ -257,6 +398,22 @@ function CalendarioPage() {
           </Button>
         }
       />
+
+      {/* Legenda de cores */}
+      <Stack direction="row" spacing={1.5} flexWrap="wrap">
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#1e88e5' }} />
+          <Typography variant="caption" color="text.secondary">Google Agenda</Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#d97706' }} />
+          <Typography variant="caption" color="text.secondary">Reavaliação PDU</Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#db2777' }} />
+          <Typography variant="caption" color="text.secondary">Validade PDU</Typography>
+        </Stack>
+      </Stack>
 
       <PageGrid variant="calendar">
         {/* Calendário principal */}
@@ -287,7 +444,8 @@ function CalendarioPage() {
         }}>
           <Calendar
             localizer={localizer}
-            events={calendarEvents}
+            events={allEvents}
+            eventPropGetter={eventPropGetter}
             date={currentDate}
             view={currentView}
             onNavigate={handleNavigate}
@@ -310,6 +468,14 @@ function CalendarioPage() {
             </AuthAlert>
           )}
 
+          {eventosError && gcStatus?.conectado && (
+            <AuthAlert severity="error">
+              Não foi possível carregar os eventos do Google Agenda.
+            </AuthAlert>
+          )}
+
+          <TarefasCard pdus={myPdus} userName={userName} />
+
           <GoogleCalendarCard
             status={gcStatus}
             isLoading={statusLoading}
@@ -319,7 +485,7 @@ function CalendarioPage() {
         </PageStack>
       </PageGrid>
 
-      {/* Dialog: Detalhe do evento */}
+      {/* Dialog: Detalhe evento Google */}
       {selectedEvent && (
         <PageDialog
           open={!!selectedEvent}
@@ -365,6 +531,41 @@ function CalendarioPage() {
                 variant="outlined"
                 sx={{ alignSelf: 'flex-start' }}
               />
+            )}
+          </Stack>
+        </PageDialog>
+      )}
+
+      {/* Dialog: Detalhe PDU */}
+      {selectedPdu && (
+        <PageDialog
+          open={!!selectedPdu}
+          onClose={() => setSelectedPdu(null)}
+          title={selectedPdu.numeroPlano ? `PDU Nº${selectedPdu.numeroPlano}` : 'Plano de Desenvolvimento'}
+          titleIcon={<AssignmentOutlinedIcon color={selectedPdu._tipo === 'pdu-reavaliacao' ? 'warning' : 'error'} />}
+          maxWidth="xs"
+          showClose
+        >
+          <Stack spacing={1.5}>
+            <StatusChip
+              label={selectedPdu._tipo === 'pdu-reavaliacao' ? 'Reavaliação' : 'Validade'}
+              tone={selectedPdu._tipo === 'pdu-reavaliacao' ? 'highlight' : 'error'}
+            />
+            <DetailItem label="Técnico responsável" value={userName} />
+            {selectedPdu.dataElaboracao && (
+              <DetailItem label="Elaboração" value={fmtDate(selectedPdu.dataElaboracao)} />
+            )}
+            {selectedPdu.dataReavaliacao && (
+              <DetailItem label="Reavaliação" value={fmtDate(selectedPdu.dataReavaliacao)} />
+            )}
+            {selectedPdu.dataValidade && (
+              <DetailItem label="Validade" value={fmtDate(selectedPdu.dataValidade)} />
+            )}
+            {selectedPdu.sinteseSituacaoApresentada && (
+              <DetailItem label="Síntese" value={selectedPdu.sinteseSituacaoApresentada} />
+            )}
+            {selectedPdu.observacoes && (
+              <DetailItem label="Observações" value={selectedPdu.observacoes} />
             )}
           </Stack>
         </PageDialog>
