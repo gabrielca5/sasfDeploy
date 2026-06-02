@@ -446,7 +446,7 @@ function FamiliesPage() {
   return (
     <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
-        eyebrow="Famílias"
+        eyebrow="Consultar Famílias"
         title="Acompanhamento de famílias"
         description="Acompanhe as famílias registradas, aplique filtros e acesse os detalhes de cada prontuário."
         actions={<StatusChip label={`${familiasList.length} famílias`} tone="highlight" />}

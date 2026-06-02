@@ -47,7 +47,7 @@ function VisaoGeralPage({ onOpenAction }) {
     <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Visão geral"
-        title="Qual serviço você quer fazer agora?"
+        title="Eu quero..."
         description="Esta tela foi organizada para reduzir dúvidas: escolha pela tarefa, não pelo nome do sistema. As opções abaixo seguem a mesma estrutura visual para facilitar a leitura e evitar erros."
         actions={
           <PageToolbar direction={{ xs: 'column', sm: 'row' }}>
