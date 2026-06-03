@@ -19,7 +19,6 @@ import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import { get, post, del } from '../lib/apiClient'
 import { useAuth } from '../contexts/AuthContext'
-import familiesMock from '../data/familiesMock'
 import useFamilias from '../hooks/useFamilias'
 import {
   AuthAlert,
@@ -201,8 +200,8 @@ function TarefasCard({ pdus, userName }) {
 function CalendarioPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const { data: familiasData = familiesMock } = useFamilias()
-  const familiasList = Array.isArray(familiasData) ? familiasData : familiesMock
+  const { data: familiasData = [] } = useFamilias()
+  const familiasList = Array.isArray(familiasData) ? familiasData : []
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState(Views.MONTH)

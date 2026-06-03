@@ -1,52 +1,100 @@
 import apiClient from '../lib/apiClient'
-import familiesMock from '../data/familiesMock'
+
+const PRIORIDADE_LABEL = { BAIXA: 'Baixa', MEDIA: 'Média', ALTA: 'Alta' }
+
+function normalizeFamilia(f, membros = []) {
+  // Mock data already has nome_representante — pass through unchanged
+  if (f.nome_representante) return f
+
+  // Find the representative member for this family
+  const membrosFamily = membros.filter((m) => m.familiaId === f.id)
+  const representante = membrosFamily.find((m) =>
+    m.parentescoOuVinculo?.toLowerCase().includes('representante'),
+  ) ?? membrosFamily[0]
+
+  const nomeRepresentante = representante?.nome ?? `Família ${f.id?.slice(0, 8) ?? f.id}`
+
+  return {
+    id: f.id,
+    nome_representante: nomeRepresentante,
+    cpf: representante?.cpf ?? '—',
+    endereco: '—',
+    numero: '—',
+    complemento: '',
+    bairro: '—',
+    distrito: '—',
+    cras: '—',
+    cas: '—',
+    prioridade: PRIORIDADE_LABEL[f.prioridade] ?? f.prioridade ?? '—',
+    ativo: f.ativo ?? true,
+    status: f.ativo === false ? 'Inativo' : 'Ativo',
+    ultima_visita: f.ultimaVisita ?? null,
+    proxima_visita: f.proximaVisita ?? null,
+    ultima_atualizacao: f.ultimaVisita ?? null,
+    orientadorId: f.orientadorId ?? null,
+    representanteId: f.representanteId ?? null,
+    prontuarioId: f.prontuarioId ?? null,
+    tags: [],
+    composicao_familiar: membrosFamily.map((m) => ({
+      nome: m.nome ?? '—',
+      parentesco: m.parentescoOuVinculo ?? '—',
+      idade: m.dataNascimento
+        ? Math.floor((Date.now() - new Date(m.dataNascimento + 'T00:00:00')) / 3.15576e10)
+        : '—',
+      renda: m.renda != null ? String(m.renda) : '—',
+      fator: m.fatoresRiscoSocial?.join(', ') || '—',
+    })),
+    situacao_habitacional: [],
+    programa_transferencia_renda: [],
+    beneficio_prestacao_continuada: [],
+    // Detail fields not available from this endpoint
+    sexo: '—', data_matricula: '—', numero_matricula: '—',
+    data_nascimento: representante?.dataNascimento ?? '—',
+    naturalidade: '—', cor_raca: '—', pessoa_deficiencia: '—',
+    rg: '—', orgao_emissor: '—', uf: '—',
+    ctps_numero: '—', ctps_serie: '—', ctps_emissao: '—',
+    mae: '—', pai: '—', estado_civil: '—',
+    grau_instrucao: '—', profissao: representante?.profissao ?? '—',
+    ocupacao_descricao: '—', ocupacao_situacao: '—',
+    renda: representante?.renda != null ? String(representante.renda) : '—',
+    cep: '—', telefone_residencial: '—',
+    telefone_celular: '—', telefone_outro: '—', ponto_referencia: '—',
+    condicao_moradia: '—', numero_comodos: '—',
+    valor_aluguel_financiamento: '—', tipo_construcao: '—',
+    escola: '—', saude: '—', vulnerabilidade: '—', nis_nit_nb: '—',
+    nome_servico_sasf: '—', data_desligamento: '',
+  }
+}
 
 export async function listFamilias(params = {}) {
-  try {
-    const query = new URLSearchParams(params).toString()
-    const path = `/familias${query ? `?${query}` : ''}`
-    const res = await apiClient.get(path)
-    return res
-  } catch (e) {
-    // fallback to local mock when API not available
-    return familiesMock
-  }
+  const query = new URLSearchParams(params).toString()
+  const [familias, membros] = await Promise.all([
+    apiClient.get(`/familia${query ? `?${query}` : ''}`),
+    apiClient.get('/membro').catch(() => []),
+  ])
+  const famArray = Array.isArray(familias) ? familias : []
+  const memArray = Array.isArray(membros) ? membros : []
+  return famArray.map((f) => normalizeFamilia(f, memArray))
 }
 
 export async function getFamilia(id) {
-  try {
-    return await apiClient.get(`/familias/${id}`)
-  } catch (e) {
-    return familiesMock.find((f) => f.id === id) || null
-  }
+  const [familia, membros] = await Promise.all([
+    apiClient.get(`/familia/${id}`),
+    apiClient.get('/membro').catch(() => []),
+  ])
+  return normalizeFamilia(familia, membros)
 }
 
 export async function createFamilia(payload) {
-  if (apiClient.post) return apiClient.post('/familias', payload)
-  // local fallback: append with generated id
-  const newItem = { id: `local-${Date.now()}`, ...payload }
-  familiesMock.unshift(newItem)
-  return newItem
+  return apiClient.post('/familia', payload)
 }
 
 export async function updateFamilia(id, payload) {
-  if (apiClient.put) return apiClient.put(`/familias/${id}`, payload)
-  const idx = familiesMock.findIndex((f) => f.id === id)
-  if (idx > -1) {
-    familiesMock[idx] = { ...familiesMock[idx], ...payload }
-    return familiesMock[idx]
-  }
-  throw new Error('Not found')
+  return apiClient.put(`/familia/${id}`, payload)
 }
 
 export async function deleteFamilia(id) {
-  if (apiClient.delete) return apiClient.delete(`/familias/${id}`)
-  const idx = familiesMock.findIndex((f) => f.id === id)
-  if (idx > -1) {
-    familiesMock.splice(idx, 1)
-    return { ok: true }
-  }
-  throw new Error('Not found')
+  return apiClient.delete(`/familia/${id}`)
 }
 
 export default { listFamilias, getFamilia, createFamilia, updateFamilia, deleteFamilia }

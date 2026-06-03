@@ -11,7 +11,6 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { dashboardSections } from '../data/dashboardSections'
 import { getFormById, forms } from '../data/formsCatalog'
-import familiesMock from '../data/familiesMock'
 import { usersCatalog } from '../data/usersCatalog'
 import useFamilias from '../hooks/useFamilias'
 import AtualizarUsuarioPage from '../pages/AtualizarUsuarioPage'
@@ -44,9 +43,9 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
   const [query, setQuery] = useState('')
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
   const [selectedFormId, setSelectedFormId] = useState(formsList[0]?.id ?? '')
-  const { data: familiasData = familiesMock } = useFamilias()
+  const { data: familiasData = [] } = useFamilias()
 
-  const familiasList = Array.isArray(familiasData) ? familiasData : familiesMock
+  const familiasList = Array.isArray(familiasData) ? familiasData : []
   const resetState = () => {
     setQuery('')
     setSelectedFamilyId('')
@@ -128,13 +127,17 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
                     <PageListItem
                       key={family.id}
                       title={family.nome_representante}
-                      subtitle={`${family.endereco}, ${family.numero} • ${family.bairro}`}
+                      subtitle={
+                        family.endereco && family.endereco !== '—'
+                          ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}${family.bairro !== '—' ? ` • ${family.bairro}` : ''}`
+                          : null
+                      }
                       selected={selected}
                       onClick={() => setSelectedFamilyId(family.id)}
                       variant="compact"
                       footer={
                         <PageToolbar justifyContent="flex-start">
-                          <StatusChip label={family.cpf} />
+                          {family.cpf && family.cpf !== '—' && <StatusChip label={family.cpf} />}
                           <StatusChip label={`Prioridade ${family.prioridade}`} />
                         </PageToolbar>
                       }

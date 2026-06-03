@@ -23,7 +23,6 @@ import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded'
 import ViewModuleRoundedIcon from '@mui/icons-material/ViewModuleRounded'
 import { useNavigate } from 'react-router-dom'
 
-import familiesMock from '../data/familiesMock'
 import useFamilias from '../hooks/useFamilias'
 import {
   ActionButton,
@@ -45,8 +44,6 @@ import {
   SectionBlock,
   StatusChip,
 } from './ui'
-
-const families = familiesMock
 
 const priorityOptions = ['Todas', 'Alta', 'Média', 'Baixa']
 const districtOptions = ['Todos', 'Ipiranga', 'Vila Prudente', 'Sacomã']
@@ -101,6 +98,12 @@ function getOrientadorInfo(family) {
   }
 }
 
+const priorityChipProps = {
+  Alta:  { customColor: '#FEE2E2', customTextColor: '#B91C1C' },
+  Média: { customColor: '#FEF3C7', customTextColor: '#92400E' },
+  Baixa: { customColor: '#D1FAE5', customTextColor: '#065F46' },
+}
+
 function formatDate(value) {
   if (!value) {
     return '—'
@@ -109,27 +112,44 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('pt-BR').format(new Date(`${value}T00:00:00`))
 }
 
+function hasAddress(family) {
+  return family.endereco && family.endereco !== '—'
+}
+
+function addressSubtitle(family) {
+  if (!hasAddress(family)) return null
+  const parts = [family.endereco, family.numero !== '—' ? family.numero : null].filter(Boolean).join(', ')
+  return family.bairro !== '—' ? `${parts} • ${family.bairro}` : parts
+}
+
 function FamilyPreviewCard({ family, selected, onSelect }) {
   const orientador = getOrientadorInfo(family)
+  const subtitle = addressSubtitle(family)
+  const footerExtra = family.cras && family.cras !== '—' ? ` • ${family.cras}` : ''
+  const prioProps = priorityChipProps[family.prioridade] ?? {}
 
   return (
     <PageCard
       title={family.nome_representante}
-      subtitle={`${family.endereco}, ${family.numero} • ${family.bairro}`}
+      subtitle={subtitle}
       selected={selected}
       onClick={onSelect}
       accentColor={orientador.backgroundColor}
       hover
       footer={
         <Typography variant="caption" color="text.secondary" noWrap>
-          Última visita: {formatDate(family.ultima_visita)} • {family.cras}
+          Última visita: {formatDate(family.ultima_visita)}{footerExtra}
         </Typography>
       }
     >
       <PageToolbar justifyContent="flex-start">
-        <StatusChip status={family.status} />
-        <StatusChip label={`Prioridade ${family.prioridade}`} />
-        <StatusChip label={orientador.id} customColor={orientador.backgroundColor} customTextColor={orientador.color} />
+        {family.status === 'Inativo' && <StatusChip status={family.status} />}
+        <StatusChip label={`Prioridade ${family.prioridade}`} {...prioProps} />
+        <StatusChip
+          label={orientador.id}
+          customColor={orientador.backgroundColor}
+          customTextColor={orientador.color}
+        />
       </PageToolbar>
     </PageCard>
   )
@@ -137,6 +157,7 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
 
 function FamilyListItem({ family, selected, onSelect }) {
   const orientador = getOrientadorInfo(family)
+  const prioProps = priorityChipProps[family.prioridade] ?? {}
 
   return (
     <PageListItem selected={selected} onClick={onSelect} accentColor={orientador.backgroundColor}>
@@ -145,14 +166,16 @@ function FamilyListItem({ family, selected, onSelect }) {
           <Typography variant="subtitle2" fontWeight={700} noWrap>
             {family.nome_representante}
           </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
-            CPF {family.cpf}
-          </Typography>
+          {family.cpf && family.cpf !== '—' && (
+            <Typography variant="caption" color="text.secondary" noWrap>
+              CPF {family.cpf}
+            </Typography>
+          )}
         </PageStack>
         <Typography variant="body2" color="text.secondary" noWrap>
-          {family.endereco}, {family.numero}
+          {hasAddress(family) ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}` : '—'}
         </Typography>
-        <StatusChip label={`Prioridade ${family.prioridade}`} fit />
+        <StatusChip label={`Prioridade ${family.prioridade}`} fit {...prioProps} />
         <Typography variant="body2" color="text.secondary" noWrap>
           {formatDate(family.ultima_visita)}
         </Typography>
@@ -166,6 +189,7 @@ function FamilyDetailPanel({ family, onStartRegistro }) {
   if (!family) return null
 
   const orientadorRepresentante = getOrientadorInfo(family)
+  const prioPropsDetail = priorityChipProps[family.prioridade] ?? {}
   const identityGroups = [
     {
       title: 'Cadastro pessoal',
@@ -207,12 +231,12 @@ function FamilyDetailPanel({ family, onStartRegistro }) {
       <PageCard
         eyebrow="Família selecionada"
         title={family.nome_representante}
-        subtitle={`${family.endereco}, ${family.numero} — ${family.bairro} / ${family.distrito}`}
+        subtitle={hasAddress(family) ? `${family.endereco}, ${family.numero} — ${family.bairro} / ${family.distrito}` : null}
         actions={
           <PageToolbar justifyContent="flex-end">
-            <StatusChip status={family.status} />
-            <StatusChip label={`Prioridade ${family.prioridade}`} />
-            <StatusChip label={family.cras} />
+            {family.status === 'Inativo' && <StatusChip status={family.status} />}
+            <StatusChip label={`Prioridade ${family.prioridade}`} {...prioPropsDetail} />
+            {family.cras && family.cras !== '—' && <StatusChip label={family.cras} />}
             <StatusChip
               label={orientadorRepresentante.id}
               customColor={orientadorRepresentante.backgroundColor}
@@ -348,7 +372,7 @@ function FamilyDetailPanel({ family, onStartRegistro }) {
 
 function FamiliesPage() {
   const navigate = useNavigate()
-  const { data: familiasData = families, isLoading } = useFamilias()
+  const { data: familiasData = [], isLoading } = useFamilias()
   const [query, setQuery] = useState('')
   const [statusFilter] = useState('Todas')
   const [priorityFilter, setPriorityFilter] = useState('Todas')
@@ -359,11 +383,11 @@ function FamiliesPage() {
   const [updatedAtFilter, setUpdatedAtFilter] = useState('')
   const [sortBy, setSortBy] = useState('visita-desc')
   const [viewMode, setViewMode] = useState('gallery')
-  const [selectedId, setSelectedId] = useState(families[0]?.id)
+  const [selectedId, setSelectedId] = useState(null)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
 
   const familiasList = useMemo(
-    () => (Array.isArray(familiasData) ? familiasData : Array.isArray(families) ? families : []),
+    () => (Array.isArray(familiasData) ? familiasData : []),
     [familiasData],
   )
 
@@ -404,7 +428,7 @@ function FamiliesPage() {
     })
   }, [benefitFilter, districtFilter, familiasList, orientadorFilter, priorityFilter, query, statusFilter, streetFilter, updatedAtFilter])
 
-  const selectedFamily = filteredFamilies.find((family) => family.id === selectedId) ?? filteredFamilies[0] ?? familiasList[0] ?? families[0]
+  const selectedFamily = filteredFamilies.find((family) => family.id === selectedId) ?? filteredFamilies[0] ?? null
 
   const orientadorOptions = useMemo(() => {
     const values = new Set()
