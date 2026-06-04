@@ -1,10 +1,17 @@
+import { useMemo } from 'react'
 import { Box, Paper, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import FamilyRestroomOutlinedIcon from '@mui/icons-material/FamilyRestroomOutlined'
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
+import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined'
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
+import useFamilias from '../hooks/useFamilias'
 import {
+  PageGrid,
   PageSection,
   PageStack,
   PageWrapper,
@@ -36,6 +43,24 @@ const actions = [
     available: false,
   },
 ]
+
+function StatCard({ icon: Icon, label, value, color = 'primary.main', bg = 'primary.50', loading }) {
+  return (
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', backgroundColor: bg, color, flexShrink: 0 }}>
+        <Icon sx={{ fontSize: 22 }} />
+      </Box>
+      <Box>
+        <Typography variant="h5" fontWeight={800} lineHeight={1.1}>
+          {loading ? '—' : value}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+          {label}
+        </Typography>
+      </Box>
+    </Paper>
+  )
+}
 
 function ActionRow({ action, onClick, isFirst }) {
   const Icon = action.icon
@@ -79,72 +104,68 @@ function ActionRow({ action, onClick, isFirst }) {
         }),
       }}
     >
-      {/* Ícone */}
-      <Box
-        sx={{
-          width: { xs: 44, sm: 52 },
-          height: { xs: 44, sm: 52 },
-          borderRadius: 2,
-          flexShrink: 0,
-          display: 'grid',
-          placeItems: 'center',
-          backgroundColor: isFirst && !disabled ? 'primary.main' : disabled ? '#e5e7eb' : 'primary.50',
-          color: isFirst && !disabled ? '#ffffff' : disabled ? '#9ca3af' : 'primary.main',
-        }}
-      >
+      <Box sx={{ width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 }, borderRadius: 2, flexShrink: 0, display: 'grid', placeItems: 'center', backgroundColor: isFirst && !disabled ? 'primary.main' : disabled ? '#e5e7eb' : 'primary.50', color: isFirst && !disabled ? '#ffffff' : disabled ? '#9ca3af' : 'primary.main' }}>
         <Icon sx={{ fontSize: { xs: 22, sm: 26 } }} />
       </Box>
-
-      {/* Texto */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography
-          variant="subtitle1"
-          fontWeight={700}
-          color={disabled ? 'text.disabled' : 'text.primary'}
-          sx={{ lineHeight: 1.3 }}
-        >
+        <Typography variant="subtitle1" fontWeight={700} color={disabled ? 'text.disabled' : 'text.primary'} sx={{ lineHeight: 1.3 }}>
           {action.label}
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mt: 0.4, lineHeight: 1.45 }}
-        >
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4, lineHeight: 1.45 }}>
           {action.description}
         </Typography>
-        <Typography
-          variant="caption"
-          color={disabled ? 'text.disabled' : 'primary.main'}
-          sx={{ mt: 0.5, display: 'block', fontWeight: 600 }}
-        >
+        <Typography variant="caption" color={disabled ? 'text.disabled' : 'primary.main'} sx={{ mt: 0.5, display: 'block', fontWeight: 600 }}>
           {action.hint}
         </Typography>
       </Box>
-
-      {/* Ação */}
-      <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 0.75 }}>
-        {disabled ? (
-          <LockOutlinedIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
-        ) : (
-          <ArrowForwardRoundedIcon
-            sx={{
-              fontSize: 22,
-              color: isFirst ? 'primary.main' : 'text.secondary',
-              transition: 'transform 180ms ease',
-              '.MuiPaper-root:hover &': { transform: 'translateX(4px)' },
-            }}
-          />
-        )}
+      <Box sx={{ flexShrink: 0 }}>
+        {disabled
+          ? <LockOutlinedIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+          : <ArrowForwardRoundedIcon sx={{ fontSize: 22, color: isFirst ? 'primary.main' : 'text.secondary', transition: 'transform 180ms ease', '.MuiPaper-root:hover &': { transform: 'translateX(4px)' } }} />
+        }
       </Box>
     </Paper>
   )
 }
 
 function VisaoGeralPage({ onOpenAction }) {
+  const { data: familiasData = [], isLoading } = useFamilias()
+  const familias = Array.isArray(familiasData) ? familiasData : []
+
+  const stats = useMemo(() => {
+    const hoje = new Date()
+    const trintaDiasAtras = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 30)
+
+    const alta = familias.filter(f => f.prioridade === 'Alta').length
+    const visitadasRecente = familias.filter(f => {
+      if (!f.ultima_visita) return false
+      return new Date(`${f.ultima_visita}T00:00:00`) >= trintaDiasAtras
+    }).length
+    const proximaVisitaHoje = familias.filter(f => {
+      if (!f.proxima_visita) return false
+      const proxima = new Date(`${f.proxima_visita}T00:00:00`)
+      return proxima <= hoje
+    }).length
+
+    return { total: familias.length, alta, visitadasRecente, proximaVisitaHoje }
+  }, [familias])
+
   return (
     <PageWrapper maxWidth={720} spacing={3}>
       <PageSection
         eyebrow="Visão geral"
+        title="Olá, bem-vindo"
+        description="Resumo do painel e ações rápidas."
+      />
+
+      <PageGrid variant="stats">
+        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
+        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" bg="#FEE2E2" loading={isLoading} />
+        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" bg="#D1FAE5" loading={isLoading} />
+        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" bg="#FEF3C7" loading={isLoading} />
+      </PageGrid>
+
+      <PageSection
         title="Eu quero..."
         description="Escolha o que você precisa fazer. Cada opção abre um passo a passo."
       />

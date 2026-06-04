@@ -683,9 +683,11 @@ function QuantitySection({ section, values, onChange, validationErrors = {}, rhf
   )
 }
 
-export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm }) {
+export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm, onSave }) {
   const [draft, setDraft] = useState(() => createFormDraft(form))
   const [saved, setSaved] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState(null)
   const [validationErrors, setValidationErrors] = useState({})
@@ -740,22 +742,39 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
   }
 
   const confirmAction = () => {
-    if (pendingAction === 'save') {
+    const action = pendingAction
+    closeConfirm()
+
+    if (action === 'save') {
+      if (onSave) {
+        setSubmitting(true)
+        setSubmitError(null)
+        onSave(draft)
+          .then(() => {
+            setSaved(true)
+            setValidationErrors({})
+          })
+          .catch((err) => {
+            setSubmitError(err?.message || 'Erro ao salvar. Verifique sua conexão e tente novamente.')
+          })
+          .finally(() => setSubmitting(false))
+        return
+      }
       setSaved(true)
       setValidationErrors({})
+      return
     }
 
-    if (pendingAction === 'clear') {
+    if (action === 'clear') {
       setDraft(createFormDraft(form))
       setSaved(false)
       setValidationErrors({})
+      return
     }
 
-    if (pendingAction === 'leave') {
+    if (action === 'leave') {
       onBack()
     }
-
-    closeConfirm()
   }
 
   const updateField = (sectionId, fieldId, value) => {
@@ -1010,9 +1029,21 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
         onBack={() => requestAction('leave')}
       />
 
-      {saved && (
+      {submitting && (
+        <Alert severity="info" variant="outlined" sx={formAlertSx} icon={<CircularProgress size={16} />}>
+          Salvando dados...
+        </Alert>
+      )}
+
+      {submitError && !submitting && (
+        <Alert severity="error" variant="outlined" sx={formAlertSx}>
+          {submitError}
+        </Alert>
+      )}
+
+      {saved && !submitting && !submitError && (
         <Alert severity="success" variant="outlined" sx={formAlertSx}>
-          Formulário preenchido em modo local. Os dados estão na tela, prontos para a próxima etapa.
+          Dados salvos com sucesso.
         </Alert>
       )}
 
@@ -1052,9 +1083,10 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm })
             <ActionButton
               type="submit"
               variant="contained"
-              startIcon={<SaveOutlinedIcon />}
+              startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : <SaveOutlinedIcon />}
+              disabled={submitting}
             >
-              Salvar
+              {submitting ? 'Salvando...' : 'Salvar'}
             </ActionButton>
           </PageToolbar>
         }

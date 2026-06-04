@@ -14,6 +14,7 @@ import {
   YAxis,
 } from 'recharts'
 import { Divider, Typography } from '@mui/material'
+import { useMemo } from 'react'
 import {
   ChartFrame,
   PageCard,
@@ -22,6 +23,7 @@ import {
   PageWrapper,
   StatusChip,
 } from './ui'
+import useFamilias from '../hooks/useFamilias'
 
 const monthlyData = [
   { month: 'Jan', familias: 24, cadastros: 12, atendimentos: 18 },
@@ -48,12 +50,6 @@ const channelData = [
 
 const statusColors = ['#1e88e5', '#5b9bd9', '#a9c6ea', '#d6e9fb']
 
-const stats = [
-  { label: 'Famílias acompanhadas', value: '43', help: '+12% no mês' },
-  { label: 'Cadastros recentes', value: '29', help: 'dados simulados' },
-  { label: 'Atendimentos em aberto', value: '11', help: 'visão operacional' },
-  { label: 'Encaminhamentos', value: '22', help: 'fluxo de rede' },
-]
 
 function DashboardTooltip({ active, payload, label }) {
   if (!active || !payload?.length) {
@@ -75,17 +71,43 @@ function DashboardTooltip({ active, payload, label }) {
 }
 
 function GraficosPage() {
+  const { data: familiasData = [], isLoading } = useFamilias()
+  const familias = Array.isArray(familiasData) ? familiasData : []
+
+  const realStats = useMemo(() => {
+    const hoje = new Date()
+    const trintaDiasAtras = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 30)
+    const alta = familias.filter(f => f.prioridade === 'Alta').length
+    const media = familias.filter(f => f.prioridade === 'Média').length
+    const visitadasRecente = familias.filter(f => {
+      if (!f.ultima_visita) return false
+      return new Date(`${f.ultima_visita}T00:00:00`) >= trintaDiasAtras
+    }).length
+    return [
+      { label: 'Famílias registradas', value: isLoading ? '—' : String(familias.length), help: 'dados reais' },
+      { label: 'Prioridade Alta', value: isLoading ? '—' : String(alta), help: 'requer atenção imediata' },
+      { label: 'Prioridade Média', value: isLoading ? '—' : String(media), help: 'em acompanhamento' },
+      { label: 'Visitadas (30 dias)', value: isLoading ? '—' : String(visitadasRecente), help: 'dados reais' },
+    ]
+  }, [familias, isLoading])
+
+  const priorityData = useMemo(() => [
+    { name: 'Alta', value: familias.filter(f => f.prioridade === 'Alta').length },
+    { name: 'Média', value: familias.filter(f => f.prioridade === 'Média').length },
+    { name: 'Baixa', value: familias.filter(f => f.prioridade === 'Baixa').length },
+  ].filter(d => d.value > 0), [familias])
+
   return (
     <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Gráficos"
         title="Central analítica do painel"
-        description="Os gráficos abaixo usam dados mockados para validar a leitura do painel antes da integração com a base real."
-        actions={<StatusChip label="Mock data ativo" tone="highlight" />}
+        description="Estatísticas em tempo real das famílias registradas no sistema."
+        actions={<StatusChip label="Dados reais" tone="highlight" />}
       />
 
       <PageGrid variant="stats">
-        {stats.map((item) => (
+        {realStats.map((item) => (
           <PageCard key={item.label} hover>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
               {item.label}
@@ -124,20 +146,21 @@ function GraficosPage() {
         </PageCard>
 
         <PageCard
-          eyebrow="Distribuição de status"
-          title="Situação atual das famílias"
-          subtitle="Esse bloco simula a leitura de prioridades e acompanhamento por categoria."
-          actions={<StatusChip label="Base para pizza / donut" tone="highlight" />}
+          eyebrow="Distribuição por prioridade"
+          title="Prioridades das famílias"
+          subtitle="Distribuição real das famílias cadastradas por nível de prioridade."
+          actions={<StatusChip label="Dados reais" tone="highlight" />}
         >
           <ChartFrame>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Tooltip content={<DashboardTooltip />} />
                 <Legend />
-                <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={92} paddingAngle={3}>
-                  {statusData.map((entry, index) => (
-                    <Cell key={entry.name} fill={statusColors[index % statusColors.length]} />
-                  ))}
+                <Pie data={priorityData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={92} paddingAngle={3}>
+                  {priorityData.map((entry) => {
+                    const color = entry.name === 'Alta' ? '#B91C1C' : entry.name === 'Média' ? '#92400E' : '#065F46'
+                    return <Cell key={entry.name} fill={color} />
+                  })}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>

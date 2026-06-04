@@ -9,6 +9,9 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material'
+import { Box, CircularProgress } from '@mui/material'
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import LocalHospitalOutlinedIcon from '@mui/icons-material/LocalHospitalOutlined'
@@ -24,6 +27,8 @@ import ViewModuleRoundedIcon from '@mui/icons-material/ViewModuleRounded'
 import { useNavigate } from 'react-router-dom'
 
 import useFamilias from '../hooks/useFamilias'
+import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
+import { DOCS_CONFIG } from '../services/familias.service'
 import {
   ActionButton,
   ActionCard,
@@ -102,6 +107,54 @@ const priorityChipProps = {
   Alta:  { customColor: '#FEE2E2', customTextColor: '#B91C1C' },
   Média: { customColor: '#FEF3C7', customTextColor: '#92400E' },
   Baixa: { customColor: '#D1FAE5', customTextColor: '#065F46' },
+}
+
+function DocBadge({ documentacao = [] }) {
+  const pendentes = documentacao.filter((d) => !d.presente).length
+  if (pendentes === 0) return (
+    <StatusChip label="Docs completos" customColor="#D1FAE5" customTextColor="#065F46" />
+  )
+  return (
+    <StatusChip label={`${pendentes} doc${pendentes > 1 ? 's' : ''} pendente${pendentes > 1 ? 's' : ''}`} customColor="#FEF3C7" customTextColor="#92400E" />
+  )
+}
+
+function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [] }) {
+  // Se temos o prontuário do lazy load, recalcula os docs com dados frescos
+  const docs = prontuarioDetalhe
+    ? DOCS_CONFIG.map(({ key, label, check }) => ({
+        key, label,
+        presente: check(prontuarioDetalhe, termos),
+      }))
+    : documentacao
+
+  if (!docs.length) return null
+  return (
+    <SectionBlock title="Documentação do prontuário" variant="plain">
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+        {docs.map((doc) => (
+          <Box key={doc.key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {doc.presente
+              ? <CheckCircleOutlineRoundedIcon sx={{ fontSize: 18, color: '#059669', flexShrink: 0 }} />
+              : <CancelOutlinedIcon sx={{ fontSize: 18, color: '#DC2626', flexShrink: 0 }} />
+            }
+            <Typography
+              variant="body2"
+              fontWeight={doc.presente ? 500 : 700}
+              color={doc.presente ? 'text.secondary' : 'error.main'}
+            >
+              {doc.label}
+            </Typography>
+            {!doc.presente && (
+              <Typography variant="caption" color="text.disabled" sx={{ ml: 'auto' }}>
+                pendente
+              </Typography>
+            )}
+          </Box>
+        ))}
+      </Box>
+    </SectionBlock>
+  )
 }
 
 function formatDate(value) {
@@ -185,46 +238,146 @@ function FamilyListItem({ family, selected, onSelect }) {
   )
 }
 
-function FamilyDetailPanel({ family, onStartRegistro }) {
+function RichDataSection({ detalhe, loadingDetalhe }) {
+  if (loadingDetalhe) return null
+  if (!detalhe) return null
+
+  const { representante: rep, endereco: end, fichaCadastral: fc, planoFamiliar: pdf, folhaProsseguimento: folha, pdu, termos } = detalhe
+  const moradiaLabel = { PROPRIA: 'Própria', ALUGADA: 'Alugada', CEDIDA: 'Cedida' }
+  const sexoLabel = { FEMININO: 'Feminino', MASCULINO: 'Masculino' }
+  const programaLabel = {
+    NAO_RECEBE: 'Não recebe', RENDA_MINIMA: 'Renda Mínima', BOLSA_FAMILIA: 'Bolsa Família',
+    RENDA_CIDADA: 'Renda Cidadã', ACAO_JOVEM: 'Ação Jovem', PETI: 'PETI',
+  }
+  const bpcLabel = { NAO_RECEBE: 'Não recebe', IDOSO: 'Idoso', PCD: 'Pessoa com deficiência' }
+  const label = (map, val) => map[val] ?? val
+
+  return (
+    <>
+      {/* ── Representante ─────────────────────────────── */}
+      {rep && (
+        <SectionBlock title="Dados do representante" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            rep.nome        && ['Nome', rep.nome],
+            rep.cpf         && ['CPF', rep.cpf],
+            rep.rg          && ['RG', `${rep.rg}${rep.orgaoEmissorRg ? ` / ${rep.orgaoEmissorRg}` : ''}`],
+            rep.dataNascimento && ['Nascimento', rep.dataNascimento],
+            rep.sexo        && ['Sexo', sexoLabel[rep.sexo] ?? rep.sexo],
+            rep.estadoCivil && ['Estado civil', rep.estadoCivil],
+            rep.grauInstrucao && ['Grau de instrução', rep.grauInstrucao],
+            rep.profissao   && ['Profissão', rep.profissao],
+            rep.ocupacao    && ['Situação', rep.ocupacao],
+            rep.renda != null && ['Renda', `R$ ${rep.renda}`],
+            rep.nisNitNb    && ['NIS/NIT/NB', rep.nisNitNb],
+            rep.nomeMae     && ['Mãe', rep.nomeMae],
+            rep.nomePai     && ['Pai', rep.nomePai],
+            rep.telefoneCelular && ['Celular', rep.telefoneCelular],
+            rep.telefoneResidencial && ['Telefone', rep.telefoneResidencial],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── Endereço ──────────────────────────────────── */}
+      {end && (end.logradouro || end.bairro) && (
+        <SectionBlock title="Endereço" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            end.logradouro && ['Logradouro', `${end.logradouro}${end.numero ? `, ${end.numero}` : ''}`],
+            end.complemento && ['Complemento', end.complemento],
+            end.bairro      && ['Bairro', end.bairro],
+            end.distrito    && ['Distrito', end.distrito],
+            end.cep         && ['CEP', end.cep],
+            end.cidade      && ['Cidade', end.cidade],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── Ficha Cadastral — Moradia e benefícios ────── */}
+      {fc && (fc.condicoesMoradia || fc.programasTransferenciaRenda?.length || fc.dataMatricula) && (
+        <SectionBlock title="Ficha cadastral" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            fc.dataMatricula     && ['Data de matrícula', fc.dataMatricula],
+            fc.numeroMatricula   && ['Nº matrícula', fc.numeroMatricula],
+            fc.condicoesMoradia  && ['Moradia', moradiaLabel[fc.condicoesMoradia] ?? fc.condicoesMoradia],
+            fc.tipoConstrucao    && ['Construção', fc.tipoConstrucao],
+            fc.numeroComodos != null && ['Cômodos', String(fc.numeroComodos)],
+            fc.situacaoHabitacional && ['Situação hab.', fc.situacaoHabitacional],
+            fc.programasTransferenciaRenda?.length > 0 && ['Transf. renda', fc.programasTransferenciaRenda.map(v => label(programaLabel, v)).join(', ')],
+            fc.beneficioPrestacaoContinuada?.length > 0 && ['BPC', fc.beneficioPrestacaoContinuada.map(v => label(bpcLabel, v)).join(', ')],
+            fc.demandaApresentadaOrientacoesEncaminhamentos && ['Demanda/encaminhamentos', fc.demandaApresentadaOrientacoesEncaminhamentos],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── Plano de Desenvolvimento Familiar ─────────── */}
+      {pdf && !!(pdf.analiseDiagnostica || pdf.objetivo || pdf.moradia || pdf.saude || pdf.dataElaboracao) && (
+        <SectionBlock title="Plano de desenvolvimento familiar" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            pdf.numeroPlano        && ['Nº do plano', pdf.numeroPlano],
+            pdf.dataElaboracao     && ['Elaboração', pdf.dataElaboracao],
+            pdf.dataValidade       && ['Validade', pdf.dataValidade],
+            pdf.dataReavaliacao    && ['Reavaliação', pdf.dataReavaliacao],
+            pdf.objetivo           && ['Objetivo', pdf.objetivo],
+            pdf.analiseDiagnostica && ['Análise diagnóstica', pdf.analiseDiagnostica],
+            pdf.moradia            && ['Moradia', pdf.moradia],
+            pdf.saude              && ['Saúde', pdf.saude],
+            pdf.educacao           && ['Educação', pdf.educacao],
+            pdf.renda              && ['Renda', pdf.renda],
+            pdf.observacoes        && ['Observações', pdf.observacoes],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── Folha de Prosseguimento ───────────────────── */}
+      {folha && (folha.observacoes || folha.numeroFolha) && (
+        <SectionBlock title="Folha de prosseguimento" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            folha.numeroFolha  && ['Nº da folha', String(folha.numeroFolha)],
+            folha.observacoes  && ['Observações', folha.observacoes],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── PDU ───────────────────────────────────────── */}
+      {pdu && !!(pdu.sinteseSituacaoApresentada || pdu.numeroPlano || pdu.situacoesAgravoIdentificadas?.length > 0) && (
+        <SectionBlock title="Plano de desenvolvimento do usuário (PDU)" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            pdu.numeroPlano               && ['Nº do plano', pdu.numeroPlano],
+            pdu.dataElaboracao            && ['Elaboração', pdu.dataElaboracao],
+            pdu.dataValidade              && ['Validade', pdu.dataValidade],
+            pdu.sinteseSituacaoApresentada && ['Síntese', pdu.sinteseSituacaoApresentada],
+            pdu.situacoesAgravoIdentificadas?.length > 0 && ['Situações de agravo', pdu.situacoesAgravoIdentificadas.join(', ')],
+            pdu.outrasSituacoesAgravo     && ['Outras situações', pdu.outrasSituacoesAgravo],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+
+      {/* ── Termo de Uso de Imagem ─────────────────────── */}
+      {termos?.[0] && (
+        <SectionBlock title="Termo de uso de imagem" variant="plain">
+          <InfoGrid detailVariant="plain" items={[
+            termos[0].dataAssinatura         && ['Assinado em', new Date(termos[0].dataAssinatura).toLocaleDateString('pt-BR')],
+            termos[0].cpf                    && ['CPF', termos[0].cpf],
+            termos[0].numeroCedulaIdentidade && ['Cédula de identidade', termos[0].numeroCedulaIdentidade],
+            termos[0].nomesCriancasAutorizadas?.length && ['Crianças autorizadas', termos[0].nomesCriancasAutorizadas.join(', ')],
+          ].filter(Boolean)} />
+        </SectionBlock>
+      )}
+    </>
+  )
+}
+
+function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNovaAtualizacao }) {
+  const { data: detalhe, isLoading: loadingDetalhe } = useFamiliaDetalhe(family?.prontuarioId)
+
   if (!family) return null
 
   const orientadorRepresentante = getOrientadorInfo(family)
   const prioPropsDetail = priorityChipProps[family.prioridade] ?? {}
-  const identityGroups = [
-    {
-      title: 'Cadastro pessoal',
-      items: [
-        ['Sexo', family.sexo],
-        ['Data de matrícula', family.data_matricula],
-        ['Data de nascimento', family.data_nascimento],
-        ['Naturalidade', family.naturalidade],
-        ['Cor/raça', family.cor_raca],
-        ['Pessoa com deficiência', family.pessoa_deficiencia],
-      ],
-    },
-    {
-      title: 'Documentos e vínculos',
-      items: [
-        ['CPF', family.cpf],
-        ['RG / Órgão emissor', `${family.rg} • ${family.orgao_emissor}`],
-        ['UF / CTPS', `${family.uf} • ${family.ctps_numero}/${family.ctps_serie}`],
-        ['Emissão CTPS', family.ctps_emissao],
-        ['Mãe / Pai', `${family.mae} • ${family.pai}`],
-        ['Estado civil', family.estado_civil],
-      ],
-    },
-    {
-      title: 'Escolaridade e trabalho',
-      items: [
-        ['Grau de instrução', family.grau_instrucao],
-        ['Profissão', family.profissao],
-        ['Ocupação', family.ocupacao_descricao],
-        ['Situação ocupacional', family.ocupacao_situacao],
-        ['Renda', `R$ ${family.renda}`],
-        ['Desligamento', family.data_desligamento || 'Em acompanhamento'],
-      ],
-    },
-  ]
+
+  // Família antiga/incompleta: tem prontuário, mas o lazy load não encontrou
+  // representante nem ficha cadastral vinculados. Oferece completar o cadastro.
+  const cadastroIncompleto =
+    !loadingDetalhe && !!family.prontuarioId && !detalhe?.representante && !detalhe?.fichaCadastral
 
   return (
     <PageStack spacing={2.25}>
@@ -234,6 +387,7 @@ function FamilyDetailPanel({ family, onStartRegistro }) {
         subtitle={hasAddress(family) ? `${family.endereco}, ${family.numero} — ${family.bairro} / ${family.distrito}` : null}
         actions={
           <PageToolbar justifyContent="flex-end">
+            {loadingDetalhe && <CircularProgress size={16} sx={{ mr: 1 }} />}
             {family.status === 'Inativo' && <StatusChip status={family.status} />}
             <StatusChip label={`Prioridade ${family.prioridade}`} {...prioPropsDetail} />
             {family.cras && family.cras !== '—' && <StatusChip label={family.cras} />}
@@ -246,126 +400,84 @@ function FamilyDetailPanel({ family, onStartRegistro }) {
         }
       />
 
+      {cadastroIncompleto && (
+        <SectionBlock title="Cadastro incompleto" variant="plain">
+          <PageStack spacing={1}>
+            <Typography variant="body2" color="text.secondary">
+              Esta família ainda não tem representante e ficha cadastral vinculados.
+              Complete o cadastro para preencher os dados pessoais, endereço e moradia.
+            </Typography>
+            <PageToolbar justifyContent="flex-start">
+              <ActionButton
+                variant="contained"
+                startIcon={<AddRoundedIcon />}
+                onClick={() => onCompletarCadastro?.(family)}
+              >
+                Completar cadastro
+              </ActionButton>
+            </PageToolbar>
+          </PageStack>
+        </SectionBlock>
+      )}
+
       <ActionCard title="Ações do prontuário" variant="compact">
-        <ActionButton
-          variant="contained"
-          startIcon={<AddRoundedIcon />}
-          onClick={() => {
-            // TODO: abrir ficha no prontuário selecionado com dados pré-preenchidos.
-            onStartRegistro?.()
-          }}
-        >
+        <ActionButton variant="contained" startIcon={<AddRoundedIcon />} onClick={() => onStartRegistro?.()}>
           Fazer novo registro
         </ActionButton>
-        <ActionButton
-          startIcon={<PictureAsPdfRoundedIcon />}
-          onClick={() => {
-            // TODO: buscar PDF no item-pdf-controller.
-          }}
-        >
+        <ActionButton startIcon={<AddRoundedIcon />} onClick={() => onNovaAtualizacao?.(family)}>
+          Nova ficha de atualização
+        </ActionButton>
+        <ActionButton startIcon={<PictureAsPdfRoundedIcon />} onClick={() => {}}>
           Prontuário em PDF
         </ActionButton>
-        <ActionButton
-          startIcon={<PrintRoundedIcon />}
-          onClick={() => {
-            // TODO: endpoint para download/impressão do prontuário.
-          }}
-        >
+        <ActionButton startIcon={<PrintRoundedIcon />} onClick={() => {}}>
           Imprimir/baixar
         </ActionButton>
-        <ActionButton
-          startIcon={<PhoneRoundedIcon />}
-          onClick={() => {
-            // TODO: integrar contato com orientador pelo orientador-controller.
-          }}
-        >
+        <ActionButton startIcon={<PhoneRoundedIcon />} onClick={() => {}}>
           Contatar orientador
         </ActionButton>
-        <ActionButton
-          startIcon={<OpenInNewRoundedIcon />}
-          onClick={() => {
-            // TODO: integrar contato com representante da família.
-          }}
-        >
+        <ActionButton startIcon={<OpenInNewRoundedIcon />} onClick={() => {}}>
           Contatar representante
         </ActionButton>
       </ActionCard>
 
       <PageGrid variant="detail2">
-        <DetailItem label="Serviço SASF" value={family.nome_servico_sasf} variant="soft" />
-        <DetailItem label="CAS / CRAS" value={`${family.cas} • ${family.cras}`} variant="soft" />
-        <DetailItem label="Matrícula" value={family.numero_matricula} variant="soft" />
-        <DetailItem label="NIS / NIT / NB" value={family.nis_nit_nb} variant="soft" />
-        <DetailItem label="Última atualização" value={formatDate(family.ultima_atualizacao)} variant="soft" />
+        <DetailItem label="Última visita" value={formatDate(family.ultima_visita)} variant="soft" />
+        <DetailItem label="Próxima visita" value={formatDate(family.proxima_visita)} variant="soft" />
       </PageGrid>
 
-      <SectionBlock title="Dados do representante" variant="plain">
-        <PageStack spacing={2}>
-          {identityGroups.map((group) => (
-            <SectionBlock key={group.title} title={group.title} variant="compact">
-              <InfoGrid items={group.items} detailVariant="plain" />
-            </SectionBlock>
-          ))}
-        </PageStack>
-      </SectionBlock>
+      <DocTracking
+        documentacao={family.documentacao}
+        prontuarioDetalhe={detalhe?.prontuario}
+        termos={detalhe?.termos ?? []}
+      />
 
-      <SectionBlock title="Endereço e contato" variant="plain">
-        <PageGrid variant="detail2">
-          <DetailItem label="Endereço" value={family.endereco} variant="plain"/>
-          <DetailItem label="Número / complemento" value={`${family.numero} • ${family.complemento || '—'}`} variant="plain" />
-          <DetailItem label="CEP" value={family.cep} variant="plain" />
-          <DetailItem label="Bairro / distrito" value={`${family.bairro} • ${family.distrito}`} variant="plain" />
-          <DetailItem label="Telefone residencial" value={family.telefone_residencial || '—'} variant="plain" />
-          <DetailItem label="Telefone celular" value={family.telefone_celular || '—'} variant="plain" />
-          <DetailItem label="Outro telefone" value={family.telefone_outro || '—'} variant="plain" />
-          <DetailItem label="Ponto de referência" value={family.ponto_referencia} variant="plain" />
-        </PageGrid>
-      </SectionBlock>
+      <RichDataSection detalhe={detalhe} loadingDetalhe={loadingDetalhe} />
 
-      <SectionBlock title="Moradia e benefícios" variant="plain">
-        <PageGrid variant="detail2">
-          <DetailItem label="Condição de moradia" value={family.condicao_moradia} icon={<HomeOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Nº de cômodos" value={family.numero_comodos} icon={<HomeOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Aluguel/financiamento" value={`R$ ${family.valor_aluguel_financiamento}`} icon={<AttachMoneyOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Tipo de construção" value={family.tipo_construcao} icon={<HomeOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Situação habitacional" value={family.situacao_habitacional.join(', ') || '—'} icon={<ReportOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Transferência de renda" value={family.programa_transferencia_renda.join(', ')} icon={<AttachMoneyOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Outro programa" value={family.programa_outro || '—'} icon={<AttachMoneyOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="BPC" value={family.beneficio_prestacao_continuada.join(', ')} icon={<LocalHospitalOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-        </PageGrid>
-      </SectionBlock>
-
-      <SectionBlock title="Composição familiar" variant="plain">
-        <PageList variant="embedded">
-          {family.composicao_familiar.map((member) => {
-            const orientadorMembro = getOrientadorLabel(`${family.id}-${member.nome}`)
-
-            return (
-              <PageListItem
-                key={`${family.id}-${member.nome}`}
-                title={member.nome}
-                subtitle={`${member.parentesco} • ${member.idade} anos`}
-                variant="compact"
-                footer={
-                  <PageToolbar justifyContent="flex-start">
-                    <StatusChip label={orientadorMembro.id} customColor={orientadorMembro.backgroundColor} customTextColor={orientadorMembro.color} />
-                    <StatusChip label={`Renda ${member.renda === '—' ? 'não informada' : `R$ ${member.renda}`}`} />
-                    <StatusChip label={member.fator} />
-                  </PageToolbar>
-                }
-              />
-            )
-          })}
-        </PageList>
-      </SectionBlock>
-
-      <SectionBlock title="Leitura rápida" variant="plain">
-        <PageGrid variant="detail3">
-          <DetailItem label="Escola" value={family.escola} icon={<SchoolOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Saúde" value={family.saude} icon={<LocalHospitalOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-          <DetailItem label="Vulnerabilidade" value={family.vulnerabilidade} icon={<ReportOutlinedIcon fontSize="small" color="primary" />} variant="plain" />
-        </PageGrid>
-      </SectionBlock>
+      {family.composicao_familiar?.length > 0 && (
+        <SectionBlock title="Composição familiar" variant="plain">
+          <PageList variant="embedded">
+            {family.composicao_familiar.map((member) => {
+              const orientadorMembro = getOrientadorLabel(`${family.id}-${member.nome}`)
+              return (
+                <PageListItem
+                  key={`${family.id}-${member.nome}`}
+                  title={member.nome}
+                  subtitle={`${member.parentesco} • ${member.idade !== '—' ? `${member.idade} anos` : 'idade não informada'}`}
+                  variant="compact"
+                  footer={
+                    <PageToolbar justifyContent="flex-start">
+                      <StatusChip label={orientadorMembro.id} customColor={orientadorMembro.backgroundColor} customTextColor={orientadorMembro.color} />
+                      <StatusChip label={`Renda ${member.renda === '—' ? 'não informada' : `R$ ${member.renda}`}`} />
+                      {member.fator && member.fator !== '—' && <StatusChip label={member.fator} />}
+                    </PageToolbar>
+                  }
+                />
+              )
+            })}
+          </PageList>
+        </SectionBlock>
+      )}
     </PageStack>
   )
 }
@@ -465,6 +577,24 @@ function FamiliesPage() {
   const handleStartRegistro = () => {
     // TODO: passar identificação do prontuário para pré-preenchimento.
     navigate('/dashboard/cadastro/novo')
+  }
+
+  const handleCompletarCadastro = (family) => {
+    // Reabre a ficha cadastral em modo "completar", carregando o contexto da
+    // família existente via URL para que o service reutilize família/prontuário.
+    const params = new URLSearchParams()
+    if (family.prontuarioId) params.set('prontuarioId', family.prontuarioId)
+    if (family.id) params.set('familiaId', family.id)
+    navigate(`/dashboard/cadastro/formulario/ficha_cadastral_familia?${params.toString()}`)
+  }
+
+  const handleNovaAtualizacao = (family) => {
+    // Abre a Ficha de Atualização (Quadro Situacional) já vinculada ao
+    // prontuário da família selecionada.
+    const params = new URLSearchParams()
+    if (family.prontuarioId) params.set('prontuarioId', family.prontuarioId)
+    if (family.id) params.set('familiaId', family.id)
+    navigate(`/dashboard/cadastro/formulario/ficha_atualizacao_unas?${params.toString()}`)
   }
 
   return (
@@ -607,7 +737,14 @@ function FamiliesPage() {
         showClose
         closeLabel="Fechar detalhes"
       >
-        {selectedFamily && <FamilyDetailPanel family={selectedFamily} onStartRegistro={handleStartRegistro} />}
+        {selectedFamily && (
+          <FamilyDetailPanel
+            family={selectedFamily}
+            onStartRegistro={handleStartRegistro}
+            onCompletarCadastro={handleCompletarCadastro}
+            onNovaAtualizacao={handleNovaAtualizacao}
+          />
+        )}
       </PageDialog>
 
     </PageWrapper>

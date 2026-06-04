@@ -9,7 +9,7 @@ function authHeaders() {
 
 async function request(path, opts = {}) {
   const url = path.startsWith('http') ? path : `${BASE.replace(/\/$/, '')}${path.startsWith('/') ? '' : '/'}${path}`
-  const res = await fetch(url, { ...opts, headers: { ...authHeaders(), ...opts.headers } })
+  const res = await fetch(url, { cache: 'no-store', ...opts, headers: { ...authHeaders(), ...opts.headers } })
   const text = await res.text()
   let data = null
   try {

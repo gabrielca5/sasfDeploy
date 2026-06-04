@@ -7,8 +7,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { saveFormStep } from '../services/cadastroFamilia.service'
 import { dashboardSections } from '../data/dashboardSections'
 import { getFormById, forms } from '../data/formsCatalog'
 import { usersCatalog } from '../data/usersCatalog'
@@ -241,7 +243,26 @@ function CadastroLandingPage({ onStartForm, formsList }) {
 
 function DashboardContent({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const [searchParams] = useSearchParams()
   const cadastroForms = useMemo(() => forms.filter((form) => form.id !== 'ficha_atualizacao_unas'), [])
+
+  const formContext = useMemo(() => ({
+    familiaId: searchParams.get('familiaId'),
+    prontuarioId: searchParams.get('prontuarioId'),
+    fichaCadastralId: searchParams.get('fichaCadastralId'),
+    planoFamiliarId: searchParams.get('planoFamiliarId'),
+    folhaId: searchParams.get('folhaId'),
+    pduId: searchParams.get('pduId'),
+  }), [searchParams])
+
+  const navigateToForm = useCallback((nextFormId, context = formContext) => {
+    const params = new URLSearchParams()
+    const keys = ['familiaId', 'prontuarioId', 'fichaCadastralId', 'planoFamiliarId', 'folhaId', 'pduId']
+    keys.forEach(k => { if (context[k]) params.set(k, context[k]) })
+    const query = params.toString()
+    navigate(`/dashboard/cadastro/formulario/${nextFormId}${query ? `?${query}` : ''}`)
+  }, [navigate, formContext])
 
   const currentSection = useMemo(() => {
     return dashboardSections.find((section) => section.slug === sectionSlug) ?? dashboardSections[0]
@@ -291,13 +312,34 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   if (isCadastroSection && currentForm) {
     const isAtualizacaoForm = currentForm.id === 'ficha_atualizacao_unas'
 
+    const handleFormSave = async (draft) => {
+      const newContext = await saveFormStep(currentForm.id, draft, formContext)
+      // Invalida os caches para que listagem e painel de detalhe reflitam o novo cadastro
+      queryClient.invalidateQueries({ queryKey: ['familias'] })
+      queryClient.invalidateQueries({ queryKey: ['familia-detalhe'] })
+      const currentIndex = cadastroForms.findIndex((f) => f.id === currentForm.id)
+      const nextForm = cadastroForms[currentIndex + 1]
+      if (nextForm) {
+        navigateToForm(nextForm.id, newContext)
+      }
+    }
+
+    // Ficha de atualização é um fluxo de etapa única: persiste e mantém o
+    // usuário na página com o aviso de sucesso (sem avançar para outra ficha).
+    const handleAtualizacaoSave = async (draft) => {
+      await saveFormStep('ficha_atualizacao_unas', draft, formContext)
+      queryClient.invalidateQueries({ queryKey: ['familias'] })
+      queryClient.invalidateQueries({ queryKey: ['familia-detalhe'] })
+    }
+
     return (
       <FormRenderer
         key={currentForm.id}
         form={currentForm}
         flowForms={isAtualizacaoForm ? [currentForm] : cadastroForms}
-        onSelectFlowForm={(nextFormId) => navigate(`/dashboard/cadastro/formulario/${nextFormId}`)}
+        onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
         onBack={() => navigate(isAtualizacaoForm ? '/dashboard/cadastro/atualizar' : '/dashboard/cadastro/novo')}
+        onSave={isAtualizacaoForm ? handleAtualizacaoSave : handleFormSave}
       />
     )
   }
@@ -319,7 +361,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
       <CadastrarUsuarioPage
         forms={cadastroForms}
         onBack={() => navigate('/dashboard/visao-geral')}
-        onOpenForm={(nextFormId) => navigate(`/dashboard/cadastro/formulario/${nextFormId}`)}
+        onOpenForm={(nextFormId) => navigateToForm(nextFormId)}
       />
     )
   }

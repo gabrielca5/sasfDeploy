@@ -2,11 +2,28 @@ import apiClient from '../lib/apiClient'
 
 const PRIORIDADE_LABEL = { BAIXA: 'Baixa', MEDIA: 'Média', ALTA: 'Alta' }
 
-function normalizeFamilia(f, membros = []) {
+export const DOCS_CONFIG = [
+  { key: 'fichaCadastral',      label: 'Ficha Cadastral',            check: (p) => !!p?.fichaCadastralDaFamiliaId },
+  { key: 'fichaAtualizacao',    label: 'Ficha de Atualização',       check: (p) => (p?.fichasAtualizacaoQuadroSituacionalIds?.length ?? 0) > 0 },
+  { key: 'planoFamiliar',       label: 'Plano de Desenvolvimento',   check: (p) => (p?.planosDesenvolvimentoFamiliarIds?.length ?? 0) > 0 },
+  { key: 'folhaProsseguimento', label: 'Folha de Prosseguimento',    check: (p) => (p?.folhasProsseguimentoIds?.length ?? 0) > 0 },
+  { key: 'pdu',                 label: 'PDU',                        check: (p) => (p?.planosDesenvolvimentoUsuarioIds?.length ?? 0) > 0 },
+  { key: 'termo',               label: 'Termo de Uso de Imagem',     check: (p, termos) => termos.some((t) => t.prontuarioId === p?.id) },
+]
+
+function buildDocumentacao(prontuario, termos) {
+  return DOCS_CONFIG.map(({ key, label, check }) => ({
+    key,
+    label,
+    presente: check(prontuario, termos),
+  }))
+}
+
+function normalizeFamilia(f, membros = [], prontuarios = [], termos = []) {
   // Mock data already has nome_representante — pass through unchanged
   if (f.nome_representante) return f
 
-  // Find the representative member for this family
+  const prontuario = prontuarios.find((p) => p.familiaId === f.id) ?? null
   const membrosFamily = membros.filter((m) => m.familiaId === f.id)
   const representante = membrosFamily.find((m) =>
     m.parentescoOuVinculo?.toLowerCase().includes('representante'),
@@ -34,6 +51,7 @@ function normalizeFamilia(f, membros = []) {
     orientadorId: f.orientadorId ?? null,
     representanteId: f.representanteId ?? null,
     prontuarioId: f.prontuarioId ?? null,
+    documentacao: buildDocumentacao(prontuario, termos),
     tags: [],
     composicao_familiar: membrosFamily.map((m) => ({
       nome: m.nome ?? '—',
@@ -74,15 +92,19 @@ export async function listFamilias(params = {}) {
   ])
   const famArray = Array.isArray(familias) ? familias : []
   const memArray = Array.isArray(membros) ? membros : []
-  return famArray.map((f) => normalizeFamilia(f, memArray))
+  // Prontuarios e termos não são mais buscados aqui — o doc tracking usa
+  // o lazy load do useFamiliaDetalhe quando o usuário abre o painel.
+  return famArray.map((f) => normalizeFamilia(f, memArray, [], []))
 }
 
 export async function getFamilia(id) {
-  const [familia, membros] = await Promise.all([
+  const [familia, membros, prontuarios, termos] = await Promise.all([
     apiClient.get(`/familia/${id}`),
     apiClient.get('/membro').catch(() => []),
+    apiClient.get('/prontuario').catch(() => []),
+    apiClient.get('/termo').catch(() => []),
   ])
-  return normalizeFamilia(familia, membros)
+  return normalizeFamilia(familia, Array.isArray(membros) ? membros : [], Array.isArray(prontuarios) ? prontuarios : [], Array.isArray(termos) ? termos : [])
 }
 
 export async function createFamilia(payload) {
