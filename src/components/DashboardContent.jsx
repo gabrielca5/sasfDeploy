@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import { useMemo, useState, useCallback } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { saveFormStep } from '../services/cadastroFamilia.service'
 import { dashboardSections } from '../data/dashboardSections'
@@ -374,6 +374,10 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
         onOpenForm={() => navigate('/dashboard/cadastro/formulario/ficha_atualizacao_unas')}
       />
     )
+  }
+
+  if (isVisaoGeralSection && actionSlug === 'acessar-mensario') {
+    return <Navigate to="/dashboard/familias" replace />
   }
 
   if (isVisaoGeralSection && actionSlug === 'transcricao-audio') {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, ButtonBase, Paper, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
@@ -9,6 +9,7 @@ import FamilyRestroomOutlinedIcon from '@mui/icons-material/FamilyRestroomOutlin
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined'
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import useFamilias from '../hooks/useFamilias'
 import {
   PageGrid,
@@ -20,7 +21,7 @@ import {
 const actions = [
   {
     slug: 'cadastrar-usuario',
-    label: 'Cadastrar uma família nova',
+    label: 'Cadastrar uma Família Nova',
     description: 'Para famílias que ainda não têm registro no sistema.',
     hint: 'Ideal para o primeiro atendimento',
     icon: PersonAddAlt1OutlinedIcon,
@@ -28,10 +29,18 @@ const actions = [
   },
   {
     slug: 'atualizar-usuario',
-    label: 'Atualizar dados de uma família',
+    label: 'Atualizar Dados de uma Família',
     description: 'Para corrigir ou completar informações como endereço, documentos ou contatos.',
     hint: 'Quando algo mudou ou precisa ser ajustado',
     icon: ManageAccountsOutlinedIcon,
+    available: true,
+  },
+  {
+    slug: 'acessar-mensario',
+    label: 'Acessar Meu Mensário',
+    description: 'Para acessar as famílias que devem ser visitadas esse mês.',
+    hint: 'Visualição geral das famílias que estão sob minha responsabilidade',
+    icon: GroupsOutlinedIcon,
     available: true,
   },
   {
@@ -62,39 +71,38 @@ function StatCard({ icon: Icon, label, value, color = 'primary.main', bg = 'prim
   )
 }
 
-function ActionRow({ action, onClick, isFirst }) {
+function ActionRow({ action, onClick }) {
   const Icon = action.icon
   const disabled = !action.available
 
   return (
-    <Paper
+    <ButtonBase
+      component={Paper}
       variant="outlined"
-      onClick={disabled ? undefined : onClick}
-      role={disabled ? undefined : 'button'}
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={(e) => {
-        if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault()
-          onClick()
-        }
-      }}
+      disabled={disabled}
+      focusRipple={!disabled}
+      onClick={onClick}
       sx={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'flex-start',
+        width: '100%',
+        textAlign: 'left',
         gap: { xs: 2, sm: 3 },
         p: { xs: 2, sm: 2.5 },
         borderRadius: 2.5,
-        borderColor: isFirst && !disabled ? 'primary.main' : 'divider',
-        backgroundColor: isFirst && !disabled ? '#f0f7ff' : '#ffffff',
+        border: '1.6px solid',
+        borderColor: disabled ? 'divider' : 'rgba(30, 136, 229, 0.32)',
+        backgroundColor: '#ffffff',
         cursor: disabled ? 'default' : 'pointer',
         opacity: disabled ? 0.55 : 1,
-        transition: 'all 180ms ease',
+        boxShadow: disabled ? 'none' : '0 1px 4px rgba(17,24,39,0.04)',
+        transition: 'border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
         outline: 'none',
         ...(!disabled && {
           '&:hover': {
             borderColor: 'primary.main',
-            backgroundColor: isFirst ? '#e8f2ff' : '#f5f9ff',
-            boxShadow: '0 2px 12px rgba(17,24,39,0.08)',
+            boxShadow: '0 4px 14px rgba(17,24,39,0.10)',
             transform: 'translateY(-1px)',
           },
           '&:focus-visible': {
@@ -104,7 +112,7 @@ function ActionRow({ action, onClick, isFirst }) {
         }),
       }}
     >
-      <Box sx={{ width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 }, borderRadius: 2, flexShrink: 0, display: 'grid', placeItems: 'center', backgroundColor: isFirst && !disabled ? 'primary.main' : disabled ? '#e5e7eb' : 'primary.50', color: isFirst && !disabled ? '#ffffff' : disabled ? '#9ca3af' : 'primary.main' }}>
+      <Box sx={{ width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 }, borderRadius: 2, flexShrink: 0, display: 'grid', placeItems: 'center', backgroundColor: disabled ? '#e5e7eb' : 'primary.50', color: disabled ? '#9ca3af' : 'primary.main' }}>
         <Icon sx={{ fontSize: { xs: 22, sm: 26 } }} />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -121,10 +129,10 @@ function ActionRow({ action, onClick, isFirst }) {
       <Box sx={{ flexShrink: 0 }}>
         {disabled
           ? <LockOutlinedIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
-          : <ArrowForwardRoundedIcon sx={{ fontSize: 22, color: isFirst ? 'primary.main' : 'text.secondary', transition: 'transform 180ms ease', '.MuiPaper-root:hover &': { transform: 'translateX(4px)' } }} />
+          : <ArrowForwardRoundedIcon sx={{ fontSize: 22, color: 'primary.main', transition: 'transform 180ms ease', '.MuiPaper-root:hover &': { transform: 'translateX(4px)' } }} />
         }
       </Box>
-    </Paper>
+    </ButtonBase>
   )
 }
 
@@ -171,11 +179,10 @@ function VisaoGeralPage({ onOpenAction }) {
       />
 
       <PageStack spacing={1.5}>
-        {actions.map((action, index) => (
+        {actions.map((action) => (
           <ActionRow
             key={action.slug}
             action={action}
-            isFirst={index === 0}
             onClick={() => onOpenAction(action.slug)}
           />
         ))}
