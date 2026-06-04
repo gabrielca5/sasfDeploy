@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  AppBar, Avatar, Box, Chip, Divider, Drawer, IconButton,
+  AppBar, Avatar, Box, Divider, Drawer, IconButton,
   List, ListItemButton, ListItemIcon, ListItemText,
-  Stack, Toolbar, Tooltip, Typography, useMediaQuery, useTheme,
+  Stack, Toolbar, Tooltip, Typography, useTheme,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
@@ -163,7 +163,18 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
             <IconButton
               size="small"
               onClick={() => onNavigate({ slug: 'sair' })}
-              sx={{ color: '#9ca3af', flexShrink: 0, '&:hover': { color: 'error.main' } }}
+              sx={{
+                color: 'error.main',
+                backgroundColor: 'error.light',
+                border: '1px solid',
+                borderColor: alpha('#dc2626', 0.18),
+                flexShrink: 0,
+                '&:hover': {
+                  color: '#ffffff',
+                  backgroundColor: 'error.main',
+                  borderColor: 'error.main',
+                },
+              }}
             >
               <LogoutRoundedIcon sx={{ fontSize: 16 }} />
             </IconButton>
@@ -178,7 +189,6 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const theme = useTheme()
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleNavigate = (section) => {

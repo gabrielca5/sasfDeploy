@@ -34,10 +34,14 @@ async function fetchDetalhe(prontuarioId) {
     ? await get(`/endereco/${representante.enderecoId}`).catch(() => null)
     : null
 
-  const todosTermos = await get('/termo').catch(() => [])
-  const termos = Array.isArray(todosTermos)
-    ? todosTermos.filter((t) => t.prontuarioId === prontuarioId)
-    : []
+  const todosTermos = await get('/termo?size=2000').catch(() => [])
+  // O backend devolve coleções paginadas (Spring Page: { content: [...] }).
+  const termosArray = Array.isArray(todosTermos)
+    ? todosTermos
+    : Array.isArray(todosTermos?.content)
+      ? todosTermos.content
+      : []
+  const termos = termosArray.filter((t) => t.prontuarioId === prontuarioId)
 
   return {
     prontuario,

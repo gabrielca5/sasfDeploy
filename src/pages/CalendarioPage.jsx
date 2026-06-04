@@ -240,7 +240,7 @@ function CalendarioPage() {
 
   const { data: rawPdus = [] } = useQuery({
     queryKey: ['pdu'],
-    queryFn: () => get('/pdu'),
+    queryFn: () => get('/pdu?size=2000'),
     staleTime: 5 * 60_000,
   })
 
@@ -250,21 +250,26 @@ function CalendarioPage() {
     }
   }, [profile?.name])
 
+  // O backend devolve coleções paginadas (Spring Page: { content: [...] }).
+  // Normaliza para array para evitar quebrar .filter/.map e deixar a tela branca.
+  const pdus = Array.isArray(rawPdus) ? rawPdus : rawPdus?.content ?? []
+  const eventos = Array.isArray(rawEvents) ? rawEvents : rawEvents?.content ?? []
+
   const myPdus = useMemo(() =>
-    rawPdus.filter(
+    pdus.filter(
       (p) => p.tecnicoReferenciaId === user?.userId || p.tecnicoAcompanhamentoId === user?.userId,
     ),
-  [rawPdus, user?.userId])
+  [pdus, user?.userId])
 
   const calendarEvents = useMemo(() =>
-    rawEvents.map((e) => ({
+    eventos.map((e) => ({
       id: e.id,
       title: e.titulo ?? '(sem título)',
       start: new Date(e.inicio),
       end: e.fim ? new Date(e.fim) : new Date(new Date(e.inicio).getTime() + 60 * 60 * 1000),
       resource: { type: 'google', data: e },
     })),
-  [rawEvents])
+  [eventos])
 
   const pduEvents = useMemo(() => {
     const events = []

@@ -56,6 +56,7 @@ import {
   formOptionControlSx,
   formOptionGroupSx,
 } from '../pages/ui/uiStyles'
+import { formatCpf, isValidCpf, onlyDigits } from '../utils/formatters'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
@@ -106,19 +107,6 @@ function createFormDraft(form) {
   }, {})
 }
 
-function onlyDigits(value) {
-  return String(value || '').replace(/\D/g, '')
-}
-
-function formatCpf(value) {
-  const digits = onlyDigits(value).slice(0, 11)
-  const part1 = digits.slice(0, 3)
-  const part2 = digits.slice(3, 6)
-  const part3 = digits.slice(6, 9)
-  const part4 = digits.slice(9, 11)
-  return [part1, part2, part3].filter(Boolean).join('.') + (part4 ? `-${part4}` : '')
-}
-
 function formatCep(value) {
   const digits = onlyDigits(value).slice(0, 8)
   const part1 = digits.slice(0, 5)
@@ -140,8 +128,12 @@ function formatPhone(value) {
   return `(${part1}) ${part2}-${part3}`
 }
 
+function isCpfField(field) {
+  return field?.id?.toLowerCase().includes('cpf')
+}
+
 function formatFieldValue(field, value) {
-  if (field?.id?.includes('cpf')) {
+  if (isCpfField(field)) {
     return formatCpf(value)
   }
   if (field?.id === 'cep' || field?.mascara === '00000-000') {
@@ -199,6 +191,11 @@ function getRequiredErrorMessage(field) {
 function collectRequiredFieldError(errors, key, field, value) {
   if (isFieldRequired(field) && isEmptyFieldValue(value)) {
     errors[key] = getRequiredErrorMessage(field)
+    return
+  }
+
+  if (isCpfField(field) && !isEmptyFieldValue(value) && !isValidCpf(value)) {
+    errors[key] = 'CPF inválido.'
   }
 }
 

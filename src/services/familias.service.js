@@ -2,6 +2,25 @@ import apiClient from '../lib/apiClient'
 
 const PRIORIDADE_LABEL = { BAIXA: 'Baixa', MEDIA: 'Média', ALTA: 'Alta' }
 
+// O backend passou a devolver coleções paginadas (Spring Page: { content: [...] }).
+// Esta helper aceita tanto o array puro (formato antigo) quanto o envelope paginado.
+function asArray(res) {
+  if (Array.isArray(res)) return res
+  if (Array.isArray(res?.content)) return res.content
+  return []
+}
+
+// O page size padrão do Spring é 20; sem isto a listagem só mostraria as 20
+// primeiras famílias/membros. Pedimos uma página grande para trazer tudo.
+const PAGE_SIZE = 2000
+
+// Acrescenta ?size=PAGE_SIZE preservando params já existentes.
+function withPageSize(path, params = {}) {
+  const search = new URLSearchParams(params)
+  if (!search.has('size')) search.set('size', String(PAGE_SIZE))
+  return `${path}?${search.toString()}`
+}
+
 export const DOCS_CONFIG = [
   { key: 'fichaCadastral',      label: 'Ficha Cadastral',            check: (p) => !!p?.fichaCadastralDaFamiliaId },
   { key: 'fichaAtualizacao',    label: 'Ficha de Atualização',       check: (p) => (p?.fichasAtualizacaoQuadroSituacionalIds?.length ?? 0) > 0 },
@@ -85,13 +104,12 @@ function normalizeFamilia(f, membros = [], prontuarios = [], termos = []) {
 }
 
 export async function listFamilias(params = {}) {
-  const query = new URLSearchParams(params).toString()
   const [familias, membros] = await Promise.all([
-    apiClient.get(`/familia${query ? `?${query}` : ''}`),
-    apiClient.get('/membro').catch(() => []),
+    apiClient.get(withPageSize('/familia', params)),
+    apiClient.get(withPageSize('/membro')).catch(() => []),
   ])
-  const famArray = Array.isArray(familias) ? familias : []
-  const memArray = Array.isArray(membros) ? membros : []
+  const famArray = asArray(familias)
+  const memArray = asArray(membros)
   // Prontuarios e termos não são mais buscados aqui — o doc tracking usa
   // o lazy load do useFamiliaDetalhe quando o usuário abre o painel.
   return famArray.map((f) => normalizeFamilia(f, memArray, [], []))
@@ -100,11 +118,11 @@ export async function listFamilias(params = {}) {
 export async function getFamilia(id) {
   const [familia, membros, prontuarios, termos] = await Promise.all([
     apiClient.get(`/familia/${id}`),
-    apiClient.get('/membro').catch(() => []),
-    apiClient.get('/prontuario').catch(() => []),
-    apiClient.get('/termo').catch(() => []),
+    apiClient.get(withPageSize('/membro')).catch(() => []),
+    apiClient.get(withPageSize('/prontuario')).catch(() => []),
+    apiClient.get(withPageSize('/termo')).catch(() => []),
   ])
-  return normalizeFamilia(familia, Array.isArray(membros) ? membros : [], Array.isArray(prontuarios) ? prontuarios : [], Array.isArray(termos) ? termos : [])
+  return normalizeFamilia(familia, asArray(membros), asArray(prontuarios), asArray(termos))
 }
 
 export async function createFamilia(payload) {
