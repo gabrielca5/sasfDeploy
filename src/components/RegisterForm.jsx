@@ -114,8 +114,9 @@ function PasswordRequirementsChecklist({ password, visible }) {
 }
 
 function RegisterForm() {
-  const [submitted, setSubmitted] = useState(false)
-  const { register, control, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(registerSchema) })
+  const { register, control, handleSubmit, formState: { errors, isSubmitted } } = useForm({
+    resolver: zodResolver(registerSchema),
+  })
   const cpfField = register('cpf')
   const password = useWatch({ control, name: 'senha', defaultValue: '' })
   const showPasswordChecklist = Boolean(password || errors.senha)
@@ -127,9 +128,6 @@ function RegisterForm() {
   const { register: registerUser } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const { register, handleSubmit, control, formState: { errors, isSubmitted } } = useForm({
-    resolver: zodResolver(registerSchema),
-  })
   const hasValidationErrors = isSubmitted && Object.keys(errors).length > 0
 
   const onSubmit = async (data) => {
