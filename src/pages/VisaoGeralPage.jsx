@@ -154,6 +154,7 @@ function VisaoGeralPage({ onOpenAction }) {
     <PageWrapper maxWidth={720} spacing={3}>
       <PageSection
         eyebrow="Visão geral"
+
         title="Olá, bem-vindo"
         description="Resumo do painel e ações rápidas."
       />

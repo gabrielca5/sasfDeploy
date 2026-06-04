@@ -18,7 +18,9 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 
 const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
+  email: z.string()
+    .email('Email inválido')
+    .refine((value) => value.toLowerCase().endsWith('@unas.org.br'), 'Use um email @unas.org.br'),
   senha: z.string().min(1, 'Informe a senha'),
 })
 
@@ -60,7 +62,7 @@ function LoginForm() {
           autoFocus
           error={!!errors.email}
           helperText={errors.email?.message}
-          placeholder="seu@email.gov.br"
+          placeholder="seu@unas.org.br"
         />
         <AuthPasswordField
           {...register('senha')}
