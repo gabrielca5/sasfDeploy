@@ -35,6 +35,7 @@ const passwordRequirements = [
   { label: 'Letra maiúscula', test: (value) => /[A-Z]/.test(value) },
   { label: 'Número', test: (value) => /[0-9]/.test(value) },
   { label: 'Caractere especial', test: (value) => /[^A-Za-z0-9]/.test(value) },
+]
 
 const CARGOS = [
   { value: 'ADMIN', label: 'Administrador' },
