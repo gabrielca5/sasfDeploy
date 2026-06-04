@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
