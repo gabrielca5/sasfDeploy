@@ -13,12 +13,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Divider, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import {
   ChartFrame,
+  ChartTooltipCard,
+  ErrorState,
+  LoadingState,
+  PageList,
+  PageListItem,
   PageCard,
   PageGrid,
+  PageMetricCard,
   PageSection,
   PageWrapper,
   StatusChip,
@@ -34,13 +39,6 @@ const monthlyData = [
   { month: 'Jun', familias: 43, cadastros: 29, atendimentos: 35 },
 ]
 
-const statusData = [
-  { name: 'Ativas', value: 18 },
-  { name: 'Acompanhamento', value: 9 },
-  { name: 'Pendentes', value: 6 },
-  { name: 'Concluídas', value: 11 },
-]
-
 const channelData = [
   { name: 'CRAS', value: 14 },
   { name: 'Busca ativa', value: 9 },
@@ -48,33 +46,26 @@ const channelData = [
   { name: 'Demanda espontânea', value: 7 },
 ]
 
-const statusColors = ['#1e88e5', '#5b9bd9', '#a9c6ea', '#d6e9fb']
-
-
-function DashboardTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) {
-    return null
-  }
-
-  return (
-    <PageCard surface="detail">
-      <Typography variant="body2" fontWeight={700} gutterBottom>
-        {label}
-      </Typography>
-      {payload.map((entry) => (
-        <Typography key={entry.dataKey} variant="caption" display="block" color="text.secondary">
-          {entry.name}: {entry.value}
-        </Typography>
-      ))}
-    </PageCard>
-  )
-}
+const chartNotes = [
+  {
+    title: 'Gráfico de linha/área',
+    description: 'Mostra tendência mensal de famílias, cadastros e atendimentos.',
+  },
+  {
+    title: 'Gráfico de pizza',
+    description: 'Ajuda a entender a distribuição atual das famílias por situação.',
+  },
+  {
+    title: 'Gráfico de barras',
+    description: 'Compara os canais de entrada para orientar ações operacionais.',
+  },
+]
 
 function GraficosPage() {
-  const { data: familiasData = [], isLoading } = useFamilias()
-  const familias = Array.isArray(familiasData) ? familiasData : []
+  const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
 
   const realStats = useMemo(() => {
+    const familias = Array.isArray(familiasData) ? familiasData : []
     const hoje = new Date()
     const trintaDiasAtras = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 30)
     const alta = familias.filter(f => f.prioridade === 'Alta').length
@@ -89,13 +80,16 @@ function GraficosPage() {
       { label: 'Prioridade Média', value: isLoading ? '—' : String(media), help: 'em acompanhamento' },
       { label: 'Visitadas (30 dias)', value: isLoading ? '—' : String(visitadasRecente), help: 'dados reais' },
     ]
-  }, [familias, isLoading])
+  }, [familiasData, isLoading])
 
-  const priorityData = useMemo(() => [
-    { name: 'Alta', value: familias.filter(f => f.prioridade === 'Alta').length },
-    { name: 'Média', value: familias.filter(f => f.prioridade === 'Média').length },
-    { name: 'Baixa', value: familias.filter(f => f.prioridade === 'Baixa').length },
-  ].filter(d => d.value > 0), [familias])
+  const priorityData = useMemo(() => {
+    const familias = Array.isArray(familiasData) ? familiasData : []
+    return [
+      { name: 'Alta', value: familias.filter(f => f.prioridade === 'Alta').length },
+      { name: 'Média', value: familias.filter(f => f.prioridade === 'Média').length },
+      { name: 'Baixa', value: familias.filter(f => f.prioridade === 'Baixa').length },
+    ].filter(d => d.value > 0)
+  }, [familiasData])
 
   return (
     <PageWrapper maxWidth={1200} spacing={3}>
@@ -106,21 +100,24 @@ function GraficosPage() {
         actions={<StatusChip label="Dados reais" tone="highlight" />}
       />
 
-      <PageGrid variant="stats">
-        {realStats.map((item) => (
-          <PageCard key={item.label} hover>
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              {item.label}
-            </Typography>
-            <Typography variant="h4" fontWeight={800} gutterBottom>
-              {item.value}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {item.help}
-            </Typography>
-          </PageCard>
-        ))}
-      </PageGrid>
+      {isError && (
+        <ErrorState
+          title="Não foi possível atualizar os dados dos gráficos"
+          message="Os gráficos com dados reais podem estar desatualizados."
+          onRetry={refetch}
+          compact
+        />
+      )}
+
+      {isLoading ? (
+        <LoadingState message="Carregando estatísticas..." skeleton variant="cards" rows={4} />
+      ) : (
+        <PageGrid variant="stats">
+          {realStats.map((item) => (
+            <PageMetricCard key={item.label} label={item.label} value={item.value} helper={item.help} />
+          ))}
+        </PageGrid>
+      )}
 
       <PageGrid variant="chart">
         <PageCard
@@ -135,7 +132,7 @@ function GraficosPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
-                <Tooltip content={<DashboardTooltip />} />
+                <Tooltip content={<ChartTooltipCard />} />
                 <Legend />
                 <Area type="monotone" dataKey="familias" name="Famílias" stroke="#1e88e5" fill="#1e88e5" fillOpacity={0.18} strokeWidth={2} />
                 <Area type="monotone" dataKey="cadastros" name="Cadastros" stroke="#5b9bd9" fill="#5b9bd9" fillOpacity={0.16} strokeWidth={2} />
@@ -154,7 +151,7 @@ function GraficosPage() {
           <ChartFrame>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Tooltip content={<DashboardTooltip />} />
+                <Tooltip content={<ChartTooltipCard />} />
                 <Legend />
                 <Pie data={priorityData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={92} paddingAngle={3}>
                   {priorityData.map((entry) => {
@@ -181,7 +178,7 @@ function GraficosPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
-                <Tooltip content={<DashboardTooltip />} />
+                <Tooltip content={<ChartTooltipCard />} />
                 <Bar dataKey="value" name="Cadastros" fill="#1e88e5" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -193,25 +190,16 @@ function GraficosPage() {
           title="Texto de apoio para a futura camada analítica"
           subtitle="Os valores ainda são simulados. O objetivo aqui é deixar o padrão visual pronto para conectar dados reais depois, sem refazer o layout."
         >
-          <Divider />
-          <Typography variant="body2" fontWeight={700} gutterBottom>
-            Gráfico de linha/área
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Mostra tendência mensal de famílias, cadastros e atendimentos.
-          </Typography>
-          <Typography variant="body2" fontWeight={700} gutterBottom>
-            Gráfico de pizza
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Ajuda a entender a distribuição atual das famílias por situação.
-          </Typography>
-          <Typography variant="body2" fontWeight={700} gutterBottom>
-            Gráfico de barras
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Compara os canais de entrada para orientar ações operacionais.
-          </Typography>
+          <PageList variant="embedded">
+            {chartNotes.map((item) => (
+              <PageListItem
+                key={item.title}
+                title={item.title}
+                subtitle={item.description}
+                variant="compact"
+              />
+            ))}
+          </PageList>
         </PageCard>
       </PageGrid>
     </PageWrapper>

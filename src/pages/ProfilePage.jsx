@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Button, CircularProgress, Divider, Stack } from '@mui/material'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
 import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
@@ -16,16 +15,23 @@ import { z } from 'zod'
 import { get, put } from '../lib/apiClient'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  AuthAlert,
+  ActionButton,
+  AuthForm,
   AuthTextField,
-  DetailItem,
+  ButtonLoading,
+  ErrorState,
+  InfoGrid,
+  InlineFeedback,
+  LoadingState,
+  PageActionItem,
   PageAvatar,
-  PageCard,
   PageDialog,
-  PageGrid,
   PageSection,
+  PageStack,
   PageToolbar,
   PageWrapper,
+  SectionBlock,
+  StatusBanner,
   StatusChip,
 } from './ui'
 
@@ -49,11 +55,11 @@ const editSchema = z.object({
   endereco: z.string().min(3, 'Informe o endereço'),
 })
 
-function EditProfileDialog({ open, onClose, profile, userId }) {
+function EditProfileDialog({ open, onClose, onSaved, profile, userId }) {
   const queryClient = useQueryClient()
   const [serverError, setServerError] = useState(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitted } } = useForm({
     resolver: zodResolver(editSchema),
     defaultValues: {
       name: profile?.name ?? '',
@@ -63,6 +69,7 @@ function EditProfileDialog({ open, onClose, profile, userId }) {
       endereco: profile?.endereco ?? '',
     },
   })
+  const hasValidationErrors = isSubmitted && Object.keys(errors).length > 0
 
   const mutation = useMutation({
     mutationFn: (data) =>
@@ -75,6 +82,7 @@ function EditProfileDialog({ open, onClose, profile, userId }) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuario', userId] })
+      onSaved?.()
       onClose()
     },
     onError: (e) => {
@@ -95,27 +103,28 @@ function EditProfileDialog({ open, onClose, profile, userId }) {
       showClose
       maxWidth="sm"
       actions={
-        <Stack direction="row" spacing={1}>
-          <Button onClick={onClose} disabled={mutation.isPending}>Cancelar</Button>
-          <Button
+        <PageToolbar direction="row" alignItems="center" justifyContent="flex-end">
+          <ActionButton onClick={onClose} disabled={mutation.isPending}>Cancelar</ActionButton>
+          <ButtonLoading
             variant="contained"
             form="edit-profile-form"
             type="submit"
-            disabled={mutation.isPending}
+            loading={mutation.isPending}
+            loadingLabel="Salvando..."
           >
-            {mutation.isPending ? 'Salvando…' : 'Salvar'}
-          </Button>
-        </Stack>
+            Salvar
+          </ButtonLoading>
+        </PageToolbar>
       }
     >
-      <Stack
-        component="form"
+      <AuthForm
         id="edit-profile-form"
         onSubmit={handleSubmit(onSubmit)}
-        spacing={2}
-        sx={{ pt: 1 }}
       >
-        {serverError && <AuthAlert severity="error">{serverError}</AuthAlert>}
+        {serverError && <InlineFeedback severity="error" message={serverError} />}
+        {hasValidationErrors && (
+          <InlineFeedback severity="error" message="Revise os campos destacados antes de salvar." compact />
+        )}
         <AuthTextField
           {...register('name')}
           label="Nome completo"
@@ -149,7 +158,7 @@ function EditProfileDialog({ open, onClose, profile, userId }) {
           error={!!errors.endereco}
           helperText={errors.endereco?.message}
         />
-      </Stack>
+      </AuthForm>
     </PageDialog>
   )
 }
@@ -157,8 +166,9 @@ function EditProfileDialog({ open, onClose, profile, userId }) {
 function ProfilePage() {
   const { user } = useAuth()
   const [editOpen, setEditOpen] = useState(false)
+  const [savedProfile, setSavedProfile] = useState(false)
 
-  const { data: profile, isLoading, isError } = useQuery({
+  const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ['usuario', user?.userId],
     queryFn: () => get(`/usuario/${user.userId}`),
     enabled: !!user?.userId,
@@ -168,7 +178,19 @@ function ProfilePage() {
   if (isLoading) {
     return (
       <PageWrapper maxWidth={1200} spacing={3}>
-        <CircularProgress size={32} sx={{ m: 'auto', display: 'block', mt: 6 }} />
+        <LoadingState message="Carregando perfil..." skeleton variant="form" rows={4} />
+      </PageWrapper>
+    )
+  }
+
+  if (isError && !profile) {
+    return (
+      <PageWrapper maxWidth={1200} spacing={3}>
+        <ErrorState
+          title="Não foi possível carregar o perfil"
+          message="Verifique sua conexão e tente novamente."
+          onRetry={refetch}
+        />
       </PageWrapper>
     )
   }
@@ -176,6 +198,38 @@ function ProfilePage() {
   const nome = profile?.name ?? user?.email ?? ''
   const cargo = profile?.cargo ?? user?.cargo ?? ''
   const cargoLabel = cargoLabels[cargo] ?? cargo
+  const profileDetails = [
+    {
+      label: 'Nome completo',
+      value: profile?.name ?? '—',
+      icon: <PersonOutlineOutlinedIcon fontSize="small" />,
+    },
+    {
+      label: 'Cargo',
+      value: cargoLabel,
+      icon: <WorkOutlineOutlinedIcon fontSize="small" />,
+    },
+    {
+      label: 'Email',
+      value: profile?.email ?? user?.email ?? '—',
+      icon: <EmailOutlinedIcon fontSize="small" />,
+    },
+    {
+      label: 'CPF',
+      value: profile?.cpf ?? '—',
+      icon: <BadgeOutlinedIcon fontSize="small" />,
+    },
+    {
+      label: 'Telefone',
+      value: profile?.telefone ?? '—',
+      icon: <PhoneOutlinedIcon fontSize="small" />,
+    },
+    {
+      label: 'Endereço',
+      value: profile?.endereco ?? '—',
+      icon: <HomeOutlinedIcon fontSize="small" />,
+    },
+  ]
 
   return (
     <PageWrapper maxWidth={1200} spacing={3}>
@@ -184,14 +238,16 @@ function ProfilePage() {
         title={nome}
         description={cargoLabel}
         actions={
-          <Button
-            variant="outlined"
+          <ActionButton
             startIcon={<EditRoundedIcon />}
-            onClick={() => setEditOpen(true)}
+            onClick={() => {
+              setSavedProfile(false)
+              setEditOpen(true)
+            }}
             disabled={!profile}
           >
             Editar perfil
-          </Button>
+          </ActionButton>
         }
       >
         <PageToolbar
@@ -206,72 +262,44 @@ function ProfilePage() {
           </PageToolbar>
         </PageToolbar>
 
-        <Divider />
-
-        <PageGrid variant="detail2">
-          <DetailItem
-            label="Nome completo"
-            value={profile?.name ?? '—'}
-            icon={<PersonOutlineOutlinedIcon fontSize="small" />}
-          />
-          <DetailItem
-            label="Cargo"
-            value={cargoLabel}
-            icon={<WorkOutlineOutlinedIcon fontSize="small" />}
-          />
-          <DetailItem
-            label="Email"
-            value={profile?.email ?? user?.email ?? '—'}
-            icon={<EmailOutlinedIcon fontSize="small" />}
-          />
-          <DetailItem
-            label="CPF"
-            value={profile?.cpf ?? '—'}
-            icon={<BadgeOutlinedIcon fontSize="small" />}
-          />
-          <DetailItem
-            label="Telefone"
-            value={profile?.telefone ?? '—'}
-            icon={<PhoneOutlinedIcon fontSize="small" />}
-          />
-          <DetailItem
-            label="Endereço"
-            value={profile?.endereco ?? '—'}
-            icon={<HomeOutlinedIcon fontSize="small" />}
-          />
-        </PageGrid>
+        <SectionBlock title="Dados do perfil" variant="plain">
+          <InfoGrid detailVariant="plain" items={profileDetails} />
+        </SectionBlock>
 
         {isError && (
-          <AuthAlert severity="error">Não foi possível carregar os dados do perfil.</AuthAlert>
+          <InlineFeedback severity="error" message="Não foi possível atualizar os dados do perfil agora." />
         )}
       </PageSection>
 
-      <PageCard
-        eyebrow="Configurações da conta"
-        title="Funcionalidades em desenvolvimento para próximas versões do sistema."
+      {savedProfile && (
+        <StatusBanner severity="success" message="Perfil atualizado com sucesso." />
+      )}
+
+      <SectionBlock
+        title="Configurações da conta"
+        subtitle="Funcionalidades em desenvolvimento para próximas versões do sistema."
       >
-        <PageGrid variant="detail2">
-          <PageCard
+        <PageStack spacing={1}>
+          <PageActionItem
             title="Segurança"
-            subtitle="Alterar senha e autenticação"
-            icon={<SecurityOutlinedIcon fontSize="small" />}
-            iconTone="muted"
-            badge="Em breve"
+            description="Alterar senha e autenticação"
+            icon={SecurityOutlinedIcon}
+            disabled
           />
-          <PageCard
+          <PageActionItem
             title="Notificações"
-            subtitle="Preferências de alertas e avisos"
-            icon={<NotificationsOutlinedIcon fontSize="small" />}
-            iconTone="muted"
-            badge="Em breve"
+            description="Preferências de alertas e avisos"
+            icon={NotificationsOutlinedIcon}
+            disabled
           />
-        </PageGrid>
-      </PageCard>
+        </PageStack>
+      </SectionBlock>
 
       {profile && (
         <EditProfileDialog
           open={editOpen}
           onClose={() => setEditOpen(false)}
+          onSaved={() => setSavedProfile(true)}
           profile={profile}
           userId={user.userId}
         />

@@ -3,8 +3,6 @@ import { Box, ButtonBase, Paper, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
-import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import FamilyRestroomOutlinedIcon from '@mui/icons-material/FamilyRestroomOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined'
@@ -12,7 +10,10 @@ import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import useFamilias from '../hooks/useFamilias'
 import {
+  PageActionItem,
+  ErrorState,
   PageGrid,
+  PageMetricCard,
   PageSection,
   PageStack,
   PageWrapper,
@@ -137,10 +138,10 @@ function ActionRow({ action, onClick }) {
 }
 
 function VisaoGeralPage({ onOpenAction }) {
-  const { data: familiasData = [], isLoading } = useFamilias()
-  const familias = Array.isArray(familiasData) ? familiasData : []
+  const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
 
   const stats = useMemo(() => {
+    const familias = Array.isArray(familiasData) ? familiasData : []
     const hoje = new Date()
     const trintaDiasAtras = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 30)
 
@@ -156,21 +157,30 @@ function VisaoGeralPage({ onOpenAction }) {
     }).length
 
     return { total: familias.length, alta, visitadasRecente, proximaVisitaHoje }
-  }, [familias])
+  }, [familiasData])
 
   return (
-    <PageWrapper maxWidth={720} spacing={3}>
+    <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Visão geral"
         title="Olá, bem-vindo"
         description="Resumo do painel e ações rápidas."
       />
 
+      {isError && (
+        <ErrorState
+          title="Não foi possível atualizar a visão geral"
+          message="As informações podem estar desatualizadas."
+          onRetry={refetch}
+          compact
+        />
+      )}
+
       <PageGrid variant="stats">
-        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
-        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" bg="#FEE2E2" loading={isLoading} />
-        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" bg="#D1FAE5" loading={isLoading} />
-        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" bg="#FEF3C7" loading={isLoading} />
+        <PageMetricCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
+        <PageMetricCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" backgroundColor="#FEE2E2" loading={isLoading} />
+        <PageMetricCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" backgroundColor="#D1FAE5" loading={isLoading} />
+        <PageMetricCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" backgroundColor="#FEF3C7" loading={isLoading} />
       </PageGrid>
 
       <PageSection
@@ -179,10 +189,15 @@ function VisaoGeralPage({ onOpenAction }) {
       />
 
       <PageStack spacing={1.5}>
-        {actions.map((action) => (
-          <ActionRow
+        {actions.map((action, index) => (
+          <PageActionItem
             key={action.slug}
-            action={action}
+            title={action.label}
+            description={action.description}
+            hint={action.hint}
+            icon={action.icon}
+            selected={index === 0}
+            disabled={!action.available}
             onClick={() => onOpenAction(action.slug)}
           />
         ))}

@@ -330,6 +330,71 @@ export const chartBoxCompactSx = {
   height: { xs: 240, sm: 280, md: 300 },
 }
 
+export const calendarSurfaceSx = {
+  backgroundColor: '#ffffff',
+  '& .rbc-calendar': { fontFamily: 'inherit', minHeight: 580, backgroundColor: '#ffffff' },
+  '& .rbc-toolbar': { mb: 1.5, flexWrap: 'wrap', gap: 1 },
+  '& .rbc-toolbar button': {
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px !important',
+    px: 1.5,
+    py: 0.5,
+    fontSize: '0.8125rem',
+    fontWeight: 600,
+    color: '#374151',
+    cursor: 'pointer',
+    background: '#fff',
+    '&:hover': { background: '#f3f4f6' },
+    '&.rbc-active': {
+      background: '#1e88e5 !important',
+      color: '#fff !important',
+      borderColor: '#1e88e5 !important',
+    },
+  },
+  '& .rbc-month-view': {
+    backgroundColor: '#ffffff',
+    borderRadius: 2,
+    overflow: 'hidden',
+    border: '1px solid #e5e7eb',
+  },
+  '& .rbc-header': {
+    py: 0.75,
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    color: '#6b7280',
+    borderColor: '#e5e7eb',
+  },
+  '& .rbc-day-bg': { backgroundColor: '#ffffff', borderColor: '#f3f4f6 !important' },
+  '& .rbc-off-range-bg': { background: '#fafafa' },
+  '& .rbc-today': { background: 'rgba(30,136,229,0.06) !important' },
+  '& .rbc-event': {
+    background: '#1e88e5',
+    borderRadius: '6px !important',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    border: 'none !important',
+    px: '6px !important',
+  },
+  '& .rbc-show-more': {
+    color: '#1e88e5',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+  },
+  '& .rbc-date-cell': {
+    px: 0.75,
+    pt: 0.5,
+    fontSize: '0.8125rem',
+    fontWeight: 600,
+  },
+  '& .rbc-time-view': {
+    backgroundColor: '#ffffff',
+    borderRadius: 2,
+    border: '1px solid #e5e7eb',
+  },
+  '& .rbc-agenda-view': { backgroundColor: '#ffffff' },
+  '& .rbc-agenda-view table': { fontSize: '0.875rem', backgroundColor: '#ffffff' },
+}
+
 export const iconTilePrimarySx = {
   width: 42,
   height: 42,
@@ -921,6 +986,71 @@ export const formActionsBarSx = {
 
 export const formAlertSx = {
   borderRadius: 1.5,
+}
+
+// ─── System states / feedback ───────────────────────────────────────────────
+
+export const pageStateSx = {
+  p: { xs: 2, sm: 2.5 },
+  borderRadius: 2,
+  borderColor: 'divider',
+  backgroundColor: '#ffffff',
+  minWidth: 0,
+  maxWidth: '100%',
+}
+
+export const pageStateCompactSx = {
+  p: 1.5,
+  borderRadius: 2,
+  borderColor: 'rgba(17, 24, 39, 0.08)',
+  backgroundColor: '#fbfcfe',
+  minWidth: 0,
+  maxWidth: '100%',
+}
+
+export const pageStateCenteredSx = {
+  alignItems: 'center',
+  textAlign: 'center',
+}
+
+export const pageStateIconSx = {
+  width: 42,
+  height: 42,
+  borderRadius: 2,
+  display: 'grid',
+  placeItems: 'center',
+  flexShrink: 0,
+}
+
+export const pageStateIconCompactSx = {
+  width: 34,
+  height: 34,
+  borderRadius: 1.5,
+  display: 'grid',
+  placeItems: 'center',
+  flexShrink: 0,
+}
+
+export const inlineFeedbackSx = {
+  borderRadius: 1.5,
+  alignItems: 'flex-start',
+  '& .MuiAlert-message': {
+    minWidth: 0,
+  },
+}
+
+export const statusBannerSx = {
+  borderRadius: 2,
+  alignItems: 'flex-start',
+  '& .MuiAlert-message': {
+    minWidth: 0,
+    width: '100%',
+  },
+}
+
+export const skeletonBlockSx = {
+  borderRadius: 2,
+  backgroundColor: 'rgba(17, 24, 39, 0.08)',
 }
 
 // ─── Auth layout ─────────────────────────────────────────────────────────────

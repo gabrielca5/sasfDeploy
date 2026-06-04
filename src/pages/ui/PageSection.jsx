@@ -31,11 +31,14 @@ function PageSection({
   direction = { xs: 'column', lg: 'row' },
   justifyContent = 'space-between',
   alignItems = { xs: 'flex-start', lg: 'center' },
+  centered = false,
 }) {
+  const resolvedContentSx = centered ? { textAlign: 'center', ...contentSx } : contentSx
+
   return (
     <Paper elevation={0} variant="outlined" sx={{ ...pageSectionPaperSx, ...sx }}>
       {actions ? (
-        <Box sx={{ ...pageSectionHeaderGridSx, ...contentSx }}>
+        <Box sx={{ ...pageSectionHeaderGridSx, ...resolvedContentSx }}>
           <Box sx={{ minWidth: 0 }}>
             {eyebrow ? (
               typeof eyebrow === 'string' ? (
@@ -66,7 +69,7 @@ function PageSection({
           direction={direction}
           justifyContent={justifyContent}
           alignItems={alignItems}
-          sx={{ minWidth: 0, ...contentSx }}
+          sx={{ minWidth: 0, ...resolvedContentSx }}
         >
           <Box sx={{ minWidth: 0 }}>
             {eyebrow ? (

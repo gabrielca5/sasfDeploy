@@ -24,6 +24,7 @@ import {
   AuthPasswordField,
   AuthSubmitButton,
   AuthTextField,
+  InlineFeedback,
 } from '../pages/ui'
 import { formatCpf, isValidCpf, onlyDigits } from '../utils/formatters'
 import { useAuth } from '../contexts/AuthContext'
@@ -126,6 +127,10 @@ function RegisterForm() {
   const { register: registerUser } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const { register, handleSubmit, control, formState: { errors, isSubmitted } } = useForm({
+    resolver: zodResolver(registerSchema),
+  })
+  const hasValidationErrors = isSubmitted && Object.keys(errors).length > 0
 
   const onSubmit = async (data) => {
     setIsLoading(true)
@@ -166,6 +171,10 @@ function RegisterForm() {
 
       <AuthForm id="register-form" onSubmit={handleSubmit(onSubmit)}>
         {error && <AuthAlert severity="error">{error}</AuthAlert>}
+        {hasValidationErrors && (
+          <InlineFeedback severity="error" message="Revise os campos destacados antes de criar a conta." compact />
+        )}
+
         <AuthTextField
           {...register('nome')}
           label="Nome completo"
@@ -240,8 +249,8 @@ function RegisterForm() {
           helperText={errors.repetirSenha?.message}
         />
 
-        <AuthSubmitButton disabled={isLoading}>
-          {isLoading ? 'Criando conta…' : 'Criar conta'}
+        <AuthSubmitButton loading={isLoading} loadingLabel="Criando conta...">
+          Criar conta
         </AuthSubmitButton>
       </AuthForm>
 

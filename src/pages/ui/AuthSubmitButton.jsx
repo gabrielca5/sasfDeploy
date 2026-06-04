@@ -1,11 +1,20 @@
-import Button from '../../components/ui/button'
 import { authSubmitButtonSx } from './uiStyles'
+import ButtonLoading from './ButtonLoading'
 
-function AuthSubmitButton({ children, ...props }) {
+function AuthSubmitButton({ children, loading = false, loadingLabel, ...props }) {
   return (
-    <Button type="submit" fullWidth size="large" sx={authSubmitButtonSx} {...props}>
+    <ButtonLoading
+      type="submit"
+      fullWidth
+      size="large"
+      variant="contained"
+      loading={loading}
+      loadingLabel={loadingLabel}
+      sx={authSubmitButtonSx}
+      {...props}
+    >
       {children}
-    </Button>
+    </ButtonLoading>
   )
 }
 

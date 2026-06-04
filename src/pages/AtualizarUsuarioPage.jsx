@@ -1,20 +1,23 @@
 import { useMemo, useState } from 'react'
-import { Divider, TextField, Typography } from '@mui/material'
-import Button from '../components/ui/button'
+import { TextField } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
 import {
-  DetailItem,
+  ActionButton,
   EmptyState,
   FilterPanel,
+  InfoGrid,
   PageCard,
   PageGrid,
   PageList,
   PageListItem,
   PageSection,
+  PageStack,
   PageToolbar,
   PageWrapper,
+  SectionBlock,
   StatusChip,
 } from './ui'
 
@@ -39,81 +42,105 @@ function AtualizarUsuarioPage({ users = [], onBack, onOpenForm }) {
     return users.find((user) => user.id === selectedUserId) ?? users[0] ?? null
   }, [selectedUserId, users])
 
+  const selectedUserDetails = selectedUser
+    ? [
+        selectedUser.documento && { label: 'Documento', value: selectedUser.documento, icon: <BadgeOutlinedIcon fontSize="small" /> },
+        selectedUser.cpf && { label: 'CPF', value: selectedUser.cpf, icon: <BadgeOutlinedIcon fontSize="small" /> },
+        selectedUser.ultimaAtualizacao && { label: 'Última atualização', value: selectedUser.ultimaAtualizacao, icon: <BadgeOutlinedIcon fontSize="small" /> },
+        selectedUser.observacao && { label: 'Observação', value: selectedUser.observacao, icon: <PersonOutlineOutlinedIcon fontSize="small" /> },
+      ].filter(Boolean)
+    : []
+
   return (
     <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Usuários"
         title="Atualizar usuário"
         description="Primeiro escolha uma pessoa na lista. Depois o sistema abre o contexto correto para atualizar os dados com base naquele usuário."
+        actions={<StatusChip label={`${users.length} usuários`} tone="highlight" />}
       />
 
       <FilterPanel title="Busca de usuário">
-        <TextField
-          label="Pesquisar usuário"
-          placeholder="Nome, CPF, família ou status"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          fullWidth
-        />
-        <Typography variant="body2" color="text.secondary">
-          {filteredUsers.length} usuário(s) encontrado(s)
-        </Typography>
+        <PageStack spacing={1.5}>
+          <TextField
+            label="Pesquisar usuário"
+            placeholder="Nome, CPF, família ou status"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            fullWidth
+          />
+          <PageToolbar justifyContent="flex-start">
+            <StatusChip label={`${filteredUsers.length} usuário(s) encontrado(s)`} />
+          </PageToolbar>
+        </PageStack>
       </FilterPanel>
 
       <PageGrid variant="split">
-        <PageList title="Lista de usuários">
-          {filteredUsers.map((user) => {
-            const selected = user.id === selectedUser?.id
+        <PageList title="Lista de usuários" actions={<StatusChip label={`${filteredUsers.length}`} />}>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => {
+              const selected = user.id === selectedUser?.id
 
-            return (
-              <PageListItem
-                key={user.id}
-                title={user.nome}
-                subtitle={user.familia}
-                selected={selected}
-                onClick={() => setSelectedUserId(user.id)}
-                actions={<StatusChip label={selected ? 'Selecionado' : 'Abrir'} tone={selected ? 'highlight' : undefined} />}
-                footer={
-                  <PageToolbar justifyContent="flex-start">
-                    <StatusChip label={user.status} tone="highlight" />
-                    {user.cpf && <StatusChip label={user.cpf} />}
-                    {user.ultimaAtualizacao && <StatusChip label={`Atualizado em ${user.ultimaAtualizacao}`} />}
-                  </PageToolbar>
-                }
-              />
-            )
-          })}
+              return (
+                <PageListItem
+                  key={user.id}
+                  title={user.nome}
+                  subtitle={user.familia}
+                  selected={selected}
+                  onClick={() => setSelectedUserId(user.id)}
+                  actions={<StatusChip label={selected ? 'Selecionado' : 'Abrir'} tone={selected ? 'highlight' : undefined} />}
+                  footer={
+                    <PageToolbar justifyContent="flex-start">
+                      <StatusChip label={user.status} tone="highlight" />
+                      {user.cpf && <StatusChip label={user.cpf} />}
+                      {user.ultimaAtualizacao && <StatusChip label={`Atualizado em ${user.ultimaAtualizacao}`} />}
+                    </PageToolbar>
+                  }
+                />
+              )
+            })
+          ) : (
+            <EmptyState
+              message="Nenhum usuário encontrado com o filtro atual."
+              action={<ActionButton onClick={() => setSearch('')}>Limpar busca</ActionButton>}
+            />
+          )}
         </PageList>
 
-        <PageCard eyebrow="Detalhes da seleção" title={selectedUser?.nome} subtitle={selectedUser?.familia}>
-          {filteredUsers.length === 0 ? (
-            <EmptyState message="Nenhum usuário encontrado com o filtro atual. Limpe a busca para voltar à lista." />
-          ) : selectedUser ? (
-            <>
-              <Divider />
-              <PageGrid variant="detail2">
-                <StatusChip label={selectedUser.status} tone="highlight" fit />
-                {selectedUser.documento && <DetailItem label="Documento" value={selectedUser.documento} icon={<BadgeOutlinedIcon fontSize="small" />} />}
-                {selectedUser.cpf && <DetailItem label="CPF" value={selectedUser.cpf} icon={<BadgeOutlinedIcon fontSize="small" />} />}
-                {selectedUser.ultimaAtualizacao && <DetailItem label="Última atualização" value={selectedUser.ultimaAtualizacao} icon={<BadgeOutlinedIcon fontSize="small" />} />}
-                {selectedUser.observacao && <DetailItem label="Observação" value={selectedUser.observacao} icon={<PersonOutlineOutlinedIcon fontSize="small" />} />}
-              </PageGrid>
+        <PageCard
+          eyebrow="Detalhes da seleção"
+          title={selectedUser?.nome}
+          subtitle={selectedUser?.familia}
+          actions={selectedUser ? <StatusChip label={selectedUser.status} tone="highlight" /> : null}
+        >
+          <PageStack spacing={1.5}>
+            {filteredUsers.length === 0 ? (
+              <EmptyState
+                message="Nenhum usuário encontrado com o filtro atual. Limpe a busca para voltar à lista."
+                action={<ActionButton onClick={() => setSearch('')}>Limpar busca</ActionButton>}
+              />
+            ) : selectedUser ? (
+              <>
+                <SectionBlock title="Dados do usuário" variant="plain">
+                  <InfoGrid detailVariant="plain" items={selectedUserDetails} />
+                </SectionBlock>
 
-              <PageToolbar justifyContent="flex-start">
-                <Button variant="contained" onClick={() => onOpenForm?.(selectedUser.id)}>
-                  Abrir atualização do usuário
-                </Button>
-              </PageToolbar>
-            </>
-          ) : (
-            <EmptyState message="Selecione um usuário na lista para começar a atualização." />
-          )}
+                <PageToolbar justifyContent="flex-start">
+                  <ActionButton variant="contained" startIcon={<EditOutlinedIcon />} onClick={() => onOpenForm?.(selectedUser.id)}>
+                    Abrir atualização do usuário
+                  </ActionButton>
+                </PageToolbar>
+              </>
+            ) : (
+              <EmptyState message="Selecione um usuário na lista para começar a atualização." />
+            )}
 
-          <PageToolbar justifyContent="flex-start">
-            <Button variant="outlined" startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
-              Voltar para cadastro
-            </Button>
-          </PageToolbar>
+            <PageToolbar justifyContent="flex-start">
+              <ActionButton startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
+                Voltar para cadastro
+              </ActionButton>
+            </PageToolbar>
+          </PageStack>
         </PageCard>
       </PageGrid>
     </PageWrapper>

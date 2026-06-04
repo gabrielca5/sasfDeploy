@@ -14,6 +14,7 @@ import {
   AuthPasswordField,
   AuthSubmitButton,
   AuthTextField,
+  InlineFeedback,
 } from '../pages/ui'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -29,7 +30,8 @@ function LoginForm() {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(loginSchema) })
+  const { register, handleSubmit, formState: { errors, isSubmitted } } = useForm({ resolver: zodResolver(loginSchema) })
+  const hasValidationErrors = isSubmitted && Object.keys(errors).length > 0
 
   const onSubmit = async (data) => {
     setIsLoading(true)
@@ -54,6 +56,9 @@ function LoginForm() {
 
       <AuthForm onSubmit={handleSubmit(onSubmit)}>
         {error && <AuthAlert severity="error">{error}</AuthAlert>}
+        {hasValidationErrors && (
+          <InlineFeedback severity="error" message="Revise os campos destacados antes de entrar." compact />
+        )}
         <AuthTextField
           {...register('email')}
           label="Email institucional"
@@ -71,8 +76,8 @@ function LoginForm() {
           error={!!errors.senha}
           helperText={errors.senha?.message}
         />
-        <AuthSubmitButton disabled={isLoading}>
-          {isLoading ? 'Entrando…' : 'Entrar'}
+        <AuthSubmitButton loading={isLoading} loadingLabel="Entrando...">
+          Entrar
         </AuthSubmitButton>
       </AuthForm>
 

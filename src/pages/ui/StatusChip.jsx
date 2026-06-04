@@ -22,6 +22,11 @@ const toneStyles = {
     color: 'warning.main',
     fontWeight: 700,
   },
+  error: {
+    backgroundColor: 'error.light',
+    color: 'error.main',
+    fontWeight: 700,
+  },
 }
 
 function resolveStatusProps(status) {

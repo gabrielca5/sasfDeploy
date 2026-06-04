@@ -1,11 +1,9 @@
 import {
-  Button,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   TextField,
-  Typography,
 } from '@mui/material'
 import { useMemo, useState, useCallback } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
@@ -28,6 +26,8 @@ import {
   ActionButton,
   DetailItem,
   EmptyState,
+  ErrorState,
+  LoadingState,
   PageCard,
   PageDialog,
   PageGrid,
@@ -35,6 +35,7 @@ import {
   PageListItem,
   PageSection,
   PageStack,
+  PageText,
   PageToolbar,
   PageWrapper,
   SectionBlock,
@@ -45,9 +46,9 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
   const [query, setQuery] = useState('')
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
   const [selectedFormId, setSelectedFormId] = useState(formsList[0]?.id ?? '')
-  const { data: familiasData = [] } = useFamilias()
+  const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
 
-  const familiasList = Array.isArray(familiasData) ? familiasData : []
+  const familiasList = useMemo(() => (Array.isArray(familiasData) ? familiasData : []), [familiasData])
   const resetState = () => {
     setQuery('')
     setSelectedFamilyId('')
@@ -105,11 +106,11 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
       }
     >
       <PageStack spacing={2.25}>
-        <Typography variant="body2" color="text.secondary">
+        <PageText>
           {mode === 'novo'
             ? 'Crie um novo prontuário selecionando a ficha inicial. Os dados serão preenchidos a partir do formulário escolhido.'
             : 'Busque a família, confirme o prontuário e escolha a ficha que deseja adicionar.'}
-        </Typography>
+        </PageText>
 
         {mode === 'existente' && (
           <SectionBlock title="Buscar família" variant="plain">
@@ -122,7 +123,16 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
               />
 
               <PageList variant="embedded">
-                {filteredFamilies.map((family) => {
+                {isError ? (
+                  <ErrorState
+                    title="Não foi possível carregar famílias"
+                    message="Tente novamente para selecionar um prontuário."
+                    onRetry={refetch}
+                    compact
+                  />
+                ) : isLoading ? (
+                  <LoadingState message="Carregando famílias..." skeleton variant="list" rows={3} />
+                ) : filteredFamilies.map((family) => {
                   const selected = family.id === selectedFamilyId
 
                   return (
@@ -147,7 +157,12 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
                   )
                 })}
 
-                {filteredFamilies.length === 0 && <EmptyState message="Nenhuma família encontrada." />}
+                {!isLoading && !isError && filteredFamilies.length === 0 && (
+                  <EmptyState
+                    message="Nenhuma família encontrada."
+                    action={<ActionButton onClick={() => setQuery('')}>Limpar busca</ActionButton>}
+                  />
+                )}
               </PageList>
             </PageStack>
           </SectionBlock>
@@ -198,7 +213,7 @@ function CadastroLandingPage({ onStartForm, formsList }) {
   const [dialogMode, setDialogMode] = useState(null)
 
   return (
-    <PageWrapper maxWidth={1200} spacing={2.5}>
+    <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Novo registro"
         title="Como você deseja iniciar o atendimento?"
@@ -210,9 +225,9 @@ function CadastroLandingPage({ onStartForm, formsList }) {
           title="Adicionar ficha ao prontuário"
           subtitle="Busque a família, revise as fichas já existentes e adicione uma nova etapa ao prontuário atual."
           footer={
-            <Button variant="contained" onClick={() => setDialogMode('existente')}>
+            <ActionButton variant="contained" onClick={() => setDialogMode('existente')}>
               Iniciar seleção
-            </Button>
+            </ActionButton>
           }
         />
 
@@ -220,9 +235,9 @@ function CadastroLandingPage({ onStartForm, formsList }) {
           title="Abrir novo prontuário"
           subtitle="Crie um prontuário do zero e preencha a ficha cadastral da família com os dados iniciais."
           footer={
-            <Button variant="contained" onClick={() => setDialogMode('novo')}>
+            <ActionButton variant="contained" onClick={() => setDialogMode('novo')}>
               Abrir prontuário
-            </Button>
+            </ActionButton>
           }
         />
       </PageGrid>
@@ -393,7 +408,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   }
 
   return (
-    <PageWrapper maxWidth={1200}>
+    <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow={currentSection.title}
         title="Área em preparação"

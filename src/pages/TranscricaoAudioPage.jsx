@@ -1,6 +1,5 @@
-import Button from '../components/ui/button'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
-import { PageSection, PageToolbar, PageWrapper } from './ui'
+import { ActionButton, PageSection, PageToolbar, PageWrapper } from './ui'
 
 function TranscricaoAudioPage({ onBack }) {
   return (
@@ -12,9 +11,9 @@ function TranscricaoAudioPage({ onBack }) {
       />
 
       <PageToolbar justifyContent="flex-start">
-        <Button variant="outlined" startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
+        <ActionButton startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
           Voltar para visão geral
-        </Button>
+        </ActionButton>
       </PageToolbar>
     </PageWrapper>
   )

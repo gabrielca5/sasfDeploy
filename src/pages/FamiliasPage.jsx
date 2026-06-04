@@ -7,16 +7,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Typography,
 } from '@mui/material'
-import { Box, CircularProgress } from '@mui/material'
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
-import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
-import LocalHospitalOutlinedIcon from '@mui/icons-material/LocalHospitalOutlined'
-import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined'
-import ReportOutlinedIcon from '@mui/icons-material/ReportOutlined'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
@@ -34,9 +25,11 @@ import {
   ActionCard,
   DetailItem,
   EmptyState,
+  ErrorState,
   FilterGrid,
   FilterPanel,
   InfoGrid,
+  LoadingState,
   PageCard,
   PageDialog,
   PageGrid,
@@ -44,6 +37,7 @@ import {
   PageListItem,
   PageSection,
   PageStack,
+  PageText,
   PageToolbar,
   PageWrapper,
   SectionBlock,
@@ -109,16 +103,6 @@ const priorityChipProps = {
   Baixa: { customColor: '#D1FAE5', customTextColor: '#065F46' },
 }
 
-function DocBadge({ documentacao = [] }) {
-  const pendentes = documentacao.filter((d) => !d.presente).length
-  if (pendentes === 0) return (
-    <StatusChip label="Docs completos" customColor="#D1FAE5" customTextColor="#065F46" />
-  )
-  return (
-    <StatusChip label={`${pendentes} doc${pendentes > 1 ? 's' : ''} pendente${pendentes > 1 ? 's' : ''}`} customColor="#FEF3C7" customTextColor="#92400E" />
-  )
-}
-
 function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [] }) {
   // Se temos o prontuário do lazy load, recalcula os docs com dados frescos
   const docs = prontuarioDetalhe
@@ -131,28 +115,22 @@ function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [] }) {
   if (!docs.length) return null
   return (
     <SectionBlock title="Documentação do prontuário" variant="plain">
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+      <PageList variant="embedded">
         {docs.map((doc) => (
-          <Box key={doc.key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {doc.presente
-              ? <CheckCircleOutlineRoundedIcon sx={{ fontSize: 18, color: '#059669', flexShrink: 0 }} />
-              : <CancelOutlinedIcon sx={{ fontSize: 18, color: '#DC2626', flexShrink: 0 }} />
+          <PageListItem
+            key={doc.key}
+            title={doc.label}
+            variant="compact"
+            actions={
+              <StatusChip
+                label={doc.presente ? 'Completo' : 'Pendente'}
+                tone={doc.presente ? 'success' : 'error'}
+                fit
+              />
             }
-            <Typography
-              variant="body2"
-              fontWeight={doc.presente ? 500 : 700}
-              color={doc.presente ? 'text.secondary' : 'error.main'}
-            >
-              {doc.label}
-            </Typography>
-            {!doc.presente && (
-              <Typography variant="caption" color="text.disabled" sx={{ ml: 'auto' }}>
-                pendente
-              </Typography>
-            )}
-          </Box>
+          />
         ))}
-      </Box>
+      </PageList>
     </SectionBlock>
   )
 }
@@ -190,9 +168,9 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
       accentColor={orientador.backgroundColor}
       hover
       footer={
-        <Typography variant="caption" color="text.secondary" noWrap>
+        <PageText variant="caption" noWrap>
           Última visita: {formatDate(family.ultima_visita)}{footerExtra}
-        </Typography>
+        </PageText>
       }
     >
       <PageToolbar justifyContent="flex-start">
@@ -216,22 +194,22 @@ function FamilyListItem({ family, selected, onSelect }) {
     <PageListItem selected={selected} onClick={onSelect} accentColor={orientador.backgroundColor}>
       <PageGrid variant="familyList">
         <PageStack spacing={0.25}>
-          <Typography variant="subtitle2" fontWeight={700} noWrap>
+          <PageText variant="subtitle2" color="text.primary" fontWeight={700} noWrap>
             {family.nome_representante}
-          </Typography>
+          </PageText>
           {family.cpf && family.cpf !== '—' && (
-            <Typography variant="caption" color="text.secondary" noWrap>
+            <PageText variant="caption" noWrap>
               CPF {family.cpf}
-            </Typography>
+            </PageText>
           )}
         </PageStack>
-        <Typography variant="body2" color="text.secondary" noWrap>
+        <PageText noWrap>
           {hasAddress(family) ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}` : '—'}
-        </Typography>
+        </PageText>
         <StatusChip label={`Prioridade ${family.prioridade}`} fit {...prioProps} />
-        <Typography variant="body2" color="text.secondary" noWrap>
+        <PageText noWrap>
           {formatDate(family.ultima_visita)}
-        </Typography>
+        </PageText>
         <StatusChip label={orientador.id} customColor={orientador.backgroundColor} customTextColor={orientador.color} fit />
       </PageGrid>
     </PageListItem>
@@ -387,7 +365,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         subtitle={hasAddress(family) ? `${family.endereco}, ${family.numero} — ${family.bairro} / ${family.distrito}` : null}
         actions={
           <PageToolbar justifyContent="flex-end">
-            {loadingDetalhe && <CircularProgress size={16} sx={{ mr: 1 }} />}
+            {loadingDetalhe && <LoadingState message="Carregando detalhes..." compact surface={false} />}
             {family.status === 'Inativo' && <StatusChip status={family.status} />}
             <StatusChip label={`Prioridade ${family.prioridade}`} {...prioPropsDetail} />
             {family.cras && family.cras !== '—' && <StatusChip label={family.cras} />}
@@ -403,10 +381,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
       {cadastroIncompleto && (
         <SectionBlock title="Cadastro incompleto" variant="plain">
           <PageStack spacing={1}>
-            <Typography variant="body2" color="text.secondary">
-              Esta família ainda não tem representante e ficha cadastral vinculados.
-              Complete o cadastro para preencher os dados pessoais, endereço e moradia.
-            </Typography>
+            <EmptyState message="Esta família ainda não tem representante e ficha cadastral vinculados. Complete o cadastro para preencher os dados pessoais, endereço e moradia." />
             <PageToolbar justifyContent="flex-start">
               <ActionButton
                 variant="contained"
@@ -484,7 +459,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
 
 function FamiliesPage() {
   const navigate = useNavigate()
-  const { data: familiasData = [], isLoading } = useFamilias()
+  const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
   const [query, setQuery] = useState('')
   const [statusFilter] = useState('Todas')
   const [priorityFilter, setPriorityFilter] = useState('Todas')
@@ -572,6 +547,17 @@ function FamiliesPage() {
   const handleSelectFamily = (familyId) => {
     setSelectedId(familyId)
     setDetailDialogOpen(true)
+  }
+
+  const handleClearFilters = () => {
+    setQuery('')
+    setPriorityFilter('Todas')
+    setDistrictFilter('Todos')
+    setBenefitFilter('Todos')
+    setOrientadorFilter('Todos')
+    setStreetFilter('')
+    setUpdatedAtFilter('')
+    setSortBy('visita-desc')
   }
 
   const handleStartRegistro = () => {
@@ -702,8 +688,15 @@ function FamiliesPage() {
         actions={<StatusChip label={`${sortedFamilies.length}`} />}
         headers={viewMode === 'list' ? ['Representante', 'Rua', 'Prioridade', 'Última visita', 'Orientador'] : null}
       >
-        {isLoading ? (
-          <EmptyState message="Carregando famílias..." />
+        {isError ? (
+          <ErrorState
+            title="Não foi possível carregar famílias"
+            message="Verifique sua conexão e tente novamente."
+            onRetry={refetch}
+            compact
+          />
+        ) : isLoading ? (
+          <LoadingState message="Carregando famílias..." skeleton variant={viewMode === 'gallery' ? 'cards' : 'list'} rows={4} />
         ) : viewMode === 'gallery' ? (
           <PageGrid variant="gallery">
             {sortedFamilies.map((family) => (
@@ -726,7 +719,12 @@ function FamiliesPage() {
           ))
         )}
 
-        {sortedFamilies.length === 0 && <EmptyState message="Nenhuma família encontrada com os filtros atuais." />}
+        {!isLoading && !isError && sortedFamilies.length === 0 && (
+          <EmptyState
+            message="Nenhuma família encontrada com os filtros atuais."
+            action={<ActionButton onClick={handleClearFilters}>Limpar filtros</ActionButton>}
+          />
+        )}
       </PageList>
 
       <PageDialog

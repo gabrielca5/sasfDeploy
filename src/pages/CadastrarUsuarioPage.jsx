@@ -1,7 +1,6 @@
-import Button from '../components/ui/button'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import FlowStepper from '../components/FlowStepper'
-import { PageSection, PageToolbar, PageWrapper } from './ui'
+import { ActionButton, PageSection, PageToolbar, PageWrapper } from './ui'
 
 function CadastrarUsuarioPage({ forms = [], onBack, onOpenForm }) {
   const firstFormId = forms[0]?.id
@@ -23,9 +22,9 @@ function CadastrarUsuarioPage({ forms = [], onBack, onOpenForm }) {
       />
 
       <PageToolbar justifyContent="flex-start">
-        <Button variant="outlined" startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
+        <ActionButton startIcon={<ArrowBackRoundedIcon />} onClick={onBack}>
           Voltar para cadastro
-        </Button>
+        </ActionButton>
       </PageToolbar>
     </PageWrapper>
   )

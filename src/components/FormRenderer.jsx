@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import {
-  Alert,
   Box,
   Checkbox,
   Chip,
@@ -30,23 +29,26 @@ import FlowStepper from './FlowStepper'
 import { useCepLookup } from '../hooks/useCepLookup'
 import {
   ActionButton,
+  ButtonLoading,
   FormActionsBar,
   FormField,
   FormGrid,
   FormHeader,
   FormSection,
   FormTextArea,
+  InlineFeedback,
   PageDialog,
   PageStack,
   PageToolbar,
   PageWrapper,
   RepeatableFormItem,
   SignatureField,
+  SavingState,
+  SuccessState,
   YesNoField,
 } from '../pages/ui'
 import {
   formAddRowButtonSx,
-  formAlertSx,
   formChipWrapSx,
   formControlSx,
   formHelperTextSx,
@@ -1027,27 +1029,19 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm, o
       />
 
       {submitting && (
-        <Alert severity="info" variant="outlined" sx={formAlertSx} icon={<CircularProgress size={16} />}>
-          Salvando dados...
-        </Alert>
+        <SavingState message="Salvando dados..." />
       )}
 
       {submitError && !submitting && (
-        <Alert severity="error" variant="outlined" sx={formAlertSx}>
-          {submitError}
-        </Alert>
+        <InlineFeedback severity="error" message={submitError} />
       )}
 
       {saved && !submitting && !submitError && (
-        <Alert severity="success" variant="outlined" sx={formAlertSx}>
-          Dados salvos com sucesso.
-        </Alert>
+        <SuccessState message="Dados salvos com sucesso." compact />
       )}
 
       {validationErrorCount > 0 && (
-        <Alert severity="error" variant="outlined" sx={formAlertSx}>
-          Revise os campos obrigatórios destacados antes de salvar.
-        </Alert>
+        <InlineFeedback severity="error" message="Revise os campos obrigatórios destacados antes de salvar." />
       )}
 
       {form.secoes.map((section) => renderSection(section))}
@@ -1077,14 +1071,15 @@ export function FormRenderer({ form, onBack, flowForms = [], onSelectFlowForm, o
             >
               Limpar tudo
             </ActionButton>
-            <ActionButton
+            <ButtonLoading
               type="submit"
               variant="contained"
-              startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : <SaveOutlinedIcon />}
-              disabled={submitting}
+              startIcon={<SaveOutlinedIcon />}
+              loading={submitting}
+              loadingLabel="Salvando..."
             >
-              {submitting ? 'Salvando...' : 'Salvar'}
-            </ActionButton>
+              Salvar
+            </ButtonLoading>
           </PageToolbar>
         }
       />

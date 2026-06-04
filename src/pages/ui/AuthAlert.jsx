@@ -1,12 +1,7 @@
-import { Alert } from '@mui/material'
-import { authInlineAlertSx } from './uiStyles'
+import InlineFeedback from './InlineFeedback'
 
 function AuthAlert({ children, severity = 'success' }) {
-  return (
-    <Alert severity={severity} variant="outlined" sx={authInlineAlertSx}>
-      {children}
-    </Alert>
-  )
+  return <InlineFeedback severity={severity}>{children}</InlineFeedback>
 }
 
 export default AuthAlert

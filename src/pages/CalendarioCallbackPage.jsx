@@ -1,28 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { CircularProgress, Stack, Typography } from '@mui/material'
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
-import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded'
 import { post } from '../lib/apiClient'
+import { PageState, PageWrapper } from './ui'
 
 function CalendarioCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const [status, setStatus] = useState('loading')
-  const [errorMsg, setErrorMsg] = useState(null)
+  const code = searchParams.get('code')
+  const state = searchParams.get('state')
+  const hasRequiredParams = Boolean(code && state)
+  const [status, setStatus] = useState(hasRequiredParams ? 'loading' : 'error')
+  const [errorMsg, setErrorMsg] = useState(hasRequiredParams ? null : 'Parâmetros inválidos na URL de callback.')
   const called = useRef(false)
 
   useEffect(() => {
     if (called.current) return
     called.current = true
 
-    const code = searchParams.get('code')
-    const state = searchParams.get('state')
-
-    if (!code || !state) {
-      setErrorMsg('Parâmetros inválidos na URL de callback.')
-      setStatus('error')
-      return
+    if (!hasRequiredParams) {
+      const timer = setTimeout(() => navigate('/dashboard/calendario', { replace: true }), 3000)
+      return () => clearTimeout(timer)
     }
 
     post('/google-calendar/callback', { code, state })
@@ -35,43 +32,17 @@ function CalendarioCallbackPage() {
         setStatus('error')
         setTimeout(() => navigate('/dashboard/calendario', { replace: true }), 3000)
       })
-  }, [searchParams, navigate])
+  }, [code, hasRequiredParams, navigate, state])
 
   return (
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      spacing={2}
-      sx={{ minHeight: '100vh', backgroundColor: '#f3f6fa' }}
-    >
-      {status === 'loading' && (
-        <>
-          <CircularProgress size={40} />
-          <Typography variant="body1" color="text.secondary">
-            Conectando ao Google Agenda…
-          </Typography>
-        </>
-      )}
-
-      {status === 'success' && (
-        <>
-          <CheckCircleRoundedIcon sx={{ fontSize: 48, color: 'success.main' }} />
-          <Typography variant="h6" fontWeight={700}>Google Agenda conectado!</Typography>
-          <Typography variant="body2" color="text.secondary">Redirecionando…</Typography>
-        </>
-      )}
-
-      {status === 'error' && (
-        <>
-          <ErrorOutlineRoundedIcon sx={{ fontSize: 48, color: 'error.main' }} />
-          <Typography variant="h6" fontWeight={700}>Falha na conexão</Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center" maxWidth={360}>
-            {errorMsg}
-          </Typography>
-          <Typography variant="caption" color="text.disabled">Redirecionando…</Typography>
-        </>
-      )}
-    </Stack>
+    <PageWrapper maxWidth={420} spacing={0} centered>
+      <PageState
+        type={status}
+        title={status === 'success' ? 'Google Agenda conectado!' : status === 'error' ? 'Falha na conexão' : 'Conectando ao Google Agenda'}
+        message={status === 'error' ? errorMsg : status === 'success' ? 'A conexão foi concluída. Redirecionando...' : 'Finalizando autenticação com o Google Agenda.'}
+        centered
+      />
+    </PageWrapper>
   )
 }
 

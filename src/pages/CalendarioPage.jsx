@@ -1,14 +1,13 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Box, Chip, Divider, FormControl, InputLabel, MenuItem,
+  Divider, FormControl, InputLabel, MenuItem,
   Select, Stack, TextField, Typography,
 } from '@mui/material'
-import Button from '../components/ui/button'
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded'
 import GoogleIcon from '@mui/icons-material/Google'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
@@ -21,16 +20,24 @@ import { get, post, del } from '../lib/apiClient'
 import { useAuth } from '../contexts/AuthContext'
 import useFamilias from '../hooks/useFamilias'
 import {
-  AuthAlert,
+  ActionButton,
+  ButtonLoading,
+  CalendarLegend,
+  CalendarSurface,
   DetailItem,
   EmptyState,
+  getCalendarEventProps,
+  InlineFeedback,
   PageCard,
   PageDialog,
   PageGrid,
   PageSection,
   PageStack,
+  PageToolbar,
   PageWrapper,
   StatusChip,
+  StatusBanner,
+  SuccessState,
 } from './ui'
 
 const localizer = dateFnsLocalizer({
@@ -56,6 +63,12 @@ const messages = {
   noEventsInRange: 'Nenhum evento neste período.',
   showMore: (n) => `+${n} mais`,
 }
+
+const calendarLegendItems = [
+  { label: 'Google Agenda', color: '#1e88e5' },
+  { label: 'Reavaliação PDU', color: '#d97706' },
+  { label: 'Validade PDU', color: '#db2777' },
+]
 
 function fmtDate(dateStr) {
   if (!dateStr) return '—'
@@ -88,12 +101,10 @@ function GoogleCalendarCard({ status, isLoading, onDisconnect, isDisconnecting }
       icon={<GoogleIcon fontSize="small" />}
     >
       <Stack spacing={1.5}>
-        {connectError && <AuthAlert severity="error">{connectError}</AuthAlert>}
+        {connectError && <InlineFeedback severity="error" message={connectError} />}
 
         {!isLoading && !credenciaisOk && (
-          <AuthAlert severity="warning">
-            Credenciais OAuth não configuradas. Contate o administrador.
-          </AuthAlert>
+          <InlineFeedback severity="warning" message="Credenciais OAuth não configuradas. Contate o administrador." />
         )}
 
         {status?.conectado ? (
@@ -101,33 +112,30 @@ function GoogleCalendarCard({ status, isLoading, onDisconnect, isDisconnecting }
             <StatusChip label="Conectado" tone="success" icon={<CheckCircleRoundedIcon />} />
             <DetailItem label="Conectado em" value={status.conectadoEm ?? '—'} />
             <DetailItem label="Token expira em" value={status.tokenExpiraEm ?? '—'} />
-            <Button
-              variant="outlined"
+            <ButtonLoading
               color="error"
               size="small"
               startIcon={<LinkOffRoundedIcon />}
-              disabled={isDisconnecting}
+              loading={isDisconnecting}
+              loadingLabel="Desconectando..."
               onClick={onDisconnect}
             >
-              {isDisconnecting ? 'Desconectando…' : 'Desconectar'}
-            </Button>
+              Desconectar
+            </ButtonLoading>
           </>
         ) : (
           <>
             {!isLoading && credenciaisOk && (
-              <Typography variant="body2" color="text.secondary">
-                Conecte sua conta Google para sincronizar eventos com o calendário.
-              </Typography>
+              <EmptyState message="Conecte sua conta Google para sincronizar eventos com o calendário." />
             )}
-            <Button
+            <ButtonLoading
               variant="contained"
               startIcon={<GoogleIcon />}
               onClick={handleConnect}
               disabled={isLoading || !credenciaisOk}
-              sx={{ alignSelf: 'flex-start' }}
             >
               Conectar Google Agenda
-            </Button>
+            </ButtonLoading>
           </>
         )}
       </Stack>
@@ -161,9 +169,7 @@ function TarefasCard({ pdus, userName }) {
       icon={<AssignmentOutlinedIcon fontSize="small" />}
     >
       {upcoming.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          Nenhuma tarefa encontrada para sua conta.
-        </Typography>
+        <EmptyState message="Nenhuma tarefa encontrada para sua conta." />
       ) : (
         <Stack divider={<Divider />} spacing={0}>
           {upcoming.map((item) => {
@@ -178,15 +184,11 @@ function TarefasCard({ pdus, userName }) {
                     {item.tipo}
                   </Typography>
                 </Stack>
-                <Chip
+                <StatusChip
                   label={item.date.toLocaleDateString('pt-BR')}
-                  size="small"
-                  sx={{
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    bgcolor: vencida ? '#fee2e2' : item.tipo === 'Reavaliação' ? '#fef3c7' : '#fce7f3',
-                    color: vencida ? '#dc2626' : item.tipo === 'Reavaliação' ? '#92400e' : '#9d174d',
-                  }}
+                  customColor={vencida ? '#fee2e2' : item.tipo === 'Reavaliação' ? '#fef3c7' : '#fce7f3'}
+                  customTextColor={vencida ? '#dc2626' : item.tipo === 'Reavaliação' ? '#92400e' : '#9d174d'}
+                  fit
                 />
               </Stack>
             )
@@ -201,7 +203,7 @@ function CalendarioPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const { data: familiasData = [] } = useFamilias()
-  const familiasList = Array.isArray(familiasData) ? familiasData : []
+  const familiasList = useMemo(() => (Array.isArray(familiasData) ? familiasData : []), [familiasData])
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState(Views.MONTH)
@@ -210,7 +212,7 @@ function CalendarioPage() {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [selectedPdu, setSelectedPdu] = useState(null)
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
-  const [professionalName, setProfessionalName] = useState('')
+  const [professionalName, setProfessionalName] = useState(null)
   const [selectedDateTime, setSelectedDateTime] = useState('')
   const [scheduleError, setScheduleError] = useState(null)
 
@@ -223,7 +225,7 @@ function CalendarioPage() {
     staleTime: 60_000,
   })
 
-  const { data: rawEvents = [], isError: eventosError } = useQuery({
+  const { data: rawEvents = [], isError: eventosError, refetch: refetchEvents } = useQuery({
     queryKey: ['google-calendar-eventos', timeMin, timeMax],
     queryFn: () =>
       get(`/google-calendar/eventos?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&maxResults=100`),
@@ -243,7 +245,7 @@ function CalendarioPage() {
     queryFn: () => get('/pdu?size=2000'),
     staleTime: 5 * 60_000,
   })
-
+  
   useEffect(() => {
     if (profile?.name && !professionalName) {
       setProfessionalName(profile.name)
@@ -303,16 +305,7 @@ function CalendarioPage() {
 
   const allEvents = useMemo(() => [...calendarEvents, ...pduEvents], [calendarEvents, pduEvents])
 
-  const eventPropGetter = useCallback((event) => {
-    const type = event.resource?.type
-    if (type === 'pdu-reavaliacao') {
-      return { style: { backgroundColor: '#d97706', border: 'none', borderRadius: 6 } }
-    }
-    if (type === 'pdu-validade') {
-      return { style: { backgroundColor: '#db2777', border: 'none', borderRadius: 6 } }
-    }
-    return {}
-  }, [])
+  const eventPropGetter = useCallback((event) => getCalendarEventProps(event.resource?.type), [])
 
   const disconnectMutation = useMutation({
     mutationFn: () => del('/google-calendar/conexao'),
@@ -342,7 +335,7 @@ function CalendarioPage() {
   )
 
   const eventTitle = selectedFamily
-    ? `ATENDIMENTO - ${professionalName} - ${selectedFamily.nome_representante}`
+    ? `ATENDIMENTO - ${professionalName ?? profile?.name ?? ''} - ${selectedFamily.nome_representante}`
     : ''
 
   const handleSelectSlot = useCallback(({ start }) => {
@@ -386,66 +379,27 @@ function CalendarioPage() {
   const userName = profile?.name ?? user?.email ?? '—'
 
   return (
-    <PageWrapper maxWidth={1400} spacing={3}>
+    <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Minha Agenda"
         title="Calendário de atendimentos"
         description="Eventos do Google Agenda e tarefas do plano de desenvolvimento."
         actions={
-          <Button
+          <ActionButton
             variant="contained"
             startIcon={<AddRoundedIcon />}
             onClick={() => { setScheduleError(null); setScheduleOpen(true) }}
             disabled={!gcStatus?.conectado}
           >
             Agendar atendimento
-          </Button>
+          </ActionButton>
         }
       />
 
-      {/* Legenda de cores */}
-      <Stack direction="row" spacing={1.5} flexWrap="wrap">
-        <Stack direction="row" alignItems="center" spacing={0.75}>
-          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#1e88e5' }} />
-          <Typography variant="caption" color="text.secondary">Google Agenda</Typography>
-        </Stack>
-        <Stack direction="row" alignItems="center" spacing={0.75}>
-          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#d97706' }} />
-          <Typography variant="caption" color="text.secondary">Reavaliação PDU</Typography>
-        </Stack>
-        <Stack direction="row" alignItems="center" spacing={0.75}>
-          <Box sx={{ width: 12, height: 12, borderRadius: 1, bgcolor: '#db2777' }} />
-          <Typography variant="caption" color="text.secondary">Validade PDU</Typography>
-        </Stack>
-      </Stack>
+      <CalendarLegend items={calendarLegendItems} />
 
       <PageGrid variant="calendar">
-        {/* Calendário principal */}
-        <Box sx={{
-          '& .rbc-calendar': { fontFamily: 'inherit', minHeight: 560 },
-          '& .rbc-toolbar': { mb: 1.5, flexWrap: 'wrap', gap: 1 },
-          '& .rbc-toolbar button': {
-            border: '1px solid #e5e7eb', borderRadius: '8px !important',
-            px: 1.5, py: 0.5, fontSize: '0.8125rem', fontWeight: 600,
-            color: '#374151', cursor: 'pointer', background: '#fff',
-            '&:hover': { background: '#f3f4f6' },
-            '&.rbc-active': { background: '#1e88e5 !important', color: '#fff !important', borderColor: '#1e88e5 !important' },
-          },
-          '& .rbc-month-view': { borderRadius: 2, overflow: 'hidden', border: '1px solid #e5e7eb' },
-          '& .rbc-header': { py: 0.75, fontSize: '0.75rem', fontWeight: 700, color: '#6b7280', borderColor: '#e5e7eb' },
-          '& .rbc-day-bg': { borderColor: '#f3f4f6 !important' },
-          '& .rbc-off-range-bg': { background: '#fafafa' },
-          '& .rbc-today': { background: 'rgba(30,136,229,0.06) !important' },
-          '& .rbc-event': {
-            background: '#1e88e5', borderRadius: '6px !important',
-            fontSize: '0.75rem', fontWeight: 600, border: 'none !important',
-            px: '6px !important',
-          },
-          '& .rbc-show-more': { color: '#1e88e5', fontSize: '0.75rem', fontWeight: 600 },
-          '& .rbc-date-cell': { px: 0.75, pt: 0.5, fontSize: '0.8125rem', fontWeight: 600 },
-          '& .rbc-time-view': { borderRadius: 2, border: '1px solid #e5e7eb' },
-          '& .rbc-agenda-view table': { fontSize: '0.875rem' },
-        }}>
+        <CalendarSurface>
           <Calendar
             localizer={localizer}
             events={allEvents}
@@ -459,23 +413,22 @@ function CalendarioPage() {
             selectable={!!gcStatus?.conectado}
             culture="pt-BR"
             messages={messages}
-            style={{ height: 580 }}
             popup
           />
-        </Box>
+        </CalendarSurface>
 
         {/* Painel lateral */}
         <PageStack spacing={1.5}>
           {!gcStatus?.conectado && !statusLoading && (
-            <AuthAlert severity="info">
-              Conecte o Google Agenda para visualizar e criar eventos no calendário.
-            </AuthAlert>
+            <StatusBanner severity="info" message="Conecte o Google Agenda para visualizar e criar eventos no calendário." />
           )}
 
           {eventosError && gcStatus?.conectado && (
-            <AuthAlert severity="error">
-              Não foi possível carregar os eventos do Google Agenda.
-            </AuthAlert>
+            <StatusBanner
+              severity="error"
+              message="Não foi possível carregar os eventos do Google Agenda."
+              action={<ActionButton onClick={() => refetchEvents()}>Tentar novamente</ActionButton>}
+            />
           )}
 
           <TarefasCard pdus={myPdus} userName={userName} />
@@ -500,13 +453,12 @@ function CalendarioPage() {
           showClose
           actions={
             selectedEvent.htmlLink ? (
-              <Button
-                variant="outlined"
+              <ActionButton
                 endIcon={<OpenInNewRoundedIcon />}
                 onClick={() => window.open(selectedEvent.htmlLink, '_blank')}
               >
                 Abrir no Google Agenda
-              </Button>
+              </ActionButton>
             ) : null
           }
         >
@@ -528,12 +480,10 @@ function CalendarioPage() {
               <DetailItem label="Local" value={selectedEvent.local} />
             )}
             {selectedEvent.status && (
-              <Chip
+              <StatusChip
                 label={selectedEvent.status === 'confirmed' ? 'Confirmado' : selectedEvent.status}
-                size="small"
-                color={selectedEvent.status === 'confirmed' ? 'success' : 'default'}
-                variant="outlined"
-                sx={{ alignSelf: 'flex-start' }}
+                tone={selectedEvent.status === 'confirmed' ? 'success' : 'muted'}
+                fit
               />
             )}
           </Stack>
@@ -582,22 +532,24 @@ function CalendarioPage() {
         title="Agendar atendimento"
         maxWidth="sm"
         actions={
-          <>
-            <Button variant="outlined" onClick={() => setScheduleOpen(false)}>
+          <PageToolbar direction="row" alignItems="center" justifyContent="flex-end">
+            <ActionButton onClick={() => setScheduleOpen(false)}>
               Cancelar
-            </Button>
-            <Button
+            </ActionButton>
+            <ButtonLoading
               variant="contained"
+              loading={scheduleMutation.isPending}
+              loadingLabel="Agendando..."
               disabled={!selectedFamilyId || !selectedDateTime || scheduleMutation.isPending}
               onClick={handleAgendar}
             >
-              {scheduleMutation.isPending ? 'Agendando…' : 'Agendar'}
-            </Button>
-          </>
+              Agendar
+            </ButtonLoading>
+          </PageToolbar>
         }
       >
         <PageStack spacing={2}>
-          {scheduleError && <AuthAlert severity="error">{scheduleError}</AuthAlert>}
+          {scheduleError && <InlineFeedback severity="error" message={scheduleError} />}
 
           <FormControl fullWidth>
             <InputLabel>Família</InputLabel>
@@ -612,7 +564,7 @@ function CalendarioPage() {
 
           <TextField
             label="Profissional responsável"
-            value={professionalName}
+            value={professionalName ?? profile?.name ?? ''}
             onChange={(e) => setProfessionalName(e.target.value)}
           />
 
@@ -643,12 +595,10 @@ function CalendarioPage() {
         titleIcon={<CheckCircleRoundedIcon color="success" />}
         maxWidth="xs"
         actions={
-          <Button variant="contained" onClick={() => setConfirmationOpen(false)}>Fechar</Button>
+          <ActionButton variant="contained" onClick={() => setConfirmationOpen(false)}>Fechar</ActionButton>
         }
       >
-        <Typography variant="body2" color="text.secondary">
-          O evento foi criado no Google Agenda e já aparece no calendário.
-        </Typography>
+        <SuccessState message="O evento foi criado no Google Agenda e já aparece no calendário." compact />
       </PageDialog>
     </PageWrapper>
   )
