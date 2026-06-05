@@ -65,7 +65,7 @@ import {
   formReadOnlyLabelSx,
   formReadOnlyValueSx,
 } from '../pages/ui/uiStyles'
-import { formatCpf, isValidCpf, onlyDigits } from '../utils/formatters'
+import { isValidCpf } from '../utils/formatters'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
