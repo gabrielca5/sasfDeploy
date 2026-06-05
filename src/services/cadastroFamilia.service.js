@@ -64,6 +64,32 @@ function toEnumArray(arr, map) {
   return arr.map((v) => map[v]).filter(Boolean)
 }
 
+function todayIsoDate() {
+  return new Date().toISOString().split('T')[0]
+}
+
+function toIsoDate(value) {
+  const text = String(value || '').trim()
+  if (!text) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text
+
+  const brDate = text.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (brDate) {
+    return `${brDate[3]}-${brDate[2]}-${brDate[1]}`
+  }
+
+  return text
+}
+
+function toIsoDateOrToday(value) {
+  return toIsoDate(value) || todayIsoDate()
+}
+
+function toIsoDateTime(value) {
+  const date = toIsoDate(value)
+  return date ? new Date(`${date}T12:00:00`).toISOString() : null
+}
+
 // ─── Handlers por formulário ─────────────────────────────────────────────────
 
 async function saveFichaCadastralFamilia(draft, context = {}) {
@@ -106,7 +132,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       numeroOrdem: 1,
       nome: nomeRepresentante,
       nomeSocial: null,
-      dataNascimento: representante.data_nascimento || null,
+      dataNascimento: toIsoDate(representante.data_nascimento),
       parentescoOuVinculo: 'Representante',
       profissao: representante.profissao || null,
       ocupacao: null,
@@ -125,7 +151,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       numeroOrdem: membroIds.length + 1,
       nome: row.nome,
       nomeSocial: null,
-      dataNascimento: row.data_nascimento || null,
+      dataNascimento: toIsoDate(row.data_nascimento),
       parentescoOuVinculo: row.parentesco_vinculo || null,
       profissao: row.profissao || null,
       ocupacao: row.ocupacao || null,
@@ -154,7 +180,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
     })
     const representanteObj = await apiClient.post('/representante', {
       nome: representante.nome_representante || null,
-      dataNascimento: representante.data_nascimento || null,
+      dataNascimento: toIsoDate(representante.data_nascimento),
       sexo: representante.sexo === 'F' ? 'FEMININO' : representante.sexo === 'M' ? 'MASCULINO' : null,
       nisNitNb: representante.nis_nit_nb || null,
       naturalidade: representante.naturalidade || null,
@@ -165,7 +191,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       possuiDeficiencia: representante.pessoa_deficiencia === 'Sim',
       cpf: representante.cpf || null,
       rg: representante.rg || null,
-      dataEmissaoRg: representante.ctps_emissao || null,
+      dataEmissaoRg: toIsoDate(representante.ctps_emissao),
       orgaoEmissorRg: representante.orgao_emissor || null,
       ufRg: representante.uf || null,
       ctpsNumero: representante.ctps_numero || null,
@@ -213,9 +239,9 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
     const fichaCadastral = await apiClient.post('/fichacadastral', {
       prontuarioId: prontuario.id,
       representanteId,
-      dataMatricula: representante.data_matricula || null,
+      dataMatricula: toIsoDate(representante.data_matricula),
       numeroMatricula: representante.numero_matricula || null,
-      dataDesligamento: representante.data_desligamento || null,
+      dataDesligamento: toIsoDate(representante.data_desligamento),
       condicoesMoradia: toEnum(moradia.condicao_moradia, CONDICAO_MORADIA_MAP),
       valorAluguelOuFinanciamento: moradia.valor_aluguel_financiamento
         ? Number(moradia.valor_aluguel_financiamento)
@@ -267,8 +293,7 @@ async function saveFichaCadastralComplementar(draft, context) {
   try {
     if (demanda.demanda_texto?.trim()) {
       await apiClient.post('/registroprosseguimento', {
-        dataRegistro:
-          demanda.data_atendimento || new Date().toISOString().split('T')[0],
+        dataRegistro: toIsoDateOrToday(demanda.data_atendimento),
         demanda: demanda.demanda_texto,
         tecnicoResponsavelId: user?.userId ?? null,
       })
@@ -285,7 +310,7 @@ async function saveFichaVisita(draft, context) {
   const conteudo = draft.conteudo_visita ?? {}
 
   // Data da visita em formato YYYY-MM-DD (usada também para atualizar a família)
-  const dataVisitaISO = identificacao.data_visita || new Date().toISOString().split('T')[0]
+  const dataVisitaISO = toIsoDateOrToday(identificacao.data_visita)
 
   try {
     await apiClient.post('/fichavisita', {
@@ -365,9 +390,7 @@ async function saveTermo(draft, context) {
       numeroCedulaIdentidade: campos.rg_autorizante || null,
       cpf: campos.cpf_autorizante || null,
       nomesCriancasAutorizadas: nomes,
-      dataAssinatura: campos.data_assinatura
-        ? new Date(`${campos.data_assinatura}T12:00:00`).toISOString()
-        : new Date().toISOString(),
+      dataAssinatura: toIsoDateTime(campos.data_assinatura) ?? new Date().toISOString(),
     })
   } catch (err) {
     console.warn('Não foi possível salvar termo:', err?.message)
@@ -385,9 +408,9 @@ async function savePlanoFamiliar(draft, context) {
       analiseDiagnostica: analise.analise_diagnostica || null,
       objetivo: analise.objetivo || null,
       numeroPlano: dadosPlano.plano_numero || null,
-      dataElaboracao: dadosPlano.data_elaboracao || new Date().toISOString().split('T')[0],
-      dataValidade: dadosPlano.data_validade || null,
-      dataReavaliacao: dadosPlano.data_reavaliacao || null,
+      dataElaboracao: toIsoDateOrToday(dadosPlano.data_elaboracao),
+      dataValidade: toIsoDate(dadosPlano.data_validade),
+      dataReavaliacao: toIsoDate(dadosPlano.data_reavaliacao),
       composicaoFamiliar: null,
       moradia: null,
       saude: null,
@@ -451,9 +474,9 @@ async function savePdu(draft, context) {
       acoesPactuadasIds: [],
       acoesIntersetoriaisSocioassistenciaisIds: [],
       numeroPlano: dadosPdu.numero_plano || null,
-      dataElaboracao: dadosPdu.data_elaboracao || new Date().toISOString().split('T')[0],
-      dataValidade: dadosPdu.data_validade || null,
-      dataReavaliacao: dadosPdu.data_reavaliacao || null,
+      dataElaboracao: toIsoDateOrToday(dadosPdu.data_elaboracao),
+      dataValidade: toIsoDate(dadosPdu.data_validade),
+      dataReavaliacao: toIsoDate(dadosPdu.data_reavaliacao),
       sintesesPorAreaIds: [],
     })
     await atualizaProntuario(context, 'pdu', pdu?.id)
@@ -508,7 +531,7 @@ async function saveFichaAtualizacao(draft, context) {
       rf: ident.rf || null,
       nis: ident.nis || null,
       cpf: ident.cpf || null,
-      dataNascimentoResponsavel: ident.data_nascimento_rf || null,
+      dataNascimentoResponsavel: toIsoDate(ident.data_nascimento_rf),
       faixaEtaria: {
         de0a5: toInt(faixa.faixa_0_5),
         de6a14: toInt(faixa.faixa_6_14),
@@ -543,7 +566,7 @@ async function saveFichaAtualizacao(draft, context) {
       ]),
       observacoes: obs.observacoes || null,
       tipoPlano: Array.isArray(obs.tipo_plano) ? obs.tipo_plano : [],
-      dataRegistro: obs.data_registro || new Date().toISOString().split('T')[0],
+      dataRegistro: toIsoDateOrToday(obs.data_registro),
       tecnico: obs.tecnico || null,
       orientador: obs.orientador || null,
       responsavel: obs.responsavel || null,

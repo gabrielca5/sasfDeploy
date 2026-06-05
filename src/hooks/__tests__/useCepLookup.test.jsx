@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import useCepLookup from '../useCepLookup'
 

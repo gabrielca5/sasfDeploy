@@ -1,6 +1,5 @@
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
-import FlowStepper from '../components/FlowStepper'
-import { ActionButton, PageSection, PageToolbar, PageWrapper } from './ui'
+import { ActionButton, FormStepper, PageSection, PageToolbar, PageWrapper } from './ui'
 
 function CadastrarUsuarioPage({ forms = [], onBack, onOpenForm }) {
   const firstFormId = forms[0]?.id
@@ -10,10 +9,10 @@ function CadastrarUsuarioPage({ forms = [], onBack, onOpenForm }) {
       <PageSection
         eyebrow="Cadastro"
         title="Cadastrar novo usuário"
-        description="O cadastro agora segue a ordem dos formulários definida no forms.json. Isso ajuda a equipe a preencher as etapas sem pular campos importantes."
+        description="Inicie o processo de cadastro preenchendo os formulários abaixo. Você pode salvar o progresso a qualquer momento e retornar para concluir as etapas restantes."
       />
 
-      <FlowStepper
+      <FormStepper
         forms={forms}
         activeFormId={firstFormId}
         onSelectForm={onOpenForm}

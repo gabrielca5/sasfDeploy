@@ -11,10 +11,10 @@ async function request(path, opts = {}) {
   const url = path.startsWith('http') ? path : `${BASE.replace(/\/$/, '')}${path.startsWith('/') ? '' : '/'}${path}`
   const res = await fetch(url, { cache: 'no-store', ...opts, headers: { ...authHeaders(), ...opts.headers } })
   const text = await res.text()
-  let data = null
+  let data
   try {
     data = text ? JSON.parse(text) : null
-  } catch (e) {
+  } catch {
     data = text
   }
   if (!res.ok) {

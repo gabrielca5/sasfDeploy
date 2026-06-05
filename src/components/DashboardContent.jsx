@@ -8,9 +8,19 @@ import {
 import { useMemo, useState, useCallback } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
 import { saveFormStep } from '../services/cadastroFamilia.service'
 import { dashboardSections } from '../data/dashboardSections'
 import { getFormById, forms } from '../data/formsCatalog'
+import {
+  ADD_FICHA_FLOW_ID,
+  DEMANDA_FORM_ID,
+  FLOW_QUERY_PARAM,
+  NOVO_PRONTUARIO_FLOW_ID,
+  TERMO_USO_FORM_ID,
+  TRIAGEM_FORM_ID,
+  getFlowForms,
+} from '../data/formFlows'
 import { usersCatalog } from '../data/usersCatalog'
 import useFamilias from '../hooks/useFamilias'
 import AtualizarUsuarioPage from '../pages/AtualizarUsuarioPage'
@@ -22,6 +32,7 @@ import GraficosPage from '../pages/GraficosPage'
 import TranscricaoAudioPage from '../pages/TranscricaoAudioPage'
 import VisaoGeralPage from '../pages/VisaoGeralPage'
 import ProfilePage from '../pages/ProfilePage'
+import TermoUsoStep from './TermoUsoStep'
 import {
   ActionButton,
   DetailItem,
@@ -33,6 +44,7 @@ import {
   PageGrid,
   PageList,
   PageListItem,
+  PermissionState,
   PageSection,
   PageStack,
   PageText,
@@ -42,6 +54,73 @@ import {
   StatusChip,
 } from '../pages/ui'
 
+function getTodayFormattedDate() {
+  const now = new Date()
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+  const [year, month, day] = localDate.toISOString().slice(0, 10).split('-')
+  return `${day}/${month}/${year}`
+}
+
+function readFlowDrafts(storageKey) {
+  if (!storageKey || typeof window === 'undefined') {
+    return {}
+  }
+
+  try {
+    return JSON.parse(window.sessionStorage.getItem(storageKey)) || {}
+  } catch {
+    return {}
+  }
+}
+
+function writeFlowDrafts(storageKey, drafts) {
+  if (!storageKey || typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(storageKey, JSON.stringify(drafts))
+}
+
+function clearFlowDrafts(storageKey) {
+  if (!storageKey || typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.removeItem(storageKey)
+}
+
+function buildTermDraftFromTriagem(triagemDraft = {}) {
+  const representante = triagemDraft.dados_representante ?? {}
+  const termo = triagemDraft.dados_autorizante ?? {}
+  const menores = Array.isArray(triagemDraft.menores_acompanhantes)
+    ? triagemDraft.menores_acompanhantes
+        .map((row) => row?.nomes_criancas)
+        .filter(Boolean)
+        .join('\n')
+    : ''
+
+  return {
+    dados_autorizante: {
+      nome_autorizante: representante.nome_representante ?? '',
+      rg_autorizante: representante.rg ?? '',
+      cpf_autorizante: representante.cpf ?? '',
+      nomes_criancas: termo.nomes_criancas ?? menores,
+      data_assinatura: termo.data_assinatura || getTodayFormattedDate(),
+      assinatura_autorizante: termo.assinatura_autorizante ?? '',
+    },
+  }
+}
+
+function buildDemandaInitialDraft(demandaDraft = {}, triagemDraft = {}) {
+  return {
+    ...demandaDraft,
+    dados_representante: {
+      ...(triagemDraft.dados_representante ?? {}),
+      ...(demandaDraft.dados_representante ?? {}),
+    },
+  }
+}
+
 function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
   const [query, setQuery] = useState('')
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
@@ -49,6 +128,10 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
   const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
 
   const familiasList = useMemo(() => (Array.isArray(familiasData) ? familiasData : []), [familiasData])
+  const effectiveSelectedFormId = formsList.some((form) => form.id === selectedFormId)
+    ? selectedFormId
+    : formsList[0]?.id ?? ''
+
   const resetState = () => {
     setQuery('')
     setSelectedFamilyId('')
@@ -59,7 +142,12 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
     onClose()
   }
   const handleContinue = () => {
-    const payload = { mode, familyId: selectedFamilyId, formId: selectedFormId }
+    const payload = {
+      mode,
+      familyId: selectedFamilyId,
+      prontuarioId: selectedFamily?.prontuarioId,
+      formId: effectiveSelectedFormId,
+    }
     resetState()
     onStartForm(payload)
   }
@@ -79,8 +167,8 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
     )
   }, [familiasList, query])
 
-  const selectedFamily = filteredFamilies.find((family) => family.id === selectedFamilyId) ?? null
-  const canContinue = mode === 'novo' ? Boolean(selectedFormId) : Boolean(selectedFamilyId && selectedFormId)
+  const selectedFamily = familiasList.find((family) => family.id === selectedFamilyId) ?? null
+  const canContinue = mode === 'novo' ? Boolean(effectiveSelectedFormId) : Boolean(selectedFamilyId && effectiveSelectedFormId)
 
   return (
     <PageDialog
@@ -183,7 +271,7 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
           <FormControl fullWidth>
             <InputLabel>Tipo de ficha</InputLabel>
             <Select
-              value={selectedFormId}
+              value={effectiveSelectedFormId}
               label="Tipo de ficha"
               onChange={(event) => setSelectedFormId(event.target.value)}
             >
@@ -209,7 +297,7 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList }) {
   )
 }
 
-function CadastroLandingPage({ onStartForm, formsList }) {
+function CadastroLandingPage({ onStartForm, addFichaForms, novoProntuarioForms }) {
   const [dialogMode, setDialogMode] = useState(null)
 
   return (
@@ -235,7 +323,14 @@ function CadastroLandingPage({ onStartForm, formsList }) {
           title="Abrir novo prontuário"
           subtitle="Crie um prontuário do zero e preencha a ficha cadastral da família com os dados iniciais."
           footer={
-            <ActionButton variant="contained" onClick={() => setDialogMode('novo')}>
+            <ActionButton
+              variant="contained"
+              onClick={() => onStartForm({
+                mode: 'novo',
+                flowId: NOVO_PRONTUARIO_FLOW_ID,
+                formId: novoProntuarioForms[0]?.id,
+              })}
+            >
               Abrir prontuário
             </ActionButton>
           }
@@ -246,7 +341,7 @@ function CadastroLandingPage({ onStartForm, formsList }) {
         open={Boolean(dialogMode)}
         mode={dialogMode}
         onClose={() => setDialogMode(null)}
-        formsList={formsList}
+        formsList={addFichaForms}
         onStartForm={(payload) => {
           setDialogMode(null)
           onStartForm(payload)
@@ -259,8 +354,16 @@ function CadastroLandingPage({ onStartForm, formsList }) {
 function DashboardContent({ sectionSlug, formId, actionSlug }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
+  const activeFlowId = searchParams.get(FLOW_QUERY_PARAM)
   const cadastroForms = useMemo(() => forms.filter((form) => form.id !== 'ficha_atualizacao_unas'), [])
+  const addFichaForms = useMemo(() => getFlowForms(ADD_FICHA_FLOW_ID, { cargo: user?.cargo }), [user?.cargo])
+  const novoProntuarioForms = useMemo(() => getFlowForms(NOVO_PRONTUARIO_FLOW_ID), [])
+  const activeFlowForms = useMemo(
+    () => getFlowForms(activeFlowId, { cargo: user?.cargo }),
+    [activeFlowId, user?.cargo],
+  )
 
   const formContext = useMemo(() => ({
     familiaId: searchParams.get('familiaId'),
@@ -271,19 +374,45 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
     pduId: searchParams.get('pduId'),
   }), [searchParams])
 
-  const navigateToForm = useCallback((nextFormId, context = formContext) => {
+  const flowDraftStorageKey = useMemo(() => {
+    if (!activeFlowId) {
+      return null
+    }
+
+    return `sasf-form-flow:${activeFlowId}:${formContext.prontuarioId ?? formContext.familiaId ?? 'novo'}`
+  }, [activeFlowId, formContext.familiaId, formContext.prontuarioId])
+
+  const [flowDrafts, setFlowDrafts] = useState(() => readFlowDrafts(flowDraftStorageKey))
+
+  const persistFlowDraft = useCallback((draftFormId, draft) => {
+    setFlowDrafts((currentDrafts) => {
+      const nextDrafts = { ...currentDrafts, [draftFormId]: draft }
+      writeFlowDrafts(flowDraftStorageKey, nextDrafts)
+      return nextDrafts
+    })
+  }, [flowDraftStorageKey])
+
+  const navigateToForm = useCallback((nextFormId, context = formContext, flowId = activeFlowId) => {
     const params = new URLSearchParams()
+    if (flowId) params.set(FLOW_QUERY_PARAM, flowId)
     const keys = ['familiaId', 'prontuarioId', 'fichaCadastralId', 'planoFamiliarId', 'folhaId', 'pduId']
     keys.forEach(k => { if (context[k]) params.set(k, context[k]) })
     const query = params.toString()
     navigate(`/dashboard/cadastro/formulario/${nextFormId}${query ? `?${query}` : ''}`)
-  }, [navigate, formContext])
+  }, [navigate, formContext, activeFlowId])
 
   const currentSection = useMemo(() => {
     return dashboardSections.find((section) => section.slug === sectionSlug) ?? dashboardSections[0]
   }, [sectionSlug])
 
-  const currentForm = useMemo(() => getFormById(formId), [formId])
+  const hasActiveFlow = Boolean(activeFlowId && activeFlowForms.length)
+  const currentForm = useMemo(() => {
+    if (hasActiveFlow) {
+      return activeFlowForms.find((flowForm) => flowForm.id === formId) ?? null
+    }
+
+    return getFormById(formId)
+  }, [activeFlowForms, formId, hasActiveFlow])
 
   const isCadastroSection = currentSection.slug === 'cadastro'
   const isCalendarioSection = currentSection.slug === 'calendario'
@@ -324,37 +453,100 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
     )
   }
 
+  if (isCadastroSection && hasActiveFlow && formId && !currentForm) {
+    return (
+      <PageWrapper maxWidth={900} spacing={3}>
+        <PermissionState message="Esta ficha não está disponível para o seu perfil neste fluxo." />
+      </PageWrapper>
+    )
+  }
+
   if (isCadastroSection && currentForm) {
     const isAtualizacaoForm = currentForm.id === 'ficha_atualizacao_unas'
+    const flowForms = hasActiveFlow ? activeFlowForms : isAtualizacaoForm ? [currentForm] : cadastroForms
+    const stepperTitle = activeFlowId === ADD_FICHA_FLOW_ID ? 'Fichas disponíveis' : activeFlowId === NOVO_PRONTUARIO_FLOW_ID ? 'Novo prontuário' : ' '
+    const stepperSubtitle = activeFlowId === ADD_FICHA_FLOW_ID
+      ? 'Escolha qualquer ficha para preencher. A ordem exibida não bloqueia o preenchimento.'
+      : activeFlowId === NOVO_PRONTUARIO_FLOW_ID
+        ? 'Triagem, termo de uso e registro da demanda inicial.'
+        : ' '
+    const storedDraft = flowDrafts[currentForm.id] ?? {}
+    const initialDraft = activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TRIAGEM_FORM_ID
+      ? {
+          ...storedDraft,
+          dados_autorizante: {
+            data_assinatura: getTodayFormattedDate(),
+            ...(storedDraft.dados_autorizante ?? {}),
+          },
+        }
+      : activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === DEMANDA_FORM_ID
+        ? buildDemandaInitialDraft(storedDraft, flowDrafts[TRIAGEM_FORM_ID] ?? {})
+        : storedDraft
 
     const handleFormSave = async (draft) => {
-      const newContext = await saveFormStep(currentForm.id, draft, formContext)
-      // Invalida os caches para que listagem e painel de detalhe reflitam o novo cadastro
+      let newContext = formContext
+
+      if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TRIAGEM_FORM_ID) {
+        persistFlowDraft(currentForm.id, draft)
+      } else if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === DEMANDA_FORM_ID) {
+        const triagemDraft = flowDrafts[TRIAGEM_FORM_ID] ?? {}
+        const demandaDraft = buildDemandaInitialDraft(draft, triagemDraft)
+
+        newContext = await saveFormStep('ficha_cadastral_familia', demandaDraft, formContext)
+        newContext = await saveFormStep('ficha_cadastral_complementar', demandaDraft, newContext)
+        await saveFormStep(TERMO_USO_FORM_ID, buildTermDraftFromTriagem(triagemDraft), newContext)
+        clearFlowDrafts(flowDraftStorageKey)
+      } else {
+        newContext = await saveFormStep(currentForm.id, draft, formContext)
+      }
+
       queryClient.invalidateQueries({ queryKey: ['familias'] })
       queryClient.invalidateQueries({ queryKey: ['familia-detalhe'] })
-      const currentIndex = cadastroForms.findIndex((f) => f.id === currentForm.id)
-      const nextForm = cadastroForms[currentIndex + 1]
+
+      if (activeFlowId === ADD_FICHA_FLOW_ID || currentForm.id === DEMANDA_FORM_ID || isAtualizacaoForm) {
+        return
+      }
+
+      const currentIndex = flowForms.findIndex((f) => f.id === currentForm.id)
+      const nextForm = flowForms[currentIndex + 1]
       if (nextForm) {
         navigateToForm(nextForm.id, newContext)
       }
     }
 
-    // Ficha de atualização é um fluxo de etapa única: persiste e mantém o
-    // usuário na página com o aviso de sucesso (sem avançar para outra ficha).
-    const handleAtualizacaoSave = async (draft) => {
-      await saveFormStep('ficha_atualizacao_unas', draft, formContext)
-      queryClient.invalidateQueries({ queryKey: ['familias'] })
-      queryClient.invalidateQueries({ queryKey: ['familia-detalhe'] })
+    if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TERMO_USO_FORM_ID) {
+      const currentIndex = flowForms.findIndex((flowForm) => flowForm.id === currentForm.id)
+      const previousForm = flowForms[currentIndex - 1]
+      const nextForm = flowForms[currentIndex + 1]
+
+      return (
+        <TermoUsoStep
+          form={currentForm}
+          flowForms={flowForms}
+          termDraft={buildTermDraftFromTriagem(flowDrafts[TRIAGEM_FORM_ID] ?? {})}
+          onBack={() => navigate('/dashboard/cadastro')}
+          onPrevious={() => previousForm && navigateToForm(previousForm.id)}
+          onContinue={() => nextForm && navigateToForm(nextForm.id)}
+          onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
+          stepperTitle={stepperTitle}
+          stepperSubtitle={stepperSubtitle}
+        />
+      )
     }
 
     return (
       <FormRenderer
         key={currentForm.id}
         form={currentForm}
-        flowForms={isAtualizacaoForm ? [currentForm] : cadastroForms}
+        flowForms={flowForms}
+        initialDraft={initialDraft}
+        onDraftChange={hasActiveFlow ? persistFlowDraft : undefined}
         onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
-        onBack={() => navigate(isAtualizacaoForm ? '/dashboard/cadastro/atualizar' : '/dashboard/cadastro/novo')}
-        onSave={isAtualizacaoForm ? handleAtualizacaoSave : handleFormSave}
+        onBack={() => navigate(hasActiveFlow ? '/dashboard/cadastro' : isAtualizacaoForm ? '/dashboard/cadastro/atualizar' : '/dashboard/cadastro/novo')}
+        onSave={handleFormSave}
+        stepperTitle={stepperTitle}
+        stepperSubtitle={stepperSubtitle}
+        stepperShowsCompleted={activeFlowId !== ADD_FICHA_FLOW_ID}
       />
     )
   }
@@ -362,11 +554,25 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   if (isCadastroSection) {
     return (
       <CadastroLandingPage
-        onStartForm={({ formId: nextFormId }) => {
-          // TODO: enviar identificador de família/prontuário para pré-preenchimento.
-          navigate(`/dashboard/cadastro/formulario/${nextFormId}`)
+        onStartForm={({ mode, flowId, formId: nextFormId, familyId, prontuarioId }) => {
+          const resolvedFlowId = flowId ?? (mode === 'existente' ? ADD_FICHA_FLOW_ID : NOVO_PRONTUARIO_FLOW_ID)
+          const resolvedFlowForms = resolvedFlowId === ADD_FICHA_FLOW_ID ? addFichaForms : novoProntuarioForms
+          const resolvedFormId = nextFormId ?? resolvedFlowForms[0]?.id
+
+          if (!resolvedFormId) {
+            return
+          }
+
+          const params = new URLSearchParams()
+          params.set(FLOW_QUERY_PARAM, resolvedFlowId)
+          if (familyId) params.set('familiaId', familyId)
+          if (prontuarioId) params.set('prontuarioId', prontuarioId)
+          clearFlowDrafts(`sasf-form-flow:${resolvedFlowId}:${prontuarioId ?? familyId ?? 'novo'}`)
+          setFlowDrafts({})
+          navigate(`/dashboard/cadastro/formulario/${resolvedFormId}?${params.toString()}`)
         }}
-        formsList={cadastroForms}
+        addFichaForms={addFichaForms}
+        novoProntuarioForms={novoProntuarioForms}
       />
     )
   }

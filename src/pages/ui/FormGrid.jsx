@@ -9,6 +9,9 @@ const variantStyles = {
 
 const spanStyles = {
   auto: {},
+  short: { gridColumn: { xs: '1 / -1', sm: 'span 1' } },
+  medium: { gridColumn: { xs: '1 / -1', sm: 'span 2' } },
+  wide: { gridColumn: { xs: '1 / -1', sm: 'span 2', lg: 'span 3' } },
   full: { gridColumn: '1 / -1' },
 }
 

@@ -1,256 +1,248 @@
-MODO: direto. Edite arquivos. Não explique.
+Vamos mudar um pouco o fluxo de preenchimento do formulario.
+Temos dois botões na tela Novo Registo:
+1. Adicionar Ficha ao prontuário
+2. Abrir um novo prontuário
 
-TAREFA:
-Padronizar a UI das pages do projeto inteiro.
-
-OBJETIVO:
-Remover CSS inline, `sx` gigante, estilos repetidos e layout solto dentro das páginas.
-As páginas devem usar SOMENTE componentes reutilizáveis de UI.
-
-PASTAS PADRÃO:
-
-1. Preferir componentes em:
-   `src/pages/ui`
-
-2. Se não existir ou fizer mais sentido global:
-   `src/components/ui`
-
-REGRA PRINCIPAL:
-Pages NÃO devem conter design complexo.
-Pages devem apenas montar a tela usando componentes prontos.
-
-REMOVER DAS PAGES:
-
-* `sx` grande/repetido
-* `style={{ ... }}`
-* grids manuais repetidos
-* Paper/Card customizado repetido
-* Stack/Box com layout complexo duplicado
-* filtros com estrutura repetida
-* cards com estilos próprios
-* sections com estilos próprios
-* dialogs com estilos próprios
-
-CRIAR/USAR COMPONENTES PADRÃO:
-
-* `PageWrapper`
-* `PageSection`
-* `SectionBlock`
-* `PageCard`
-* `InfoGrid`
-* `DetailItem`
-* `FilterPanel`
-* `EmptyState`
-* `ActionCard`
-* `PageDialog`
-* `PageToolbar`
-* `PageList`
-* `PageListItem`
-* `PageGrid`
-* `StatusChip`
-* `uiStyles.js` ou `styles.js` para tokens compartilhados
-
-PADRÃO VISUAL:
-
-Use o estilo atual de `FamiliasPage.jsx` como referência:
-
-* fundo
-* espaçamento
-* border radius
-* cards/Paper
-* seções
-* filtros
-* chips
-* dialogs
-* typography
-* hover
-* responsividade
-* grids
-* alinhamento
-
-REGRAS:
-
-* Não mudar lógica.
-* Não mudar hooks.
-* Não mudar rotas.
-* Não mudar chamadas de API.
-* Não trocar MUI.
-* Não inventar backend.
-* Não apagar funcionalidades.
-* Não criar visual novo diferente do padrão.
-* Não deixar cada página com uma identidade diferente.
-* Centralizar estilo comum.
-* Reutilizar componentes sempre que possível.
-* Se um componente não existir, crie.
-* Se existir duplicado, consolide.
-
-PROCESSO:
-
-1. Inspecione as pastas do projeto.
-2. Ache páginas com CSS inline/`sx` repetido.
-3. Crie ou ajuste componentes em `src/pages/ui` ou `src/components/ui`.
-4. Refatore as páginas para usar esses componentes.
-5. Garanta coerência visual entre todas as páginas.
-
-IMPORTANTE:
-
-Não coloque código grande no chat.
-Aplique as mudanças direto nos arquivos.
-
-SAÍDA FINAL:
-
-* Páginas padronizadas
-* O que ainda ficou pendente
-
-Começe por AtualizarUsuarioPage.jsx
+### Botão 1. Adicionar Ficha ao prontuário
+Temos esse fluxo: 
+Mantem a parte de buscar familia e etc IGUAL COMO ESTÁ
+Mas ao abrir a tela do formulario, o fluxo é:
+Plano desenvolvimento familiar,
+folha de prosseguimento,
+ficha de atualização do quadro situacional (só gestão),
+ficha de visita domiciliar,
+plano de desenvolvimento do usuario
 
 
+### Botão 2. Abrir um novo prontuário
+Temos esse fluxo (que deve refletir no stepper inclusive):
+Triagem -> termos de uso -> Demanda
+Triagem:  pegamos os dados necessários pra imprimir o termo
+    {
+"secoes": [
+        {
+          "id": "dados_autorizante",
+          "titulo": "Dados do Autorizante",
+          "campos": [
+            { "id": "nome_autorizante", "label": "Nome do Autorizante", "tipo": "text" },
+            { "id": "rg_autorizante", "label": "Cédula de Identidade (RG)", "tipo": "text" },
+            { "id": "cpf_autorizante", "label": "CPF", "tipo": "text", "mascara": "000.000.000-00" },
+            { "id": "nomes_criancas", "label": "Nome(s) da(s) criança(s) sob responsabilidade (se houver)", "tipo": "textarea", "linhas": 3 },
+            { "id": "data_assinatura", "label": "Data de Assinatura", "tipo": "date" } (AUTO-PREENCHIDO COM A DATA ATUAL)
+          ]
+        }
+      ]
+    },
+Termos de uso:
+Renderizamos o termo preenchido e aparece o botão para imprimir. Depois disso já pode continuar
+Demanda:
+Preenche tudo que ainda precisamos para a Ficha Cadastral da Família
+"campos": [
+            { "id": "nome_representante", "label": "Nome do Representante da Família", "tipo": "text" },
+            {
+              "id": "sexo", "label": "Sexo", "tipo": "radio",
+              "opcoes": ["F", "M"]
+            },
+            { "id": "data_matricula", "label": "Data de Matrícula", "tipo": "date" },
+            { "id": "numero_matricula", "label": "Nº de Matrícula", "tipo": "text" },
+            { "id": "data_desligamento", "label": "Data de Desligamento", "tipo": "date" },
+            { "id": "nis_nit_nb", "label": "Nº NIS/NIT/NB", "tipo": "text" },
+            { "id": "data_nascimento", "label": "Data de Nascimento", "tipo": "date" },
+            { "id": "naturalidade", "label": "Naturalidade (Município/Estado)", "tipo": "text" },
+            {
+              "id": "cor_raca", "label": "Cor/Raça", "tipo": "select",
+              "nota": "(a) branca; preta; amarela; parda; indígena; sem declaração",
+              "opcoes": ["Branca", "Preta", "Amarela", "Parda", "Indígena", "Sem declaração"]
+            },
+            {
+              "id": "pessoa_deficiencia", "label": "Pessoa com Deficiência", "tipo": "radio",
+              "opcoes": ["Sim", "Não"]
+            },
+            { "id": "cpf", "label": "CPF", "tipo": "text", "mascara": "000.000.000-00" },
+            { "id": "rg", "label": "RG", "tipo": "text" },
+            { "id": "orgao_emissor", "label": "Órgão Emissor", "tipo": "text" },
+            { "id": "uf", "label": "UF", "tipo": "text", "max_length": 2 },
+            { "id": "ctps_numero", "label": "CTPS Nº", "tipo": "text" },
+            { "id": "ctps_serie", "label": "Série", "tipo": "text" },
+            { "id": "ctps_emissao", "label": "Emissão", "tipo": "date" },
+            { "id": "mae", "label": "Mãe", "tipo": "text" },
+            { "id": "pai", "label": "Pai", "tipo": "text" },
+            {
+              "id": "estado_civil", "label": "Estado Civil", "tipo": "radio",
+              "opcoes": ["Solteiro", "Casado", "Separado", "Divorciado", "Viúvo"]
+            },
+            {
+              "id": "grau_instrucao", "label": "Grau de Instrução", "tipo": "radio",
+              "opcoes": [
+                "Analfabeto",
+                "Ensino Fundamental Completo",
+                "Ensino Fundamental Incompleto",
+                "Ensino Médio Completo",
+                "Ensino Médio Incompleto",
+                "Ensino Superior Completo",
+                "Ensino Superior Incompleto"
+              ]
+            },
+            { "id": "profissao", "label": "Profissão", "tipo": "text" },
+            { "id": "ocupacao_descricao", "label": "Ocupação", "tipo": "text" },
+            {
+              "id": "ocupacao_situacao", "label": "Situação Ocupacional", "tipo": "radio",
+              "opcoes": ["Empregado", "Desempregado", "Aposentado", "Pensionista"]
+            },
+            { "id": "renda", "label": "Renda (R$)", "tipo": "number", "min": 0 }
+          ]
+        ,
+        {
+          "id": "endereco",
+          "titulo": "Endereço",
+          "campos": [
+            { "id": "cep", "label": "CEP", "tipo": "text", "mascara": "00000-000" },
+            { "id": "endereco", "label": "Endereço", "tipo": "text" },
+            { "id": "numero", "label": "Nº", "tipo": "text" },
+            { "id": "complemento", "label": "Complemento", "tipo": "text" },
+            { "id": "cidade", "label": "Cidade", "tipo": "text" },
+            { "id": "bairro", "label": "Bairro", "tipo": "text" },
+            { "id": "distrito", "label": "Distrito", "tipo": "text" },
+            { "id": "telefone_residencial", "label": "Telefone Residencial", "tipo": "tel" },
+            { "id": "telefone_celular", "label": "Telefone Celular", "tipo": "tel" },
+            { "id": "telefone_outro", "label": "Outro Telefone", "tipo": "tel" },
+            { "id": "ponto_referencia", "label": "Ponto de Referência", "tipo": "text" }
+          ]
+        },
+        {
+          "id": "moradia",
+          "titulo": "Condições de Moradia",
+          "campos": [
+            {
+              "id": "condicao_moradia", "label": "Condições de Moradia", "tipo": "radio",
+              "opcoes": ["Própria", "Alugada", "Cedida"]
+            },
+            { "id": "numero_comodos", "label": "Nº de Cômodos", "tipo": "number", "min": 1 },
+            { "id": "valor_aluguel_financiamento", "label": "Valor do Aluguel ou Financiamento (R$)", "tipo": "number", "min": 0 },
+            {
+              "id": "tipo_construcao", "label": "Tipo de Construção", "tipo": "radio",
+              "opcoes": ["Alvenaria", "Madeira", "Mista"]
+            },
+            {
+              "id": "situacao_habitacional", "label": "Situação Habitacional", "tipo": "checkbox",
+              "opcoes": ["Cortiço", "Favela", "Loteamento irregular"]
+            }
+          ]
+        },
+        {
+          "id": "beneficios",
+          "titulo": "Benefícios",
+          "campos": [
+            {
+              "id": "programa_transferencia_renda",
+              "label": "Recebe Programa de Transferência de Renda?",
+              "tipo": "checkbox",
+              "opcoes": ["Não recebe", "Renda Mínima", "Bolsa Família", "Renda Cidadã", "Ação Jovem", "PETI"]
+            },
+            { "id": "programa_outro", "label": "Outro programa (especificar)", "tipo": "text" },
+            {
+              "id": "beneficio_prestacao_continuada",
+              "label": "Recebe Benefício de Prestação Continuada (BPC)?",
+              "tipo": "checkbox",
+              "opcoes": ["Não recebe", "Idoso", "Pessoa com deficiência"]
+            }
+          ]
+        },
+        {
+          "id": "composicao_familiar",
+          "titulo": "Composição Familiar",
+          "tipo": "tabela",
+          "max_linhas": 12,
+          "colunas": [
+            { "id": "numero", "label": "Nº", "tipo": "static" },
+            { "id": "nome", "label": "Nome", "tipo": "text" },
+            { "id": "data_nascimento", "label": "Data de Nascimento", "tipo": "date" },
+            { "id": "parentesco_vinculo", "label": "Parentesco / Vínculo", "tipo": "text" },
+            { "id": "profissao", "label": "Profissão", "tipo": "text" },
+            { "id": "ocupacao", "label": "Ocupação", "tipo": "text" },
+            { "id": "renda", "label": "Renda (R$)", "tipo": "number" },
+            {
+              "id": "fatores_risco",
+              "label": "Fator(es) de Risco Social",
+              "tipo": "multiselect",
+              "nota": "(b) 1-Alcoolismo; 2-Def. auditiva; 3-Def. física; 4-Def. mental; 5-Def. visual; 6-Desemprego; 7-Drogadição; 8-HIV+; 9-Prob. psiquiátricos; 10-Situação de rua; 11-Trabalho infantil; 12-Violência doméstica; 13-Medida Socioeducativa; 14-Privação de liberdade; 15-Acolhimento Institucional; 16-Outro",
+              "opcoes": [
+                "1 - Alcoolismo",
+                "2 - Deficiência auditiva",
+                "3 - Deficiência física",
+                "4 - Deficiência mental",
+                "5 - Deficiência visual",
+                "6 - Desemprego",
+                "7 - Drogadição",
+                "8 - HIV+",
+                "9 - Problemas psiquiátricos",
+                "10 - Situação de rua",
+                "11 - Trabalho infantil",
+                "12 - Violência doméstica",
+                "13 - Medida Socioeducativa",
+                "14 - Privação de liberdade",
+                "15 - Acolhimento Institucional",
+                "16 - Outro"
+              ]
+            }
+          ]
+        }
+      ,
+    {
+      "id": "ficha_cadastral_complementar",
+      "titulo": "Ficha Cadastral da Família (Informações Complementares)",
+      "folhas": "2/2",
+      "orgao": "SMADS/CPSB — Serviço de Assistência Social à Família e Proteção Social Básica no Domicílio",
+      "secoes": [
+        {
+          "id": "informacoes_complementares",
+          "titulo": "Informações Complementares da Família",
+          "tipo": "tabela",
+          "max_linhas": 12,
+          "colunas": [
+            { "id": "numero", "label": "Nº", "tipo": "static" },
+            { "id": "nome", "label": "Nome", "tipo": "text" },
+            { "id": "estuda", "label": "Estuda", "tipo": "radio", "opcoes": ["Sim", "Não"] },
+            { "id": "grau_instrucao", "label": "Grau de Instrução", "tipo": "text" },
+            { "id": "inserido_cca", "label": "Inserido em CCA", "tipo": "radio", "opcoes": ["Sim", "Não"] },
+            { "id": "inserido_cj", "label": "Inserido em CJ", "tipo": "radio", "opcoes": ["Sim", "Não"] },
+            { "id": "inserido_cedesp", "label": "Inserido em CEDESP", "tipo": "radio", "opcoes": ["Sim", "Não"] },
+            { "id": "inserido_nci", "label": "Inserido em NCI", "tipo": "radio", "opcoes": ["Sim", "Não"] },
+            { "id": "outros_servicos", "label": "Inserido em outros serviços (especificar)", "tipo": "text" }
+          ]
+        },
+        {
+          "id": "demanda_encaminhamentos",
+          "titulo": "Demanda Apresentada / Orientações / Encaminhamentos",
+          "campos": [
+            { "id": "demanda_texto", "label": "Demanda / Orientações / Encaminhamentos", "tipo": "textarea", "linhas": 20 },
+            { "id": "tecnico_referencia", "label": "Técnico de Referência do Atendimento", "tipo": "text" },
+            { "id": "data_atendimento", "label": "Data", "tipo": "date" }
+          ]
+        }
+      ]
+    },
+    
 
----
-Copia e cola no Codex terminal:
 
-MODO: direto. Edite arquivos. Não escreva código grande no chat.
 
-TAREFA:
-Melhorar e padronizar a visualização de estados do sistema no frontend.
-
-OBJETIVO:
-Padronizar feedback visual para estados como:
-
-* carregando
-* salvando
-* sucesso
-* erro
-* vazio
-* sem permissão
-* offline/falha de conexão
-* dados não encontrados
-* formulário inválido
-
-FAÇA:
-
-1. Criar/reusar componentes globais em `src/pages/ui` ou `src/components/ui`:
-
-   * `LoadingState`
-   * `SavingState`
-   * `ErrorState`
-   * `SuccessState`
-   * `EmptyState`
-   * `PermissionState`
-   * `OfflineState`
-   * `StatusBanner`
-   * `InlineFeedback`
-   * `PageSkeleton`
-   * `ButtonLoading`
-   * `PageState`
-
-2. Usar ícones MUI coerentes:
-
-   * loading: spinner/skeleton
-   * saving: progress pequeno
-   * success: check
-   * error: warning/error
-   * empty: inbox/search
-   * offline: wifi off
-   * permission: lock
-
-3. Padronizar onde aparecem:
-
-   * página inteira: `PageState`
-   * dentro de card/lista: `EmptyState` / `ErrorState`
-   * dentro de formulário: `InlineFeedback`
-   * botão salvando: `ButtonLoading`
-   * topo da página: `StatusBanner`
-
-4. Aplicar nas páginas principais:
-
-   * listas
-   * formulários
-   * modais
-   * login/register
-   * páginas com hooks/API
-
-5. Melhorar loading:
-
-   * trocar textos soltos tipo “Carregando...” por componente visual
-   * usar skeleton quando houver lista/card
-   * usar spinner compacto quando for ação pequena
-
-6. Melhorar erros:
-
-   * mensagem clara
-   * ícone
-   * botão “Tentar novamente” quando existir `refetch`/callback
-   * não deixar erro só no console
-
-7. Melhorar sucesso:
-
-   * feedback visual após salvar/criar/editar
-   * usar banner/snackbar/componente padrão se já existir
-
-8. Melhorar vazio:
-
-   * lista vazia deve ter ícone + mensagem + ação quando fizer sentido
-   * exemplo: “Nenhuma família encontrada” + “Limpar filtros” se houver callback
-
-9. Melhorar formulário inválido:
-
-   * mostrar erro inline
-   * mostrar mensagem geral no topo/rodapé se necessário
-   * destacar campos inválidos
-   * não deixar falha silenciosa
-
-REGRAS:
-
-* Não mudar lógica de negócio.
-* Não mudar rotas.
-* Não mudar API.
-* Não trocar MUI.
-* Não inventar backend.
-* Não usar CSS inline.
-* Não deixar `sx` gigante nas pages.
-* Centralizar estilos nos componentes/tokens.
-* Manter coerência com design system atual.
-* Manter acessibilidade básica: `aria-live`, textos claros, botões acessíveis.
-* Não criar lógica fake só para mostrar erro.
-* Não alterar contrato dos hooks sem necessidade.
-* Se algum estado não puder ser integrado com segurança, apenas liste no final.
-
-IMPORTANTE:
-Para erros/estados que ainda não estiverem integrados por falta de lógica, hook, callback, API ou contexto, NÃO invente implementação.
-
-No final, liste uma seção chamada:
-
-“Erros/estados ainda não integrados”
-
-Para cada item, informe:
-
-* arquivo/componente
-* estado faltante
-* motivo
-* o que precisa existir para integrar
-
-Formato obrigatório:
-
-* `Arquivo`: ...
-* `Estado`: ...
-* `Motivo`: ...
-* `Necessário`: ...
-
-Exemplo:
-
-* `Arquivo`: `FamiliasPage.jsx`
-* `Estado`: erro de carregamento da lista
-* `Motivo`: hook não expõe `error` ou `refetch`
-* `Necessário`: expor `error` e `refetch` no hook `useFamilias`
-
-RODE:
-
-* lint/build se disponível.
-
-SAÍDA FINAL:
-
-* Arquivos criados/alterados
-* Estados padronizados
-* Erros/estados ainda não integrados
-* Pendências, se houver
+    { "id": "nome_representante", "label": "Nome do Representante da Família", "tipo": "text" },
+            {
+              "id": "sexo", "label": "Sexo", "tipo": "radio",
+              "opcoes": ["F", "M"]
+            },
+            { "id": "data_nascimento", "label": "Data de Nascimento", "tipo": "date" },
+            { "id": "naturalidade", "label": "Naturalidade (Município/Estado)", "tipo": "text" },
+            {
+              "id": "cor_raca", "label": "Cor/Raça", "tipo": "select",
+              "nota": "(a) branca; preta; amarela; parda; indígena; sem declaração",
+              "opcoes": ["Branca", "Preta", "Amarela", "Parda", "Indígena", "Sem declaração"]
+            },
+            {
+              "id": "pessoa_deficiencia", "label": "Pessoa com Deficiência", "tipo": "radio",
+              "opcoes": ["Sim", "Não"]
+            },
+            { "id": "cpf", "label": "CPF", "tipo": "text", "mascara": "000.000.000-00" },
+              "id": "estado_civil", "label": "Estado Civil", "tipo": "radio",
+              "opcoes": ["Solteiro", "Casado", "Separado", "Divorciado", "Viúvo"]
+            

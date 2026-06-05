@@ -20,6 +20,8 @@ import { pageSectionActionsSx, pageSectionHeaderGridSx, surfaceHeaderSx, textSx 
 const pageSectionPaperSx = surfaceHeaderSx
 
 function PageSection({
+  top,
+  beforeEyebrow,
   eyebrow,
   title,
   description,
@@ -37,9 +39,19 @@ function PageSection({
 
   return (
     <Paper elevation={0} variant="outlined" sx={{ ...pageSectionPaperSx, ...sx }}>
+      {top ? (
+        <Box sx={{ mb: 1.5, minWidth: 0 }}>
+          {top}
+        </Box>
+      ) : null}
+
       {actions ? (
         <Box sx={{ ...pageSectionHeaderGridSx, ...resolvedContentSx }}>
           <Box sx={{ minWidth: 0 }}>
+            {beforeEyebrow ? (
+              <Box sx={{ mb: 0.5, ...textSx }}>{beforeEyebrow}</Box>
+            ) : null}
+
             {eyebrow ? (
               typeof eyebrow === 'string' ? (
                 <Typography variant="overline" color="primary" letterSpacing={1.8} sx={textSx}>
@@ -72,6 +84,10 @@ function PageSection({
           sx={{ minWidth: 0, ...resolvedContentSx }}
         >
           <Box sx={{ minWidth: 0 }}>
+            {beforeEyebrow ? (
+              <Box sx={{ mb: 0.5, ...textSx }}>{beforeEyebrow}</Box>
+            ) : null}
+
             {eyebrow ? (
               typeof eyebrow === 'string' ? (
                 <Typography variant="overline" color="primary" letterSpacing={1.8} sx={textSx}>

@@ -33,7 +33,6 @@
             { "id": "naturalidade", "label": "Naturalidade (Município/Estado)", "tipo": "text" },
             {
               "id": "cor_raca", "label": "Cor/Raça", "tipo": "select",
-              "nota": "(a) branca; preta; amarela; parda; indígena; sem declaração",
               "opcoes": ["Branca", "Preta", "Amarela", "Parda", "Indígena", "Sem declaração"]
             },
             {
@@ -78,10 +77,10 @@
           "id": "endereco",
           "titulo": "Endereço",
           "campos": [
+            { "id": "cep", "label": "CEP", "tipo": "text", "mascara": "00000-000" },
             { "id": "endereco", "label": "Endereço", "tipo": "text" },
             { "id": "numero", "label": "Nº", "tipo": "text" },
             { "id": "complemento", "label": "Complemento", "tipo": "text" },
-            { "id": "cep", "label": "CEP", "tipo": "text", "mascara": "00000-000" },
             { "id": "cidade", "label": "Cidade", "tipo": "text" },
             { "id": "bairro", "label": "Bairro", "tipo": "text" },
             { "id": "distrito", "label": "Distrito", "tipo": "text" },
@@ -173,7 +172,7 @@
     },
     {
       "id": "ficha_cadastral_complementar",
-      "titulo": "Ficha Cadastral da Família — Informações Complementares",
+      "titulo": "Ficha Cadastral da Família (Informações Complementares)",
       "folhas": "2/2",
       "orgao": "SMADS/CPSB — Serviço de Assistência Social à Família e Proteção Social Básica no Domicílio",
       "secoes": [
@@ -361,12 +360,18 @@
       "orgao": "SMADS/CPSB — Serviço de Assistência Social à Família e Proteção Social Básica no Domicílio",
       "secoes": [
         {
-          "id": "identificacao_pdf",
-          "titulo": "Identificação",
+          "id": "identificacao_servico",
+          "titulo": "Identificação do Serviço",
           "campos": [
             { "id": "nome_servico_sasf", "label": "Nome do Serviço SASF", "tipo": "text" },
             { "id": "cas", "label": "CAS", "tipo": "text" },
-            { "id": "cras", "label": "CRAS", "tipo": "text" },
+            { "id": "cras", "label": "CRAS", "tipo": "text" }
+          ]
+        },
+        {
+          "id": "identificacao_pdf",
+          "titulo": "Identificação",
+          "campos": [
             { "id": "nome_representante", "label": "Nome do Representante da Família", "tipo": "text" },
             { "id": "numero_matricula", "label": "Nº de Matrícula", "tipo": "text" },
             { "id": "nis_bdc", "label": "Nº do NIS/BDC", "tipo": "text" },
@@ -440,11 +445,17 @@
       "orgao": "SMADS/CPSB — Serviço de Assistência Social à Família e Proteção Social Básica no Domicílio",
       "secoes": [
         {
-          "id": "identificacao_visita",
-          "titulo": "Identificação",
+          "id": "identificacao_servico",
+          "titulo": "Identificação do Serviço",
           "campos": [
             { "id": "nome_servico_sasf", "label": "Nome do Serviço SASF", "tipo": "text" },
-            { "id": "cras", "label": "CRAS", "tipo": "text" },
+            { "id": "cras", "label": "CRAS", "tipo": "text" }
+          ]
+        },
+        {
+          "id": "identificacao_visita",
+          "titulo": "Identificação da Visita",
+          "campos": [
             { "id": "nome_tecnico", "label": "Nome do Técnico que Realizou a Visita", "tipo": "text" },
             { "id": "data_visita", "label": "Data da Visita", "tipo": "date" },
             { "id": "nome_familia", "label": "Nome", "tipo": "text" },

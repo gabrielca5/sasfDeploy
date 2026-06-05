@@ -629,47 +629,156 @@ export const actionButtonSx = {
 
 // ─── Form screens ───────────────────────────────────────────────────────────
 
-export const formStepperShellSx = {
-  p: { xs: 1.25, sm: 1.5 },
-  borderRadius: 2,
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: '#ffffff',
+export const formFlowLayoutSx = {
+  pb: { xs: 8, md: 10 },
+}
+
+export const formFlowLayoutContentSx = {
+  gap: { xs: 1.5, md: 2 },
+}
+
+export const formFlowFormSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: { xs: 1, md: 1.25 },
   minWidth: 0,
+  pb: { xs: 8, md: 9 },
+}
+
+export const formStepperShellSx = {
+  px: { xs: 0, sm: 0.5 },
+  py: { xs: 0.25, sm: 0.5 },
+  backgroundColor: 'transparent',
+  minWidth: 0,
+}
+
+export const formStepperHeaderSx = {
+  display: { xs: 'none', sm: 'block' },
+  mb: 0.5,
+  minWidth: 0,
+}
+
+export const formStepperTitleSx = {
+  display: 'block',
+}
+
+export const formStepperSubtitleSx = {
+  display: 'block',
+  lineHeight: 1.35,
 }
 
 export const formStepperGridSx = {
-  display: 'grid',
-  gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(auto-fit, minmax(180px, 220px))' },
-  gap: 0.75,
+  display: { xs: 'none', sm: 'flex' },
+  alignItems: 'flex-start',
+  gap: 0,
   minWidth: 0,
   width: '100%',
-  maxWidth: 940,
+  maxWidth: 1200,
   mx: 'auto',
-  justifyContent: 'center',
+  px: { xs: 0.25, sm: 0.5 },
+  pb: 0.25,
+  overflowX: 'auto',
+  scrollbarWidth: 'thin',
+  '&::-webkit-scrollbar': {
+    height: 6,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(107, 114, 128, 0.28)',
+    borderRadius: 999,
+  },
 }
 
-export const formStepCardSx = ({ isActive, isCompleted }) => ({
-  p: 1,
-  borderRadius: 1.5,
-  borderColor: isActive ? 'primary.main' : isCompleted ? 'rgba(25, 118, 210, 0.24)' : 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: isActive ? '#f1f8ff' : '#ffffff',
-  textAlign: 'left',
+export const formStepItemSx = ({ isCompleted, isLast }) => ({
+  position: 'relative',
+  flex: { xs: '0 0 150px', sm: '1 0 128px' },
+  minWidth: { xs: 150, sm: 128 },
+  maxWidth: { sm: 170 },
+  minHeight: 62,
+  '&::after': isLast
+    ? {}
+    : {
+        content: '""',
+        position: 'absolute',
+        top: 15,
+        left: 'calc(50% + 17px)',
+        right: 'calc(-50% + 17px)',
+        height: 2,
+        borderRadius: 999,
+        backgroundColor: isCompleted ? 'primary.main' : 'rgba(17, 24, 39, 0.12)',
+        transition: 'background-color 160ms ease',
+        zIndex: 0,
+      },
+})
+
+export const formStepButtonSx = ({ isActive }) => ({
+  position: 'relative',
+  zIndex: 1,
+  width: '100%',
+  p: 0,
+  m: 0,
+  border: 0,
+  background: 'transparent',
+  appearance: 'none',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 0.5,
+  color: 'inherit',
+  font: 'inherit',
+  textAlign: 'center',
   cursor: 'pointer',
   minWidth: 0,
-  width: '100%',
-  transition: 'border-color 160ms ease, background-color 160ms ease',
-  '&:hover': {
+  '& .flow-step-indicator': {
+    boxShadow: isActive ? '0 0 0 4px rgba(30, 136, 229, 0.12)' : 'none',
+  },
+  '&:hover .flow-step-indicator': {
     borderColor: 'primary.main',
-    backgroundColor: '#f8fbff',
+    backgroundColor: isActive ? 'primary.main' : '#f8fbff',
+  },
+  '&:focus-visible': {
+    outline: 'none',
+  },
+  '&:focus-visible .flow-step-indicator': {
+    boxShadow: '0 0 0 4px rgba(30, 136, 229, 0.18)',
   },
 })
 
-export const formStepChipSx = ({ isActive, isCompleted }) => ({
-  height: 22,
-  fontWeight: 800,
-  backgroundColor: isActive ? 'primary.main' : isCompleted ? 'primary.50' : '#f3f4f6',
+export const formStepIndicatorSx = ({ isActive, isCompleted }) => ({
+  width: 30,
+  height: 30,
+  borderRadius: '50%',
+  border: '2px solid',
+  borderColor: isActive || isCompleted ? 'primary.main' : 'rgba(17, 24, 39, 0.18)',
+  backgroundColor: isActive ? 'primary.main' : isCompleted ? 'primary.50' : '#ffffff',
   color: isActive ? '#ffffff' : isCompleted ? 'primary.dark' : 'text.secondary',
+  display: 'grid',
+  placeItems: 'center',
+  fontSize: '0.78rem',
+  fontWeight: 800,
+  lineHeight: 1,
+  transition: 'border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease',
 })
+
+export const formStepLabelSx = ({ isActive, isCompleted }) => ({
+  width: '100%',
+  maxWidth: 138,
+  minHeight: 30,
+  px: 0.5,
+  color: isActive ? 'text.primary' : isCompleted ? 'primary.dark' : 'text.secondary',
+  fontWeight: isActive ? 800 : 650,
+  lineHeight: 1.2,
+  textAlign: 'center',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflowWrap: 'anywhere',
+})
+
+export const formStepperMobileProgressSx = {
+  display: { xs: 'block', sm: 'none' },
+}
 
 export const formStepperNavigationSx = {
   display: 'grid',
@@ -741,31 +850,53 @@ export const formMetaChipSx = {
   fontWeight: 800,
 }
 
+export const formTitleActionsSx = {
+  alignItems: { xs: 'stretch', lg: 'flex-end' },
+  minWidth: { xs: '100%', lg: 170 },
+}
+
+export const formCardSx = {
+  borderRadius: 2,
+  borderColor: 'rgba(17, 24, 39, 0.08)',
+  backgroundColor: '#ffffff',
+  boxShadow: '0 10px 28px rgba(17, 24, 39, 0.06)',
+  overflow: 'visible',
+  minWidth: 0,
+}
+
+export const formCardBodySx = {
+  p: { xs: 1, sm: 1.25, md: 1.5 },
+  pt: { xs: 0.85, sm: 1 },
+  minWidth: 0,
+}
+
 export const formSectionSx = {
-  p: { xs: 1.25, sm: 1.5 },
-  pl: { xs: 1.25, sm: 1.75 },
+  p: { xs: 0.75, sm: 1 },
+  pl: { xs: 0.75, sm: 1 },
   borderRadius: 0,
   border: 0,
-  borderLeft: '2px solid',
-  borderColor: 'rgba(25, 118, 210, 0.16)',
   backgroundColor: 'transparent',
   minWidth: 0,
 }
 
 export const formGridSx = {
   display: 'grid',
-  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
-  columnGap: { xs: 1.25, sm: 1.75 },
-  rowGap: 1.35,
+  gridTemplateColumns: {
+    xs: '1fr',
+    sm: 'repeat(2, minmax(0, 1fr))',
+    lg: 'repeat(4, minmax(0, 1fr))',
+  },
+  columnGap: { xs: 1, sm: 1.25, md: 1.5 },
+  rowGap: { xs: 1.9, sm: 4 },
   minWidth: 0,
   maxWidth: '100%',
 }
 
 export const formGridCompactSx = {
   ...formGridSx,
-  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
+  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' },
   columnGap: { xs: 1, sm: 1.25 },
-  rowGap: 0.9,
+  rowGap: 1.75,
   alignItems: 'start',
 }
 
@@ -773,22 +904,54 @@ export const formGridStrategySx = {
   ...formGridSx,
   gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
   columnGap: { xs: 1, md: 1.35 },
-  rowGap: 1,
+  rowGap: 1.85,
   alignItems: 'start',
+}
+
+export const formNaturalidadeGridSx = {
+  display: 'grid',
+  gridTemplateColumns: { xs: '1fr', sm: '120px minmax(0, 1fr)' },
+  gap: { xs: 1.8, sm: 2 },
+  minWidth: 0,
 }
 
 export const formFieldSx = {
   minWidth: 0,
 }
 
+export const formReadOnlyGridSx = {
+  display: 'grid',
+  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' },
+  gap: { xs: 0.85, sm: 1 },
+  minWidth: 0,
+}
+
+export const formReadOnlyItemSx = {
+  minWidth: 0,
+}
+
+export const formReadOnlyLabelSx = {
+  display: 'block',
+  fontWeight: 700,
+  lineHeight: 1.25,
+}
+
+export const formReadOnlyValueSx = {
+  mt: 0.25,
+  fontWeight: 600,
+  color: 'text.primary',
+  lineHeight: 1.35,
+  ...textSx,
+}
+
 export const formInputSx = {
   '& .MuiInputBase-root': {
     backgroundColor: '#ffffff',
     borderRadius: 1,
-    minHeight: 38,
+    minHeight: 36,
   },
   '& .MuiInputBase-input': {
-    py: 0.85,
+    py: 0.75,
   },
   '& .MuiInputBase-input::placeholder': {
     color: 'text.disabled',
@@ -812,7 +975,7 @@ export const formTextAreaSx = {
 }
 
 export const formControlSx = {
-  gap: 0.4,
+  gap: 0.3,
   minWidth: 0,
   '& .MuiFormHelperText-root': {
     mx: 0,
@@ -821,6 +984,7 @@ export const formControlSx = {
 
 export const formHelperTextSx = {
   mx: 0,
+  mt: 0.25,
 }
 
 export const formLabelSx = {
@@ -831,23 +995,31 @@ export const formLabelSx = {
 }
 
 export const formOptionGroupSx = {
-  gap: 0.15,
+  display: 'flex',
+  flexDirection: 'row',
   flexWrap: 'wrap',
   alignItems: 'center',
+  columnGap: 0.75,
+  rowGap: 0.1,
 }
 
 export const formOptionControlSx = {
   ml: 0,
   mr: 0.75,
-  minHeight: 30,
+  minHeight: 26,
+  width: 'auto',
+  '& .MuiRadio-root, & .MuiCheckbox-root': {
+    p: 0.35,
+  },
   '& .MuiFormControlLabel-label': {
-    fontSize: '0.84rem',
+    fontSize: '0.82rem',
   },
 }
 
 export const formYesNoGroupSx = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  display: 'flex',
+  flexDirection: 'row',
+  flexWrap: 'wrap',
   gap: 0.5,
   minWidth: 0,
 }
@@ -855,6 +1027,8 @@ export const formYesNoGroupSx = {
 export const formYesNoOptionSx = ({ checked }) => ({
   m: 0,
   px: 0.75,
+  width: 'auto',
+  minWidth: 76,
   minHeight: 32,
   borderRadius: 1,
   border: '1px solid',
@@ -982,6 +1156,127 @@ export const formActionsBarSx = {
   borderColor: 'rgba(17, 24, 39, 0.08)',
   backgroundColor: '#ffffff',
   minWidth: 0,
+}
+
+export const formActionsFooterSx = {
+  position: 'sticky',
+  bottom: 0,
+  zIndex: 2,
+  p: { xs: 1, sm: 1.15 },
+  borderTop: '1px solid',
+  borderColor: 'rgba(17, 24, 39, 0.08)',
+  backgroundColor: 'rgba(255, 255, 255, 0.96)',
+  backdropFilter: 'blur(10px)',
+  minWidth: 0,
+}
+
+export const formActionsFooterToolbarSx = {
+  width: '100%',
+  '& > :first-of-type': {
+    flexShrink: 0,
+  },
+  '& > :last-child': {
+    ml: { sm: 'auto' },
+  },
+}
+
+export const formActionsFooterMetaSx = {
+  textAlign: { xs: 'center', sm: 'left' },
+  fontWeight: 700,
+  minWidth: 0,
+}
+
+export const termPrintSurfaceSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: { xs: 1.5, sm: 2 },
+  p: { xs: 1.25, sm: 2 },
+  border: '1px solid',
+  borderColor: 'rgba(17, 24, 39, 0.12)',
+  borderRadius: 1.5,
+  backgroundColor: '#ffffff',
+  minWidth: 0,
+  '@media print': {
+    border: 0,
+    borderRadius: 0,
+    p: 0,
+  },
+}
+
+export const termDocumentTitleSx = {
+  fontWeight: 800,
+  lineHeight: 1.25,
+  color: 'text.primary',
+}
+
+export const termParagraphSx = {
+  lineHeight: 1.8,
+  color: 'text.primary',
+}
+
+export const termInlineValueSx = {
+  display: 'inline',
+  fontWeight: 800,
+  borderBottom: '1px solid rgba(17, 24, 39, 0.34)',
+  px: 0.25,
+  overflowWrap: 'anywhere',
+}
+
+export const termDetailsGridSx = {
+  display: 'grid',
+  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+  gap: 1,
+  minWidth: 0,
+}
+
+export const termDetailItemSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 0.25,
+  p: 1,
+  borderRadius: 1,
+  border: '1px solid rgba(17, 24, 39, 0.08)',
+  backgroundColor: 'rgba(248, 250, 252, 0.86)',
+  minWidth: 0,
+}
+
+export const termDetailLabelSx = {
+  color: 'text.secondary',
+  fontWeight: 800,
+  textTransform: 'uppercase',
+}
+
+export const termDetailValueSx = {
+  color: 'text.primary',
+  fontWeight: 700,
+  overflowWrap: 'anywhere',
+}
+
+export const formProgressSx = {
+  p: { xs: 1, sm: 1.1 },
+  borderRadius: 1.5,
+  border: '1px solid',
+  borderColor: 'rgba(17, 24, 39, 0.08)',
+  backgroundColor: 'rgba(255, 255, 255, 0.72)',
+  minWidth: 0,
+}
+
+export const formProgressLabelSx = {
+  fontWeight: 800,
+  lineHeight: 1.25,
+}
+
+export const formProgressHelperSx = {
+  lineHeight: 1.25,
+}
+
+export const formProgressBarSx = {
+  height: 5,
+  borderRadius: 999,
+  backgroundColor: 'rgba(17, 24, 39, 0.1)',
+  '& .MuiLinearProgress-bar': {
+    borderRadius: 999,
+  },
 }
 
 export const formAlertSx = {
