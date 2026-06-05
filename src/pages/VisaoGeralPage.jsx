@@ -3,6 +3,8 @@ import { Box, ButtonBase, Paper, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import FamilyRestroomOutlinedIcon from '@mui/icons-material/FamilyRestroomOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined'
@@ -10,10 +12,8 @@ import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import useFamilias from '../hooks/useFamilias'
 import {
-  PageActionItem,
   ErrorState,
   PageGrid,
-  PageMetricCard,
   PageSection,
   PageStack,
   PageWrapper,
@@ -177,10 +177,10 @@ function VisaoGeralPage({ onOpenAction }) {
       )}
 
       <PageGrid variant="stats">
-        <PageMetricCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
-        <PageMetricCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" backgroundColor="#FEE2E2" loading={isLoading} />
-        <PageMetricCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" backgroundColor="#D1FAE5" loading={isLoading} />
-        <PageMetricCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" backgroundColor="#FEF3C7" loading={isLoading} />
+        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
+        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" bg="#FEE2E2" loading={isLoading} />
+        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" bg="#D1FAE5" loading={isLoading} />
+        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" bg="#FEF3C7" loading={isLoading} />
       </PageGrid>
 
       <PageSection
@@ -189,15 +189,10 @@ function VisaoGeralPage({ onOpenAction }) {
       />
 
       <PageStack spacing={1.5}>
-        {actions.map((action, index) => (
-          <PageActionItem
+        {actions.map((action) => (
+          <ActionRow
             key={action.slug}
-            title={action.label}
-            description={action.description}
-            hint={action.hint}
-            icon={action.icon}
-            selected={index === 0}
-            disabled={!action.available}
+            action={action}
             onClick={() => onOpenAction(action.slug)}
           />
         ))}
@@ -207,3 +202,5 @@ function VisaoGeralPage({ onOpenAction }) {
 }
 
 export default VisaoGeralPage
+
+
