@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
+import { Box, Paper, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
-import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import FamilyRestroomOutlinedIcon from '@mui/icons-material/FamilyRestroomOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined'
@@ -12,6 +11,7 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import useFamilias from '../hooks/useFamilias'
 import {
   ErrorState,
+  PageActionItem,
   PageGrid,
   PageSection,
   PageStack,
@@ -52,6 +52,24 @@ const actions = [
     available: false,
   },
 ]
+
+function StatCard({ icon: Icon, label, value, color = 'primary.main', bg = 'primary.50', loading }) {
+  return (
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', backgroundColor: bg, color, flexShrink: 0 }}>
+        <Icon sx={{ fontSize: 22 }} />
+      </Box>
+      <Box>
+        <Typography variant="h5" fontWeight={800} lineHeight={1.1}>
+          {loading ? '—' : value}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+          {label}
+        </Typography>
+      </Box>
+    </Paper>
+  )
+}
 
 function VisaoGeralPage({ onOpenAction }) {
   const { data: familiasData = [], isLoading, isError, refetch } = useFamilias()
@@ -106,9 +124,13 @@ function VisaoGeralPage({ onOpenAction }) {
 
       <PageStack spacing={1.5}>
         {actions.map((action) => (
-          <ActionRow
+          <PageActionItem
             key={action.slug}
-            action={action}
+            title={action.label}
+            description={action.description}
+            hint={action.hint}
+            icon={action.icon}
+            disabled={!action.available}
             onClick={() => onOpenAction(action.slug)}
           />
         ))}

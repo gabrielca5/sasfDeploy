@@ -34,7 +34,11 @@ function PageList({
                 {title}
               </Typography>
             ) : null}
-            {actions}
+            {actions ? (
+              <Box sx={{ minWidth: 0, width: '100%', flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                {actions}
+              </Box>
+            ) : null}
           </Stack>
         </Box>
       ) : null}

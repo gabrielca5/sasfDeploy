@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  Box,
   FormControl,
   InputLabel,
   MenuItem,
@@ -15,6 +16,8 @@ import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded'
 import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded'
 import ViewModuleRoundedIcon from '@mui/icons-material/ViewModuleRounded'
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import { useNavigate } from 'react-router-dom'
 
 import useFamilias from '../hooks/useFamilias'
@@ -53,6 +56,8 @@ const sortOptions = [
   { label: 'Registro mais recente', value: 'registro-desc' },
   { label: 'Registro menos recente', value: 'registro-asc' },
 ]
+
+const PAGE_SIZE = 32
 
 const orientadorPalette = [
   { id: 'orientador1', backgroundColor: '#FDECEC', color: '#B91C1C' },
@@ -467,9 +472,9 @@ function FamiliesPage() {
   const [benefitFilter, setBenefitFilter] = useState('Todos')
   const [orientadorFilter, setOrientadorFilter] = useState('Todos')
   const [streetFilter, setStreetFilter] = useState('')
-  const [updatedAtFilter, setUpdatedAtFilter] = useState('')
   const [sortBy, setSortBy] = useState('visita-desc')
   const [viewMode, setViewMode] = useState('gallery')
+  const [page, setPage] = useState(1)
   const [selectedId, setSelectedId] = useState(null)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
 
@@ -499,7 +504,6 @@ function FamiliesPage() {
           .join(' ')
           .toLowerCase()
           .includes(normalizedStreetFilter)
-      const matchesUpdatedAt = !updatedAtFilter || family.ultima_atualizacao === updatedAtFilter
       const matchesBenefit =
         benefitFilter === 'Todos' ||
         (benefitFilter === 'Sem benefício'
@@ -511,9 +515,9 @@ function FamiliesPage() {
         family.orientador?.nome === orientadorFilter ||
         getOrientadorInfo(family).id === orientadorFilter
 
-      return matchesQuery && matchesStatus && matchesPriority && matchesDistrict && matchesStreet && matchesUpdatedAt && matchesBenefit && matchesOrientador
+      return matchesQuery && matchesStatus && matchesPriority && matchesDistrict && matchesStreet && matchesBenefit && matchesOrientador
     })
-  }, [benefitFilter, districtFilter, familiasList, orientadorFilter, priorityFilter, query, statusFilter, streetFilter, updatedAtFilter])
+  }, [benefitFilter, districtFilter, familiasList, orientadorFilter, priorityFilter, query, statusFilter, streetFilter])
 
   const selectedFamily = filteredFamilies.find((family) => family.id === selectedId) ?? filteredFamilies[0] ?? null
 
@@ -544,6 +548,12 @@ function FamiliesPage() {
     })
   }, [filteredFamilies, sortBy])
 
+  const totalPages = Math.max(1, Math.ceil(sortedFamilies.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const paginatedFamilies = sortedFamilies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  const resetPage = () => setPage(1)
+
   const handleSelectFamily = (familyId) => {
     setSelectedId(familyId)
     setDetailDialogOpen(true)
@@ -551,12 +561,12 @@ function FamiliesPage() {
 
   const handleClearFilters = () => {
     setQuery('')
+    resetPage()
     setPriorityFilter('Todas')
     setDistrictFilter('Todos')
     setBenefitFilter('Todos')
     setOrientadorFilter('Todos')
     setStreetFilter('')
-    setUpdatedAtFilter('')
     setSortBy('visita-desc')
   }
 
@@ -589,103 +599,86 @@ function FamiliesPage() {
         eyebrow="Consultar Famílias"
         title="Acompanhamento de famílias"
         description="Acompanhe as famílias registradas, aplique filtros e acesse os detalhes de cada prontuário."
-        actions={<StatusChip label={`${familiasList.length} famílias`} tone="highlight" />}
       />
 
       <FilterPanel title="Filtros e ordenação">
-        <PageStack spacing={1.5}>
-          <FilterGrid>
-            <TextField label="Buscar" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nome ou CPF do representante" />
-            <TextField label="Rua" value={streetFilter} onChange={(event) => setStreetFilter(event.target.value)} placeholder="Ex.: Santa Cruz" />
-            <TextField
-              label="Última atualização"
-              type="text"
-              value={updatedAtFilter}
-              onChange={(event) => setUpdatedAtFilter(event.target.value)}
-              placeholder=""
-              inputMode="numeric"
-            />
+        <FilterGrid cols={{ xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }}>
+          <TextField
+            label="Buscar"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); resetPage() }}
+            placeholder="Nome ou CPF do representante"
+          />
+          <TextField
+            label="Rua"
+            value={streetFilter}
+            onChange={(e) => { setStreetFilter(e.target.value); resetPage() }}
+            placeholder="Ex.: Santa Cruz"
+          />
+          <FormControl fullWidth sx={{ gridColumn: { lg: 'span 2' } }}>
+            <InputLabel>Ordenar por</InputLabel>
+            <Select value={sortBy} label="Ordenar por" onChange={(e) => { setSortBy(e.target.value); resetPage() }}>
+              {sortOptions.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+            </Select>
+          </FormControl>
 
-            <FormControl fullWidth>
-              <InputLabel>Prioridade</InputLabel>
-              <Select value={priorityFilter} label="Prioridade" onChange={(event) => setPriorityFilter(event.target.value)}>
-                {priorityOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <FormControl fullWidth>
+            <InputLabel>Prioridade</InputLabel>
+            <Select value={priorityFilter} label="Prioridade" onChange={(e) => { setPriorityFilter(e.target.value); resetPage() }}>
+              {priorityOptions.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+            </Select>
+          </FormControl>
 
-            <FormControl fullWidth>
-              <InputLabel>Orientador</InputLabel>
-              <Select value={orientadorFilter} label="Orientador" onChange={(event) => setOrientadorFilter(event.target.value)}>
-                {orientadorOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <FormControl fullWidth>
+            <InputLabel>Distrito</InputLabel>
+            <Select value={districtFilter} label="Distrito" onChange={(e) => { setDistrictFilter(e.target.value); resetPage() }}>
+              {districtOptions.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+            </Select>
+          </FormControl>
 
-            <FormControl fullWidth>
-              <InputLabel>Benefício</InputLabel>
-              <Select value={benefitFilter} label="Benefício" onChange={(event) => setBenefitFilter(event.target.value)}>
-                {benefitOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Distrito</InputLabel>
-              <Select value={districtFilter} label="Distrito" onChange={(event) => setDistrictFilter(event.target.value)}>
-                {districtOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </FilterGrid>
+          <FormControl fullWidth>
+            <InputLabel>Orientador</InputLabel>
+            <Select value={orientadorFilter} label="Orientador" onChange={(e) => { setOrientadorFilter(e.target.value); resetPage() }}>
+              {orientadorOptions.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+            </Select>
+          </FormControl>
 
-          <PageToolbar
-            actions={
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={(_, nextValue) => nextValue && setViewMode(nextValue)}
-                size="small"
-              >
-                <ToggleButton value="gallery">
-                  <ViewModuleRoundedIcon fontSize="small" />
-                  Galeria
-                </ToggleButton>
-                <ToggleButton value="list">
-                  <ViewListRoundedIcon fontSize="small" />
-                  Lista
-                </ToggleButton>
-              </ToggleButtonGroup>
-            }
-          >
-            <FormControl fullWidth>
-              <InputLabel>Ordenar por</InputLabel>
-              <Select value={sortBy} label="Ordenar por" onChange={(event) => setSortBy(event.target.value)}>
-                {sortOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </PageToolbar>
-        </PageStack>
+          <FormControl fullWidth>
+            <InputLabel>Benefício</InputLabel>
+            <Select value={benefitFilter} label="Benefício" onChange={(e) => { setBenefitFilter(e.target.value); resetPage() }}>
+              {benefitOptions.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+            </Select>
+          </FormControl>
+        </FilterGrid>
       </FilterPanel>
 
       <PageList
-        title="Famílias encontradas"
-        actions={<StatusChip label={`${sortedFamilies.length}`} />}
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              <PageText variant="subtitle2" color="primary" fontWeight={800}>
+                Famílias encontradas
+              </PageText>
+              <StatusChip label={`${sortedFamilies.length}`} />
+              {sortedFamilies.length > PAGE_SIZE && (
+                <PageText variant="caption">
+                  Página {currentPage} de {totalPages}
+                </PageText>
+              )}
+            </Box>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(_, v) => v && setViewMode(v)}
+              size="small"
+              sx={{ ml: 'auto' }}
+            >
+              <ToggleButton value="gallery"><ViewModuleRoundedIcon fontSize="small" />Galeria</ToggleButton>
+              <ToggleButton value="list"><ViewListRoundedIcon fontSize="small" />Lista</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        }
         headers={viewMode === 'list' ? ['Representante', 'Rua', 'Prioridade', 'Última visita', 'Orientador'] : null}
       >
         {isError ? (
@@ -699,7 +692,7 @@ function FamiliesPage() {
           <LoadingState message="Carregando famílias..." skeleton variant={viewMode === 'gallery' ? 'cards' : 'list'} rows={4} />
         ) : viewMode === 'gallery' ? (
           <PageGrid variant="gallery">
-            {sortedFamilies.map((family) => (
+            {paginatedFamilies.map((family) => (
               <FamilyPreviewCard
                 key={family.id}
                 family={family}
@@ -709,7 +702,7 @@ function FamiliesPage() {
             ))}
           </PageGrid>
         ) : (
-          sortedFamilies.map((family) => (
+          paginatedFamilies.map((family) => (
             <FamilyListItem
               key={family.id}
               family={family}
@@ -724,6 +717,51 @@ function FamiliesPage() {
             message="Nenhuma família encontrada com os filtros atuais."
             action={<ActionButton onClick={handleClearFilters}>Limpar filtros</ActionButton>}
           />
+        )}
+        {!isLoading && !isError && sortedFamilies.length > PAGE_SIZE && (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              alignItems: 'center',
+              gap: 1,
+              width: '100%',
+            }}
+          >
+            <Box sx={{ justifySelf: 'start' }}>
+              <ActionButton
+                startIcon={<ChevronLeftRoundedIcon />}
+                disabled={currentPage === 1}
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+              >
+                Anterior
+              </ActionButton>
+            </Box>
+            <PageToolbar direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+              {Array.from({ length: totalPages }, (_, index) => {
+                const pageNumber = index + 1
+                return (
+                  <ActionButton
+                    key={pageNumber}
+                    variant={pageNumber === currentPage ? 'contained' : 'outlined'}
+                    onClick={() => setPage(pageNumber)}
+                    sx={{ minWidth: 36, px: 1 }}
+                  >
+                    {pageNumber}
+                  </ActionButton>
+                )
+              })}
+            </PageToolbar>
+            <Box sx={{ justifySelf: 'end' }}>
+              <ActionButton
+                endIcon={<ChevronRightRoundedIcon />}
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+              >
+                Próxima
+              </ActionButton>
+            </Box>
+          </Box>
         )}
       </PageList>
 
