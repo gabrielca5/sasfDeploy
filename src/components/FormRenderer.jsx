@@ -44,7 +44,6 @@ import {
   PageToolbar,
   RadioGroupField,
   RepeatableFormItem,
-  SignatureField,
   SavingState,
   SuccessState,
 } from '../pages/ui'
@@ -302,19 +301,23 @@ function collectRequiredFieldError(errors, key, field, value) {
   }
 }
 
+function isVisibleField(field) {
+  return field?.tipo !== 'assinatura'
+}
+
 function validateFormDraft(form, draft) {
   const errors = {}
 
   form.secoes.forEach((section) => {
     if (Array.isArray(section.campos)) {
-      section.campos.forEach((field) => {
+      section.campos.filter(isVisibleField).forEach((field) => {
         collectRequiredFieldError(errors, getFieldErrorKey(section.id, field.id), field, draft[section.id]?.[field.id])
       })
       return
     }
 
     if (Array.isArray(section.colunas) || Array.isArray(section.campos_por_item)) {
-      const fields = section.colunas ?? section.campos_por_item ?? []
+      const fields = (section.colunas ?? section.campos_por_item ?? []).filter(isVisibleField)
       const rows = draft[section.id] ?? []
       rows.forEach((row, rowIndex) => {
         fields.forEach((field) => {
@@ -348,14 +351,9 @@ const FIELD_SPAN_BY_ID = {
   nome_autorizante: 'medium',
   nomes_criancas: 'medium',
   estado_civil: 'medium',
-  assinatura_autorizante: 'full',
 }
 
 function getFieldSpan(field, section) {
-  if (field.tipo === 'assinatura') {
-    return 'full'
-  }
-
   if (FIELD_SPAN_BY_ID[field.id]) {
     return FIELD_SPAN_BY_ID[field.id]
   }
@@ -657,12 +655,6 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
           </MenuItem>
         ))}
       </TextField>
-    )
-  }
-
-  if (field.tipo === 'assinatura') {
-    return (
-      <SignatureField field={field} value={value} onChange={onChange} helperText={helperText || undefined} required={required} error={error} />
     )
   }
 
@@ -1191,7 +1183,7 @@ export function FormRenderer({
           title={section.titulo}
         >
           <FormGrid>
-            {section.campos.map((field) => {
+            {section.campos.filter(isVisibleField).map((field) => {
               const errorKey = getFieldErrorKey(section.id, field.id)
 
               return (

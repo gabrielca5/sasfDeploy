@@ -121,10 +121,15 @@ function buildTermDraftFromTriagem(triagemDraft = {}) {
 
 function buildDemandaInitialDraft(demandaDraft = {}, triagemDraft = {}) {
   return {
+    ...triagemDraft,
     ...demandaDraft,
     dados_representante: {
       ...(triagemDraft.dados_representante ?? {}),
       ...(demandaDraft.dados_representante ?? {}),
+    },
+    demanda_encaminhamentos: {
+      ...(triagemDraft.demanda_encaminhamentos ?? {}),
+      ...(demandaDraft.demanda_encaminhamentos ?? {}),
     },
   }
 }

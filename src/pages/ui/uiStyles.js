@@ -724,9 +724,18 @@ export const formFlowFormSx = {
 
 export const formStepperShellSx = {
   px: { xs: 0, sm: 0.5 },
-  py: { xs: 0.25, sm: 0.5 },
+  py: { xs: 0.25, sm: 0.35 },
   backgroundColor: 'transparent',
   minWidth: 0,
+  width: '100%',
+  alignSelf: 'stretch',
+  display: 'block',
+}
+
+export const formStepperStackSx = {
+  minWidth: 0,
+  width: '100%',
+  alignItems: 'stretch',
 }
 
 export const formStepperHeaderSx = {
@@ -745,16 +754,17 @@ export const formStepperSubtitleSx = {
 }
 
 export const formStepperGridSx = {
-  display: { xs: 'none', sm: 'flex' },
-  alignItems: 'flex-start',
+  display: 'flex',
+  alignItems: 'center',
   justifyContent: 'center',
   gap: 0,
   minWidth: 0,
-  width: '100%',
-  maxWidth: 980,
-  mx: 'auto',
+  width: 'max-content',
+  maxWidth: '100%',
+  gridColumn: 2,
+  justifySelf: 'center',
   px: { xs: 0.25, sm: 0.5 },
-  pb: 0.25,
+  py: 0.25,
   overflowX: 'auto',
   scrollbarWidth: 'thin',
   '&::-webkit-scrollbar': {
@@ -766,12 +776,23 @@ export const formStepperGridSx = {
   },
 }
 
+export const formStepperTrackSx = {
+  display: { xs: 'none', sm: 'grid' },
+  gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+  alignItems: 'center',
+  width: '100%',
+  minWidth: 0,
+  '&::before, &::after': {
+    content: '""',
+    minWidth: 0,
+  },
+}
+
 export const formStepItemSx = ({ isCompleted, isLast }) => ({
   position: 'relative',
-  flex: { xs: '0 0 150px', sm: '1 0 128px' },
-  minWidth: { xs: 150, sm: 128 },
-  maxWidth: { sm: 170 },
-  minHeight: 62,
+  flex: '0 0 72px',
+  width: 72,
+  minHeight: 34,
   '&::after': isLast
     ? {}
     : {
@@ -779,7 +800,7 @@ export const formStepItemSx = ({ isCompleted, isLast }) => ({
         position: 'absolute',
         top: 15,
         left: 'calc(50% + 17px)',
-        right: 'calc(-50% + 17px)',
+        width: 38,
         height: 2,
         borderRadius: 999,
         backgroundColor: isCompleted ? 'primary.main' : 'rgba(17, 24, 39, 0.12)',
@@ -800,12 +821,14 @@ export const formStepButtonSx = ({ isActive }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 0.5,
+  justifyContent: 'center',
+  gap: 0,
   color: 'inherit',
   font: 'inherit',
   textAlign: 'center',
   cursor: 'pointer',
   minWidth: 0,
+  minHeight: 34,
   '& .flow-step-indicator': {
     boxShadow: isActive ? '0 0 0 4px rgba(30, 136, 229, 0.12)' : 'none',
   },
@@ -856,6 +879,9 @@ export const formStepLabelSx = ({ isActive, isCompleted }) => ({
 
 export const formStepperMobileProgressSx = {
   display: { xs: 'block', sm: 'none' },
+  width: '100%',
+  maxWidth: 520,
+  mx: 'auto',
 }
 
 export const formStepperNavigationSx = {
@@ -938,6 +964,7 @@ export const formPageHeaderTopSx = {
   flexDirection: 'column',
   gap: { xs: 1.1, sm: 1.35 },
   minWidth: 0,
+  width: '100%',
 }
 
 export const formCardSx = {

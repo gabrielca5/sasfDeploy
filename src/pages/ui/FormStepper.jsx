@@ -1,14 +1,15 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import FormProgress from './FormProgress'
 import {
   formStepButtonSx,
   formStepIndicatorSx,
   formStepItemSx,
-  formStepLabelSx,
   formStepperGridSx,
   formStepperMobileProgressSx,
   formStepperShellSx,
+  formStepperStackSx,
+  formStepperTrackSx,
 } from './uiStyles'
 
 function FormStepper({
@@ -29,38 +30,39 @@ function FormStepper({
 
   return (
     <Box sx={formStepperShellSx}>
-      <Stack spacing={0.75} sx={{ minWidth: 0 }}>
+      <Stack spacing={0.75} sx={formStepperStackSx}>
         <FormProgress
           label={`Etapa ${activeStepIndex + 1} de ${forms.length} — ${activeForm.titulo}`}
           value={progressValue}
           sx={formStepperMobileProgressSx}
         />
 
-        <Box sx={formStepperGridSx} aria-label={title}>
-          {forms.map((form, index) => {
-            const isActive = index === activeStepIndex
-            const isCompleted = showCompleted && index < activeStepIndex
-            const isLast = index === forms.length - 1
+        <Box sx={formStepperTrackSx}>
+          <Box sx={formStepperGridSx} aria-label={title}>
+            {forms.map((form, index) => {
+              const isActive = index === activeStepIndex
+              const isCompleted = showCompleted && index < activeStepIndex
+              const isLast = index === forms.length - 1
 
-            return (
-              <Box key={form.id} sx={formStepItemSx({ isCompleted, isLast })}>
-                <Box
-                  component="button"
-                  type="button"
-                  onClick={() => onSelectForm?.(form.id)}
-                  aria-current={isActive ? 'step' : undefined}
-                  aria-label={`Abrir etapa ${index + 1}: ${form.titulo}`}
-                  title={form.titulo}
-                  sx={formStepButtonSx({ isActive, isCompleted })}
-                >
-                  <Box className="flow-step-indicator" sx={formStepIndicatorSx({ isActive, isCompleted })}>
-                    {isCompleted ? <CheckRoundedIcon sx={{ fontSize: 16 }} /> : index + 1}
+              return (
+                <Box key={form.id} sx={formStepItemSx({ isCompleted, isLast })}>
+                  <Box
+                    component="button"
+                    type="button"
+                    onClick={() => onSelectForm?.(form.id)}
+                    aria-current={isActive ? 'step' : undefined}
+                    aria-label={`Abrir etapa ${index + 1}: ${form.titulo}`}
+                    title={form.titulo}
+                    sx={formStepButtonSx({ isActive, isCompleted })}
+                  >
+                    <Box className="flow-step-indicator" sx={formStepIndicatorSx({ isActive, isCompleted })}>
+                      {isCompleted ? <CheckRoundedIcon sx={{ fontSize: 16 }} /> : index + 1}
+                    </Box>
                   </Box>
-
                 </Box>
-              </Box>
-            )
-          })}
+              )
+            })}
+          </Box>
         </Box>
       </Stack>
     </Box>

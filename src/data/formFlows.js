@@ -16,28 +16,19 @@ const ADD_FICHA_FLOW_FORM_IDS = [
   'plano_desenvolvimento_usuario',
 ]
 
-const TRIAGEM_REPRESENTANTE_FIELDS = [
-  'nome_representante',
-  'cpf',
-  'rg',
-  'data_nascimento',
-  'cor_raca',
-  'naturalidade',
-  'estado_civil',
-  'sexo',
-  'pessoa_deficiencia',
-]
-
 const TRIAGEM_TERMO_FIELDS = ['data_assinatura']
 
-const DEMANDA_SECTION_REFS = [
+const TRIAGEM_SECTION_REFS = [
   ['ficha_cadastral_familia', 'identificacao_servico'],
   ['ficha_cadastral_familia', 'dados_representante'],
   ['ficha_cadastral_familia', 'endereco'],
   ['ficha_cadastral_familia', 'moradia'],
   ['ficha_cadastral_familia', 'beneficios'],
   ['ficha_cadastral_familia', 'composicao_familiar'],
-  ['ficha_cadastral_complementar', 'informacoes_complementares', { titulo: 'Ficha complementar' }],
+  ['ficha_cadastral_complementar', 'informacoes_complementares', { titulo: 'Composição familiar (crianças e adolescentes)' }],
+]
+
+const DEMANDA_SECTION_REFS = [
   ['ficha_cadastral_complementar', 'demanda_encaminhamentos'],
 ]
 
@@ -112,15 +103,18 @@ function buildTriagemForm() {
   const menoresField = findSection('termo_autorizacao_imagem', 'dados_autorizante')
     ?.campos
     ?.find((field) => field.id === 'nomes_criancas')
+  const triagemCadastroSections = TRIAGEM_SECTION_REFS
+    .map(([formId, sectionId, overrides]) => cloneSectionById(formId, sectionId, overrides))
+    .filter(Boolean)
+  const [identificacaoServicoSection, dadosRepresentanteSection, ...triagemRemainingSections] = triagemCadastroSections
 
   return {
     id: TRIAGEM_FORM_ID,
     titulo: 'Triagem',
     orgao: fichaCadastral?.orgao ?? '',
     secoes: [
-      cloneSectionWithFields('ficha_cadastral_familia', 'dados_representante', TRIAGEM_REPRESENTANTE_FIELDS, {
-        titulo: 'Dados do representante',
-      }),
+      identificacaoServicoSection,
+      dadosRepresentanteSection,
       cloneSectionWithFields('termo_autorizacao_imagem', 'dados_autorizante', TRIAGEM_TERMO_FIELDS, {
         titulo: 'Dados para o termo',
       }),
@@ -139,6 +133,7 @@ function buildTriagemForm() {
             ],
           }
         : null,
+      ...triagemRemainingSections,
     ].filter(Boolean),
   }
 }

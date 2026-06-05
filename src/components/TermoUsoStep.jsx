@@ -23,6 +23,9 @@ import {
   formPageHeaderTopSx,
   termParagraphSx,
   termPrintSurfaceSx,
+  termSignatureGridSx,
+  termSignatureLabelSx,
+  termSignatureLineSx,
 } from '../pages/ui/uiStyles'
 
 function valueOrDash(value) {
@@ -155,10 +158,26 @@ function TermoUsoStep({
                 <TermDetail label="Crianças autorizadas" value={fields.nomes_criancas} />
               </Box>
             </PageStack>
+
+            <Box sx={termSignatureGridSx}>
+              <SignatureLine label="Assinatura do autorizante" />
+            </Box>
           </Box>
         </FormCard>
       </PageSection>
     </FormFlowLayout>
+  )
+}
+
+function SignatureLine({ label }) {
+  return (
+    <Box sx={termSignatureLineSx}>
+      <Box sx={termSignatureLabelSx}>
+        <Typography variant="caption" color="text.secondary" fontWeight={800}>
+          {label}
+        </Typography>
+      </Box>
+    </Box>
   )
 }
 

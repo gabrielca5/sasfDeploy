@@ -40,7 +40,7 @@ function PageSection({
   return (
     <Paper elevation={0} variant="outlined" sx={{ ...pageSectionPaperSx, ...sx }}>
       {top ? (
-        <Box sx={{ mb: 1.5, minWidth: 0 }}>
+        <Box sx={{ mb: 1.5, minWidth: 0, width: '100%' }}>
           {top}
         </Box>
       ) : null}

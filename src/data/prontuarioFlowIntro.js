@@ -44,15 +44,15 @@ export const flowIntroConfigs = {
     steps: [
       {
         title: 'Triagem inicial',
-        description: 'Comece inserindo as informações principais sobre o Representante da família.',
+        description: 'Preencha os dados iniciais, cadastrais e complementares da família.',
       },
       {
         title: 'Termo de uso',
         description: 'O termo de autorização de uso de imagem e áudio será preenchido automaticamente com os dados da triagem. Imprima o documento para assinatura do Representante.',
       },
       {
-        title: 'Ficha cadastral da família',
-        description: 'Preencha os demais dados da família e finalize a abertura do prontuário.',
+        title: 'Demanda e encaminhamentos',
+        description: 'Registre a demanda, orientações e encaminhamentos do atendimento.',
       },
       {
         title: 'Plano de Desenvolvimento Familiar',
