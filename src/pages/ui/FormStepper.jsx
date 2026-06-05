@@ -7,12 +7,8 @@ import {
   formStepItemSx,
   formStepLabelSx,
   formStepperGridSx,
-  formStepperHeaderSx,
   formStepperMobileProgressSx,
   formStepperShellSx,
-  formStepperSubtitleSx,
-  formStepperTitleSx,
-  textSx,
 } from './uiStyles'
 
 function FormStepper({
@@ -20,7 +16,6 @@ function FormStepper({
   activeFormId,
   onSelectForm,
   title = 'Fluxo do cadastro',
-  subtitle,
   showCompleted = true,
 }) {
   if (!forms.length) {
@@ -35,17 +30,6 @@ function FormStepper({
   return (
     <Box sx={formStepperShellSx}>
       <Stack spacing={0.75} sx={{ minWidth: 0 }}>
-        <Box sx={formStepperHeaderSx}>
-          <Typography variant="overline" color="primary" letterSpacing={1.4} sx={{ ...formStepperTitleSx, ...textSx }}>
-            {title}
-          </Typography>
-          {subtitle ? (
-            <Typography variant="caption" color="text.secondary" sx={{ ...formStepperSubtitleSx, ...textSx }}>
-              {subtitle}
-            </Typography>
-          ) : null}
-        </Box>
-
         <FormProgress
           label={`Etapa ${activeStepIndex + 1} de ${forms.length} — ${activeForm.titulo}`}
           value={progressValue}
@@ -73,9 +57,6 @@ function FormStepper({
                     {isCompleted ? <CheckRoundedIcon sx={{ fontSize: 16 }} /> : index + 1}
                   </Box>
 
-                  <Typography variant="caption" sx={formStepLabelSx({ isActive, isCompleted })}>
-                    {form.titulo}
-                  </Typography>
                 </Box>
               </Box>
             )

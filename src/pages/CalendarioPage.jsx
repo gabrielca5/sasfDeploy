@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -246,16 +246,10 @@ function CalendarioPage() {
     staleTime: 5 * 60_000,
   })
   
-  useEffect(() => {
-    if (profile?.name && !professionalName) {
-      setProfessionalName(profile.name)
-    }
-  }, [profile?.name])
-
   // O backend devolve coleções paginadas (Spring Page: { content: [...] }).
   // Normaliza para array para evitar quebrar .filter/.map e deixar a tela branca.
-  const pdus = Array.isArray(rawPdus) ? rawPdus : rawPdus?.content ?? []
-  const eventos = Array.isArray(rawEvents) ? rawEvents : rawEvents?.content ?? []
+  const pdus = useMemo(() => (Array.isArray(rawPdus) ? rawPdus : rawPdus?.content ?? []), [rawPdus])
+  const eventos = useMemo(() => (Array.isArray(rawEvents) ? rawEvents : rawEvents?.content ?? []), [rawEvents])
 
   const myPdus = useMemo(() =>
     pdus.filter(

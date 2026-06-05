@@ -627,6 +627,83 @@ export const actionButtonSx = {
   },
 }
 
+// ─── Flow intro ─────────────────────────────────────────────────────────────
+
+export const flowIntroTimelineSx = {
+  listStyle: 'none',
+  p: 0,
+  m: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 0,
+  minWidth: 0,
+}
+
+export const flowIntroStepSx = ({ isLast }) => ({
+  position: 'relative',
+  display: 'grid',
+  gridTemplateColumns: '40px minmax(0, 1fr)',
+  columnGap: { xs: 1.25, sm: 1.75 },
+  minWidth: 0,
+  pb: isLast ? 0 : { xs: 2.25, sm: 2.5 },
+  '&::after': isLast
+    ? {}
+    : {
+        content: '""',
+        position: 'absolute',
+        top: 40,
+        bottom: 0,
+        left: 19,
+        width: 2,
+        borderRadius: 999,
+        backgroundColor: 'rgba(17, 24, 39, 0.12)',
+      },
+})
+
+export const flowIntroMarkerSx = {
+  position: 'relative',
+  zIndex: 1,
+  width: 40,
+  height: 40,
+  borderRadius: '50%',
+  display: 'grid',
+  placeItems: 'center',
+  backgroundColor: 'primary.50',
+  border: '1px solid',
+  borderColor: 'rgba(25, 118, 210, 0.28)',
+  color: 'primary.dark',
+  fontWeight: 800,
+}
+
+export const flowIntroStepContentSx = {
+  minWidth: 0,
+  pt: 0.35,
+  pb: 0.25,
+}
+
+export const flowIntroDialogHeaderSx = {
+  minWidth: 0,
+  pb: 0.5,
+}
+
+export const flowIntroFooterSx = {
+  mt: 2.5,
+  pt: 2,
+  borderTop: '1px solid',
+  borderColor: 'rgba(17, 24, 39, 0.08)',
+  minWidth: 0,
+}
+
+export const flowIntroActionsSx = {
+  width: '100%',
+  '& .MuiButton-root': {
+    width: { xs: '100%', sm: 'auto' },
+  },
+  '& > :last-child': {
+    ml: { sm: 'auto' },
+  },
+}
+
 // ─── Form screens ───────────────────────────────────────────────────────────
 
 export const formFlowLayoutSx = {
@@ -670,10 +747,11 @@ export const formStepperSubtitleSx = {
 export const formStepperGridSx = {
   display: { xs: 'none', sm: 'flex' },
   alignItems: 'flex-start',
+  justifyContent: 'center',
   gap: 0,
   minWidth: 0,
   width: '100%',
-  maxWidth: 1200,
+  maxWidth: 980,
   mx: 'auto',
   px: { xs: 0.25, sm: 0.5 },
   pb: 0.25,
@@ -855,6 +933,13 @@ export const formTitleActionsSx = {
   minWidth: { xs: '100%', lg: 170 },
 }
 
+export const formPageHeaderTopSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: { xs: 1.1, sm: 1.35 },
+  minWidth: 0,
+}
+
 export const formCardSx = {
   borderRadius: 2,
   borderColor: 'rgba(17, 24, 39, 0.08)',
@@ -868,6 +953,14 @@ export const formCardBodySx = {
   p: { xs: 1, sm: 1.25, md: 1.5 },
   pt: { xs: 0.85, sm: 1 },
   minWidth: 0,
+}
+
+export const formCardPlainSx = {
+  border: 0,
+  borderRadius: 0,
+  backgroundColor: 'transparent',
+  boxShadow: 'none',
+  overflow: 'visible',
 }
 
 export const formSectionSx = {
@@ -1250,6 +1343,23 @@ export const termDetailValueSx = {
   color: 'text.primary',
   fontWeight: 700,
   overflowWrap: 'anywhere',
+}
+
+export const termSignatureGridSx = {
+  display: 'grid',
+  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+  gap: 2,
+  mt: 1,
+}
+
+export const termSignatureLineSx = {
+  minWidth: 0,
+  pt: 4,
+}
+
+export const termSignatureLabelSx = {
+  borderTop: '1px solid rgba(17, 24, 39, 0.42)',
+  pt: 0.75,
 }
 
 export const formProgressSx = {

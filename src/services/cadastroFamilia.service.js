@@ -90,6 +90,12 @@ function toIsoDateTime(value) {
   return date ? new Date(`${date}T12:00:00`).toISOString() : null
 }
 
+function createSaveError(message, err) {
+  const error = new Error(message)
+  error.cause = err
+  return error
+}
+
 // ─── Handlers por formulário ─────────────────────────────────────────────────
 
 async function saveFichaCadastralFamilia(draft, context = {}) {
@@ -230,7 +236,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
   // 6 & 7. Cria a ficha cadastral e vincula ao prontuário (idempotente).
   // Verifica se o prontuário já tem uma ficha antes de criar (evita erro
   // de unicidade caso o formulário seja salvo duas vezes).
-  let fichaCadastralId = null
+  let fichaCadastralId
   try {
     const prontuarioAtual = await apiClient.get(`/prontuario/${prontuario.id}`).catch(() => null)
     if (prontuarioAtual?.fichaCadastralDaFamiliaId) {
@@ -277,6 +283,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
     }
   } catch (err) {
     console.warn('Não foi possível criar fichacadastral:', err?.message)
+    throw createSaveError('Não foi possível criar o prontuário. Tente novamente.', err)
   }
 
   return {
@@ -300,6 +307,7 @@ async function saveFichaCadastralComplementar(draft, context) {
     }
   } catch (err) {
     console.warn('Não foi possível salvar registroprosseguimento:', err?.message)
+    throw createSaveError('Não foi possível salvar a demanda do prontuário. Tente novamente.', err)
   }
 
   return context
@@ -327,6 +335,7 @@ async function saveFichaVisita(draft, context) {
     await atualizaUltimaVisita(context.familiaId, dataVisitaISO)
   } catch (err) {
     console.warn('Não foi possível salvar ficha de visita:', err?.message)
+    throw createSaveError('Não foi possível criar a ficha de visita. Tente novamente.', err)
   }
 
   return context
@@ -374,6 +383,7 @@ async function atualizaProntuario(context, field, newId) {
     })
   } catch (err) {
     console.warn('Não foi possível atualizar prontuário:', err?.message)
+    throw createSaveError('Não foi possível vincular a ficha ao prontuário. Tente novamente.', err)
   }
 }
 
@@ -394,6 +404,7 @@ async function saveTermo(draft, context) {
     })
   } catch (err) {
     console.warn('Não foi possível salvar termo:', err?.message)
+    throw createSaveError('Não foi possível salvar o termo de uso. Tente novamente.', err)
   }
   return context
 }
@@ -425,7 +436,7 @@ async function savePlanoFamiliar(draft, context) {
     return { ...context, planoFamiliarId: plano?.id }
   } catch (err) {
     console.warn('Não foi possível salvar plano familiar:', err?.message)
-    return context
+    throw createSaveError('Não foi possível criar o Plano de Desenvolvimento Familiar. Tente novamente.', err)
   }
 }
 
@@ -445,7 +456,7 @@ async function saveFolhaProsseguimento(draft, context) {
     return { ...context, folhaId: folha?.id }
   } catch (err) {
     console.warn('Não foi possível salvar folha de prosseguimento:', err?.message)
-    return context
+    throw createSaveError('Não foi possível criar a folha de prosseguimento. Tente novamente.', err)
   }
 }
 
@@ -483,7 +494,7 @@ async function savePdu(draft, context) {
     return { ...context, pduId: pdu?.id }
   } catch (err) {
     console.warn('Não foi possível salvar PDU:', err?.message)
-    return context
+    throw createSaveError('Não foi possível criar o Plano de Desenvolvimento do Usuário. Tente novamente.', err)
   }
 }
 
@@ -575,7 +586,7 @@ async function saveFichaAtualizacao(draft, context) {
     return { ...context, fichaAtualizacaoId: ficha?.id }
   } catch (err) {
     console.warn('Não foi possível salvar ficha de atualização:', err?.message)
-    return context
+    throw createSaveError('Não foi possível criar a ficha de atualização. Tente novamente.', err)
   }
 }
 

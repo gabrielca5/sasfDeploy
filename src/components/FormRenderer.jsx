@@ -53,9 +53,11 @@ import {
   formChipWrapSx,
   formControlSx,
   formFlowFormSx,
+  formCardPlainSx,
   formHelperTextSx,
   formInputSx,
   formLabelSx,
+  formPageHeaderTopSx,
   formMultiSelectSx,
   formNaturalidadeGridSx,
   formOptionControlSx,
@@ -924,6 +926,9 @@ export function FormRenderer({
   onSave,
   initialDraft,
   onDraftChange,
+  notice,
+  successMessage = 'Dados salvos com sucesso.',
+  errorMessage = 'Erro ao salvar. Verifique sua conexão e tente novamente.',
   stepperTitle = ' ',
   stepperSubtitle = ' ',
   stepperShowsCompleted = true,
@@ -1001,7 +1006,7 @@ export function FormRenderer({
             setValidationErrors({})
           })
           .catch((err) => {
-            setSubmitError(err?.message || 'Erro ao salvar. Verifique sua conexão e tente novamente.')
+            setSubmitError(err?.message || errorMessage)
           })
           .finally(() => setSubmitting(false))
         return
@@ -1269,103 +1274,115 @@ export function FormRenderer({
 
   return (
     <FormFlowLayout>
-      <FormStepper
-        forms={flowSteps}
-        activeFormId={form.id}
-        onSelectForm={onSelectFlowForm}
-        title={stepperTitle}
-        subtitle={stepperSubtitle}
-        showCompleted={stepperShowsCompleted}
-      />
-
-      <PageSection
-        beforeEyebrow={
-          <ActionButton
-            type="button"
-            variant="text"
-            startIcon={<ArrowBackRoundedIcon />}
-            onClick={() => requestAction('leave')}
-          >
-            Voltar ao catálogo
-          </ActionButton>
-        }
-        eyebrow={form.orgao}
-        title={form.titulo}
-        description={"Preencha os campos abaixo para registrar as informações solicitadas. Campos obrigatórios estão destacados com asterisco."}
-      />
       <Box component="form" onSubmit={handleSubmit} sx={formFlowFormSx}>
-        <FormCard
-          footer={
-            <FormActionsFooter
-              leading={
-                
+        <PageSection
+          top={
+            <Box sx={formPageHeaderTopSx}>
+              <PageToolbar justifyContent="flex-start">
                 <ActionButton
                   type="button"
-                  variant="outlined"
+                  variant="text"
                   startIcon={<ArrowBackRoundedIcon />}
-                  onClick={() => previousFlowForm && onSelectFlowForm?.(previousFlowForm.id)}
-                  disabled={!previousFlowForm || !onSelectFlowForm}
-                >
-                  Etapa anterior
-                </ActionButton>
-              }
-              actions={
-                <PageToolbar
-                  direction={{ xs: 'column', sm: 'row' }}
-                  alignItems={{ xs: 'stretch', sm: 'center' }}
-                  justifyContent="flex-end"
-                >
+                  onClick={() => requestAction('leave')}
+              >
+                Voltar ao catálogo
+              </ActionButton>
+            </PageToolbar>
+
+            <FormStepper
+              forms={flowSteps}
+              activeFormId={form.id}
+              onSelectForm={onSelectFlowForm}
+              title={stepperTitle}
+              subtitle={stepperSubtitle}
+              showCompleted={stepperShowsCompleted}
+            />
+          </Box>
+        }
+          eyebrow={form.orgao}
+          title={form.titulo}
+          description={"Preencha os campos abaixo para registrar as informações solicitadas. Campos obrigatórios estão destacados com asterisco."}
+          childrenSx={{ mt: 2 }}
+        >
+          <FormCard
+            variant="plain"
+            sx={formCardPlainSx}
+            footer={
+              <FormActionsFooter
+                leading={
                   <ActionButton
                     type="button"
                     variant="outlined"
-                    color="error"
-                    startIcon={<DeleteOutlineRoundedIcon />}
-                    onClick={() => requestAction('clear')}
+                    startIcon={<ArrowBackRoundedIcon />}
+                    onClick={() => previousFlowForm && onSelectFlowForm?.(previousFlowForm.id)}
+                    disabled={!previousFlowForm || !onSelectFlowForm}
                   >
-                    Limpar tudo
+                    Etapa anterior
                   </ActionButton>
-                  <ButtonLoading
-                    type="submit"
-                    variant={nextFlowForm ? 'outlined' : 'contained'}
-                    startIcon={<SaveOutlinedIcon />}
-                    loading={submitting}
-                    loadingLabel="Salvando..."
+                }
+                actions={
+                  <PageToolbar
+                    direction={{ xs: 'column', sm: 'row' }}
+                    alignItems={{ xs: 'stretch', sm: 'center' }}
+                    justifyContent="flex-end"
                   >
-                    Salvar
-                  </ButtonLoading>
-                  <ActionButton
-                    type="button"
-                    variant="contained"
-                    endIcon={<ArrowForwardRoundedIcon />}
-                    onClick={() => nextFlowForm && onSelectFlowForm?.(nextFlowForm.id)}
-                    disabled={!nextFlowForm || !onSelectFlowForm}
-                  >
-                    {nextFlowLabel}
-                  </ActionButton>
-                  
-                </PageToolbar>
-              }
-            />
-          }
-        >
-          {submitting && (
-            <SavingState message="Salvando dados..." />
-          )}
+                    <ActionButton
+                      type="button"
+                      variant="outlined"
+                      color="error"
+                      startIcon={<DeleteOutlineRoundedIcon />}
+                      onClick={() => requestAction('clear')}
+                    >
+                      Limpar tudo
+                    </ActionButton>
+                    <ButtonLoading
+                      type="submit"
+                      variant={nextFlowForm ? 'outlined' : 'contained'}
+                      startIcon={<SaveOutlinedIcon />}
+                      loading={submitting}
+                      loadingLabel="Salvando..."
+                    >
+                      Salvar
+                    </ButtonLoading>
+                    <ActionButton
+                      type="button"
+                      variant="contained"
+                      endIcon={<ArrowForwardRoundedIcon />}
+                      onClick={() => nextFlowForm && onSelectFlowForm?.(nextFlowForm.id)}
+                      disabled={!nextFlowForm || !onSelectFlowForm}
+                    >
+                      {nextFlowLabel}
+                    </ActionButton>
+                  </PageToolbar>
+                }
+              />
+            }
+          >
+            {submitting && (
+              <SavingState message="Salvando dados..." />
+            )}
 
-          {submitError && !submitting && (
-            <InlineFeedback severity="error" message={submitError} />
-          )}
+            {submitError && !submitting && (
+              <InlineFeedback severity="error" message={submitError} />
+            )}
 
-          {saved && !submitting && !submitError && (
-            <SuccessState message="Dados salvos com sucesso." compact />
-          )}
+            {notice && !submitting && !submitError && (
+              notice.severity === 'success'
+                ? <SuccessState message={notice.message} compact />
+                : <InlineFeedback severity={notice.severity} message={notice.message} />
+            )}
 
-          {validationErrorCount > 0 && (
-            <InlineFeedback severity="error" message="Revise os campos obrigatórios destacados antes de salvar." />
-          )}
+            {saved && !submitting && !submitError && (
+              <SuccessState message={successMessage} compact />
+            )}
 
-          {form.secoes.map((section) => renderSection(section))}
-        </FormCard>
+            {validationErrorCount > 0 && (
+              <InlineFeedback severity="error" message="Revise os campos obrigatórios destacados antes de salvar." />
+            )}
+
+            {form.secoes.map((section) => renderSection(section))}
+          </FormCard>
+        </PageSection>
       </Box>
 
       <PageDialog

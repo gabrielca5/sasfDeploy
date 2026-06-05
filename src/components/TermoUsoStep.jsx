@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
@@ -20,6 +19,8 @@ import {
   termDetailValueSx,
   termDocumentTitleSx,
   termInlineValueSx,
+  formCardPlainSx,
+  formPageHeaderTopSx,
   termParagraphSx,
   termPrintSurfaceSx,
 } from '../pages/ui/uiStyles'
@@ -60,96 +61,103 @@ function TermoUsoStep({
 
   return (
     <FormFlowLayout>
-      <FormStepper
-        forms={flowForms}
-        activeFormId={form.id}
-        onSelectForm={onSelectFlowForm}
-        title={stepperTitle}
-        subtitle={stepperSubtitle}
-      />
-
       <PageSection
-        beforeEyebrow={
-          <ActionButton
-            type="button"
-            variant="text"
-            startIcon={<ArrowBackRoundedIcon />}
-            onClick={onBack}
-          >
-            Voltar ao catálogo
-          </ActionButton>
+        top={
+          <Box sx={formPageHeaderTopSx}>
+            <PageToolbar justifyContent="flex-start">
+              <ActionButton
+                type="button"
+                variant="text"
+                startIcon={<ArrowBackRoundedIcon />}
+                onClick={onBack}
+              >
+                Voltar ao catálogo
+              </ActionButton>
+            </PageToolbar>
+
+            <FormStepper
+              forms={flowForms}
+              activeFormId={form.id}
+              onSelectForm={onSelectFlowForm}
+              title={stepperTitle}
+              subtitle={stepperSubtitle}
+            />
+          </Box>
         }
         eyebrow={form.orgao}
         title={form.titulo}
         description="Revise o termo preenchido com os dados da triagem, imprima o documento e avance para registrar a demanda."
-      />
-
-      <FormCard
-        footer={
-          <FormActionsFooter
-            leading={
-              <ActionButton
-                type="button"
-                variant="outlined"
-                startIcon={<ArrowBackRoundedIcon />}
-                onClick={onPrevious}
-              >
-                Etapa anterior
-              </ActionButton>
-            }
-            actions={
-              <PageToolbar
-                direction={{ xs: 'column', sm: 'row' }}
-                alignItems={{ xs: 'stretch', sm: 'center' }}
-                justifyContent="flex-end"
-              >
+        childrenSx={{ mt: 2 }}
+      >
+        <FormCard
+          variant="plain"
+          sx={formCardPlainSx}
+          footer={
+            <FormActionsFooter
+              leading={
                 <ActionButton
                   type="button"
                   variant="outlined"
-                  startIcon={<PrintRoundedIcon />}
-                  onClick={handlePrint}
+                  startIcon={<ArrowBackRoundedIcon />}
+                  onClick={onPrevious}
                 >
-                  Imprimir
+                  Etapa anterior
                 </ActionButton>
-                <ActionButton
-                  type="button"
-                  variant="contained"
-                  endIcon={<ArrowForwardRoundedIcon />}
-                  onClick={onContinue}
+              }
+              actions={
+                <PageToolbar
+                  direction={{ xs: 'column', sm: 'row' }}
+                  alignItems={{ xs: 'stretch', sm: 'center' }}
+                  justifyContent="flex-end"
                 >
-                  Continuar
-                </ActionButton>
-              </PageToolbar>
-            }
-          />
-        }
-      >
-        <Box sx={termPrintSurfaceSx}>
-          <Typography variant="h6" sx={termDocumentTitleSx}>
-            {form.titulo}
-          </Typography>
-
-          <Typography variant="body1" sx={termParagraphSx}>
-            Eu, <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.nome_autorizante)}</Box>,
-            portador(a) do RG <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.rg_autorizante)}</Box>
-            {' '}e CPF <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.cpf_autorizante)}</Box>,
-            autorizo o uso de imagem conforme os termos do acompanhamento realizado pelo serviço.
-          </Typography>
-
-          <PageStack spacing={1}>
-            <Typography variant="subtitle2" color="text.primary">
-              Dados preenchidos
+                  <ActionButton
+                    type="button"
+                    variant="outlined"
+                    startIcon={<PrintRoundedIcon />}
+                    onClick={handlePrint}
+                  >
+                    Imprimir
+                  </ActionButton>
+                  <ActionButton
+                    type="button"
+                    variant="contained"
+                    endIcon={<ArrowForwardRoundedIcon />}
+                    onClick={onContinue}
+                  >
+                    Continuar
+                  </ActionButton>
+                </PageToolbar>
+              }
+            />
+          }
+        >
+          <Box sx={termPrintSurfaceSx}>
+            <Typography variant="h6" sx={termDocumentTitleSx}>
+              {form.titulo}
             </Typography>
-            <Box sx={termDetailsGridSx}>
-              <TermDetail label="Nome do autorizante" value={fields.nome_autorizante} />
-              <TermDetail label="CPF" value={fields.cpf_autorizante} />
-              <TermDetail label="RG" value={fields.rg_autorizante} />
-              <TermDetail label="Data de assinatura" value={fields.data_assinatura} />
-              <TermDetail label="Crianças autorizadas" value={fields.nomes_criancas} />
-            </Box>
-          </PageStack>
-        </Box>
-      </FormCard>
+
+            <Typography variant="body1" sx={termParagraphSx}>
+              Eu, <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.nome_autorizante)}</Box>,
+              portador(a) do RG <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.rg_autorizante)}</Box>
+              {' '}e CPF <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.cpf_autorizante)}</Box>,
+              autorizo o uso de imagem conforme os termos do acompanhamento realizado pelo serviço.
+            </Typography>
+
+            <PageStack spacing={1}>
+              <Typography variant="subtitle2" color="text.primary">
+                Dados preenchidos
+              </Typography>
+              <Box sx={termDetailsGridSx}>
+                <TermDetail label="Nome do autorizante" value={fields.nome_autorizante} />
+                <TermDetail label="CPF" value={fields.cpf_autorizante} />
+                <TermDetail label="RG" value={fields.rg_autorizante} />
+                <TermDetail label="Data de assinatura" value={fields.data_assinatura} />
+                <TermDetail label="Crianças autorizadas" value={fields.nomes_criancas} />
+              </Box>
+            </PageStack>
+          </Box>
+        </FormCard>
+      </PageSection>
     </FormFlowLayout>
   )
 }

@@ -5,10 +5,11 @@ export const NOVO_PRONTUARIO_FLOW_ID = 'novo_prontuario'
 export const TRIAGEM_FORM_ID = 'triagem_novo_prontuario'
 export const DEMANDA_FORM_ID = 'demanda_novo_prontuario'
 export const TERMO_USO_FORM_ID = 'termo_autorizacao_imagem'
+export const PLANO_FAMILIAR_FORM_ID = 'plano_desenvolvimento_familiar'
+export const PLANO_FAMILIAR_PRINT_FORM_ID = 'plano_desenvolvimento_familiar_impressao'
 export const FLOW_QUERY_PARAM = 'flow'
 
 const ADD_FICHA_FLOW_FORM_IDS = [
-  'plano_desenvolvimento_familiar',
   'folha_prosseguimento',
   'ficha_atualizacao_unas',
   'ficha_visita_domiciliar',
@@ -158,6 +159,13 @@ function buildDemandaForm() {
 const triagemNovoProntuarioForm = buildTriagemForm()
 const demandaNovoProntuarioForm = buildDemandaForm()
 const termoUsoFlowStep = cloneForm(getFormById(TERMO_USO_FORM_ID), { titulo: 'Termo de uso' })
+const planoFamiliarFlowStep = cloneForm(getFormById(PLANO_FAMILIAR_FORM_ID))
+const planoFamiliarPrintFlowStep = {
+  id: PLANO_FAMILIAR_PRINT_FORM_ID,
+  titulo: 'Impressão e assinatura',
+  orgao: planoFamiliarFlowStep?.orgao ?? '',
+  secoes: [],
+}
 
 export const addFichaFlow = {
   id: ADD_FICHA_FLOW_ID,
@@ -172,7 +180,13 @@ export const addFichaFlow = {
 export const novoProntuarioFlow = {
   id: NOVO_PRONTUARIO_FLOW_ID,
   label: 'Abrir novo prontuário',
-  getForms: () => [triagemNovoProntuarioForm, termoUsoFlowStep, demandaNovoProntuarioForm].filter(Boolean),
+  getForms: () => [
+    triagemNovoProntuarioForm,
+    termoUsoFlowStep,
+    demandaNovoProntuarioForm,
+    planoFamiliarFlowStep,
+    planoFamiliarPrintFlowStep,
+  ].filter(Boolean),
 }
 
 const flows = {
