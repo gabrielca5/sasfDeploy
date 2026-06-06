@@ -1,13 +1,17 @@
+import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
+import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
 import {
   ActionButton,
+  ButtonLoading,
   FormActionsFooter,
   FormCard,
   FormFlowLayout,
   FormStepper,
+  InlineFeedback,
   PageSection,
   PageStack,
   PageToolbar,
@@ -53,13 +57,33 @@ function TermoUsoStep({
   onPrevious,
   onContinue,
   onSelectFlowForm,
+  pdfDownloadContext,
   stepperTitle,
   stepperSubtitle,
 }) {
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [downloadError, setDownloadError] = useState(null)
   const fields = termDraft?.dados_autorizante ?? {}
+  const canDownloadPdf = Boolean(pdfDownloadContext?.prontuarioId)
 
-  const handlePrint = () => {
-    window.print()
+  const handlePdfAction = async () => {
+    if (!canDownloadPdf) {
+      window.print()
+      return
+    }
+
+    setDownloadingPdf(true)
+    setDownloadError(null)
+    try {
+      await downloadFichaProntuarioPdf({
+        prontuarioId: pdfDownloadContext.prontuarioId,
+        tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
+      })
+    } catch (err) {
+      setDownloadError(err?.message || 'Não foi possível baixar o PDF do termo. Tente novamente.')
+    } finally {
+      setDownloadingPdf(false)
+    }
   }
 
   return (
@@ -113,14 +137,16 @@ function TermoUsoStep({
                   alignItems={{ xs: 'stretch', sm: 'center' }}
                   justifyContent="flex-end"
                 >
-                  <ActionButton
+                  <ButtonLoading
                     type="button"
                     variant="outlined"
                     startIcon={<PrintRoundedIcon />}
-                    onClick={handlePrint}
+                    loading={downloadingPdf}
+                    loadingLabel="Baixando..."
+                    onClick={handlePdfAction}
                   >
-                    Imprimir
-                  </ActionButton>
+                    {canDownloadPdf ? 'Baixar PDF' : 'Imprimir'}
+                  </ButtonLoading>
                   <ActionButton
                     type="button"
                     variant="contained"
@@ -134,6 +160,10 @@ function TermoUsoStep({
             />
           }
         >
+          {downloadError && (
+            <InlineFeedback severity="error" message={downloadError} compact />
+          )}
+
           <Box sx={termPrintSurfaceSx}>
             <Typography variant="h6" sx={termDocumentTitleSx}>
               {form.titulo}

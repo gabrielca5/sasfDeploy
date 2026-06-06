@@ -14,7 +14,6 @@ import {
 } from '@mui/material'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
@@ -31,7 +30,7 @@ import { useNavigate } from 'react-router-dom'
 import useFamilias from '../hooks/useFamilias'
 import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
 import { useTranscricoes, useSalvarTranscricao } from '../hooks/useTranscricoes'
-import { DOCS_CONFIG } from '../services/familias.service'
+import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
 import { processarEntrevista } from '../services/whisper.service'
 import {
   ActionButton,
@@ -43,6 +42,7 @@ import {
   FilterGrid,
   FilterPanel,
   InfoGrid,
+  InlineFeedback,
   LoadingState,
   PageCard,
   PageDialog,
@@ -299,13 +299,114 @@ const priorityChipProps = {
   Baixa: { customColor: '#D1FAE5', customTextColor: '#065F46' },
 }
 
-function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [] }) {
+const FICHA_DOWNLOAD_CONFIG = [
+  {
+    key: 'fichaCadastral',
+    label: 'Ficha Cadastral',
+    tipoFicha: FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA,
+    unique: true,
+    getIds: (prontuario) => prontuario?.fichaCadastralDaFamiliaId ? [prontuario.fichaCadastralDaFamiliaId] : [],
+  },
+  {
+    key: 'termo',
+    label: 'Termo de Uso de Imagem',
+    tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
+    unique: true,
+    getIds: (prontuario, termos) => termos.some((t) => t.prontuarioId === prontuario?.id) ? ['termo'] : [],
+  },
+  {
+    key: 'fichaAtualizacao',
+    label: 'Ficha de Atualização',
+    tipoFicha: FICHA_PDF_TYPES.ATUALIZACAO_QUADRO_SITUACIONAL,
+    getIds: (prontuario) => prontuario?.fichasAtualizacaoQuadroSituacionalIds,
+  },
+  {
+    key: 'planoFamiliar',
+    label: 'Plano de Desenvolvimento Familiar',
+    tipoFicha: FICHA_PDF_TYPES.PLANO_DESENVOLVIMENTO_FAMILIAR,
+    getIds: (prontuario) => prontuario?.planosDesenvolvimentoFamiliarIds,
+  },
+  {
+    key: 'folhaProsseguimento',
+    label: 'Folha de Prosseguimento',
+    tipoFicha: FICHA_PDF_TYPES.FOLHA_PROSSEGUIMENTO,
+    getIds: (prontuario) => prontuario?.folhasProsseguimentoIds,
+  },
+  {
+    key: 'visitaDomiciliar',
+    label: 'Visita Domiciliar',
+    tipoFicha: FICHA_PDF_TYPES.VISITA_DOMICILIAR,
+    getIds: (prontuario) => (
+      prontuario?.fichasVisitaDomiciliarIds ??
+      prontuario?.fichasVisitaIds ??
+      prontuario?.visitasDomiciliaresIds ??
+      []
+    ),
+  },
+  {
+    key: 'pdu',
+    label: 'Plano de Desenvolvimento do Usuário',
+    tipoFicha: FICHA_PDF_TYPES.PLANO_DESENVOLVIMENTO_USUARIO,
+    getIds: (prontuario) => prontuario?.planosDesenvolvimentoUsuarioIds,
+  },
+]
+
+function asIdList(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean)
+  }
+
+  return value ? [value] : []
+}
+
+function buildDownloadDocs(prontuario, termos = [], fallbackDocs = []) {
+  if (!prontuario) {
+    return fallbackDocs.map((doc) => ({ ...doc, downloadKey: doc.key }))
+  }
+
+  return FICHA_DOWNLOAD_CONFIG.flatMap((config) => {
+    const ids = asIdList(config.getIds(prontuario, termos))
+
+    if (config.unique) {
+      const presente = ids.length > 0
+      return [{
+        key: config.key,
+        label: config.label,
+        presente,
+        tipoFicha: config.tipoFicha,
+        downloadKey: `${config.tipoFicha}:unique`,
+        canDownload: presente,
+      }]
+    }
+
+    if (!ids.length) {
+      return [{
+        key: config.key,
+        label: config.label,
+        presente: false,
+        tipoFicha: config.tipoFicha,
+        downloadKey: `${config.tipoFicha}:pending`,
+        canDownload: false,
+      }]
+    }
+
+    return ids.map((id, index) => ({
+      key: `${config.key}-${id}`,
+      label: ids.length > 1 ? `${config.label} ${index + 1}` : config.label,
+      subtitle: ids.length > 1 ? `Ficha ${index + 1}` : null,
+      presente: true,
+      tipoFicha: config.tipoFicha,
+      fichaId: id,
+      downloadKey: `${config.tipoFicha}:${id}`,
+      canDownload: true,
+    }))
+  })
+}
+
+function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [], onDownloadPdf, downloadingFichaKey }) {
   // Se temos o prontuário do lazy load, recalcula os docs com dados frescos
   const docs = prontuarioDetalhe
-    ? DOCS_CONFIG.map(({ key, label, check }) => ({
-        key, label,
-        presente: check(prontuarioDetalhe, termos),
-      }))
+    ? buildDownloadDocs(prontuarioDetalhe, termos, documentacao)
     : documentacao
 
   if (!docs.length) return null
@@ -316,13 +417,28 @@ function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [] }) {
           <PageListItem
             key={doc.key}
             title={doc.label}
+            subtitle={doc.subtitle}
             variant="compact"
             actions={
-              <StatusChip
-                label={doc.presente ? 'Completo' : 'Pendente'}
-                tone={doc.presente ? 'success' : 'error'}
-                fit
-              />
+              <PageToolbar direction="row" alignItems="center" justifyContent="flex-end" spacing={0.75}>
+                <StatusChip
+                  label={doc.presente ? 'Completo' : 'Pendente'}
+                  tone={doc.presente ? 'success' : 'error'}
+                  fit
+                />
+                {doc.canDownload && (
+                  <ButtonLoading
+                    size="small"
+                    startIcon={<PictureAsPdfRoundedIcon />}
+                    loading={downloadingFichaKey === doc.downloadKey}
+                    loadingLabel="Baixando..."
+                    onClick={() => onDownloadPdf?.(doc)}
+                    sx={{ minHeight: 32 }}
+                  >
+                    PDF
+                  </ButtonLoading>
+                )}
+              </PageToolbar>
             }
           />
         ))}
@@ -564,16 +680,39 @@ function RichDataSection({ detalhe, loadingDetalhe }) {
 
 function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNovaAtualizacao }) {
   const { data: detalhe, isLoading: loadingDetalhe } = useFamiliaDetalhe(family?.prontuarioId)
+  const [downloadingFichaKey, setDownloadingFichaKey] = useState(null)
+  const [downloadError, setDownloadError] = useState(null)
 
   if (!family) return null
 
   const orientadorRepresentante = getOrientadorInfo(family)
   const prioPropsDetail = priorityChipProps[family.prioridade] ?? {}
+  const prontuarioDetalhe = detalhe?.prontuario
+  const hasFichaCadastral = Boolean(prontuarioDetalhe?.fichaCadastralDaFamiliaId)
+  const hasTermoImagem = Boolean(detalhe?.termos?.some((termo) => termo.prontuarioId === prontuarioDetalhe?.id))
 
   // Família antiga/incompleta: tem prontuário, mas o lazy load não encontrou
   // representante nem ficha cadastral vinculados. Oferece completar o cadastro.
   const cadastroIncompleto =
     !loadingDetalhe && !!family.prontuarioId && !detalhe?.representante && !detalhe?.fichaCadastral
+
+  const handleDownloadFichaPdf = async ({ tipoFicha, fichaId, downloadKey }) => {
+    const activeKey = downloadKey ?? `${tipoFicha}:${fichaId ?? 'unique'}`
+    setDownloadingFichaKey(activeKey)
+    setDownloadError(null)
+
+    try {
+      await downloadFichaProntuarioPdf({
+        prontuarioId: family.prontuarioId,
+        tipoFicha,
+        fichaId,
+      })
+    } catch (err) {
+      setDownloadError(err?.message || 'Não foi possível baixar o PDF da ficha. Tente novamente.')
+    } finally {
+      setDownloadingFichaKey(null)
+    }
+  }
 
   return (
     <PageStack spacing={2.25}>
@@ -620,12 +759,30 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         <ActionButton startIcon={<AddRoundedIcon />} onClick={() => onNovaAtualizacao?.(family)}>
           Nova ficha de atualização
         </ActionButton>
-        <ActionButton startIcon={<PictureAsPdfRoundedIcon />} onClick={() => {}}>
-          Prontuário em PDF
-        </ActionButton>
-        <ActionButton startIcon={<PrintRoundedIcon />} onClick={() => {}}>
-          Imprimir/baixar
-        </ActionButton>
+        <ButtonLoading
+          startIcon={<PictureAsPdfRoundedIcon />}
+          loading={downloadingFichaKey === `${FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA}:unique`}
+          loadingLabel="Baixando..."
+          disabled={loadingDetalhe || !family.prontuarioId || !hasFichaCadastral}
+          onClick={() => handleDownloadFichaPdf({
+            tipoFicha: FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA,
+            downloadKey: `${FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA}:unique`,
+          })}
+        >
+          Ficha cadastral PDF
+        </ButtonLoading>
+        <ButtonLoading
+          startIcon={<PrintRoundedIcon />}
+          loading={downloadingFichaKey === `${FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM}:unique`}
+          loadingLabel="Baixando..."
+          disabled={loadingDetalhe || !family.prontuarioId || !hasTermoImagem}
+          onClick={() => handleDownloadFichaPdf({
+            tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
+            downloadKey: `${FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM}:unique`,
+          })}
+        >
+          Termo em PDF
+        </ButtonLoading>
         <ActionButton startIcon={<PhoneRoundedIcon />} onClick={() => {}}>
           Contatar orientador
         </ActionButton>
@@ -634,6 +791,10 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         </ActionButton>
       </ActionCard>
 
+      {downloadError && (
+        <InlineFeedback severity="error" message={downloadError} compact />
+      )}
+
       <PageGrid variant="detail2">
         <DetailItem label="Última visita" value={formatDate(family.ultima_visita)} variant="soft" />
         <DetailItem label="Próxima visita" value={formatDate(family.proxima_visita)} variant="soft" />
@@ -641,8 +802,10 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
 
       <DocTracking
         documentacao={family.documentacao}
-        prontuarioDetalhe={detalhe?.prontuario}
+        prontuarioDetalhe={prontuarioDetalhe}
         termos={detalhe?.termos ?? []}
+        downloadingFichaKey={downloadingFichaKey}
+        onDownloadPdf={handleDownloadFichaPdf}
       />
 
       <RichDataSection detalhe={detalhe} loadingDetalhe={loadingDetalhe} />

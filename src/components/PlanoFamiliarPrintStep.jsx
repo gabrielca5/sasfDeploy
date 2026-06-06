@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
+import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
 import {
   ActionButton,
+  ButtonLoading,
   FormActionsFooter,
   FormCard,
   FormFlowLayout,
@@ -67,18 +70,39 @@ function PlanoFamiliarPrintStep({
   onFinish,
   onSelectFlowForm,
   notice,
+  pdfDownloadContext,
   stepperTitle,
   stepperSubtitle,
 }) {
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [downloadError, setDownloadError] = useState(null)
   const identificacao = planoDraft?.identificacao_pdf ?? {}
   const analise = planoDraft?.analise_diagnostica ?? {}
   const dadosPlano = planoDraft?.dados_plano ?? {}
   const estrategias = Array.isArray(planoDraft?.estrategias_intervencao)
     ? planoDraft.estrategias_intervencao
     : []
+  const canDownloadPdf = Boolean(pdfDownloadContext?.prontuarioId && pdfDownloadContext?.fichaId)
 
-  const handlePrint = () => {
-    window.print()
+  const handlePdfAction = async () => {
+    if (!canDownloadPdf) {
+      window.print()
+      return
+    }
+
+    setDownloadingPdf(true)
+    setDownloadError(null)
+    try {
+      await downloadFichaProntuarioPdf({
+        prontuarioId: pdfDownloadContext.prontuarioId,
+        tipoFicha: FICHA_PDF_TYPES.PLANO_DESENVOLVIMENTO_FAMILIAR,
+        fichaId: pdfDownloadContext.fichaId,
+      })
+    } catch (err) {
+      setDownloadError(err?.message || 'Não foi possível baixar o PDF do plano familiar. Tente novamente.')
+    } finally {
+      setDownloadingPdf(false)
+    }
   }
 
   return (
@@ -132,14 +156,16 @@ function PlanoFamiliarPrintStep({
                   alignItems={{ xs: 'stretch', sm: 'center' }}
                   justifyContent="flex-end"
                 >
-                  <ActionButton
+                  <ButtonLoading
                     type="button"
                     variant="outlined"
                     startIcon={<PrintRoundedIcon />}
-                    onClick={handlePrint}
+                    loading={downloadingPdf}
+                    loadingLabel="Baixando..."
+                    onClick={handlePdfAction}
                   >
-                    Imprimir
-                  </ActionButton>
+                    {canDownloadPdf ? 'Baixar PDF' : 'Imprimir'}
+                  </ButtonLoading>
                   <ActionButton
                     type="button"
                     variant="contained"
@@ -157,6 +183,10 @@ function PlanoFamiliarPrintStep({
             notice.severity === 'success'
               ? <SuccessState message={notice.message} compact />
               : <InlineFeedback severity={notice.severity} message={notice.message} />
+          )}
+
+          {downloadError && (
+            <InlineFeedback severity="error" message={downloadError} compact />
           )}
 
           <Box sx={termPrintSurfaceSx}>

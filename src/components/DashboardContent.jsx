@@ -648,6 +648,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
           onPrevious={() => previousForm && navigateToForm(previousForm.id)}
           onContinue={() => nextForm && navigateToForm(nextForm.id)}
           onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
+          pdfDownloadContext={{ prontuarioId: formContext.prontuarioId }}
           stepperTitle={stepperTitle}
           stepperSubtitle={stepperSubtitle}
         />
@@ -674,6 +675,10 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
             navigate('/dashboard/cadastro')
           }}
           onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
+          pdfDownloadContext={{
+            prontuarioId: formContext.prontuarioId,
+            fichaId: formContext.planoFamiliarId,
+          }}
           stepperTitle={stepperTitle}
           stepperSubtitle={stepperSubtitle}
         />
