@@ -148,26 +148,39 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('pt-BR').format(new Date(`${value}T00:00:00`))
 }
 
+function normalizeSearch(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+function onlyDigits(value) {
+  return String(value ?? '').replace(/\D/g, '')
+}
+
 function hasAddress(family) {
   return family.endereco && family.endereco !== '—'
 }
 
-function addressSubtitle(family) {
-  if (!hasAddress(family)) return null
-  const parts = [family.endereco, family.numero !== '—' ? family.numero : null].filter(Boolean).join(', ')
-  return family.bairro !== '—' ? `${parts} • ${family.bairro}` : parts
+function familyStreetNumber(family) {
+  if (!hasAddress(family)) return '—'
+  return [family.endereco, family.numero && family.numero !== '—' ? family.numero : null]
+    .filter(Boolean)
+    .join(', ')
 }
 
 function FamilyPreviewCard({ family, selected, onSelect }) {
   const orientador = getOrientadorInfo(family)
-  const subtitle = addressSubtitle(family)
+  const streetNumber = familyStreetNumber(family)
+  const telefoneCelular = family.telefone_celular
   const footerExtra = family.cras && family.cras !== '—' ? ` • ${family.cras}` : ''
   const prioProps = priorityChipProps[family.prioridade] ?? {}
 
   return (
     <PageCard
       title={family.nome_representante}
-      subtitle={subtitle}
       selected={selected}
       onClick={onSelect}
       accentColor={orientador.backgroundColor}
@@ -187,12 +200,21 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
           customTextColor={orientador.color}
         />
       </PageToolbar>
+      <PageStack spacing={0.5}>
+        <PageText variant="body2" noWrap>
+          End: {streetNumber}
+        </PageText>
+        <PageText variant="body2" noWrap>
+          Telefone: {telefoneCelular || '—'}
+        </PageText>
+      </PageStack>
     </PageCard>
   )
 }
 
 function FamilyListItem({ family, selected, onSelect }) {
   const orientador = getOrientadorInfo(family)
+  const streetNumber = familyStreetNumber(family)
   const prioProps = priorityChipProps[family.prioridade] ?? {}
 
   return (
@@ -209,7 +231,7 @@ function FamilyListItem({ family, selected, onSelect }) {
           )}
         </PageStack>
         <PageText noWrap>
-          {hasAddress(family) ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}` : '—'}
+          {streetNumber}
         </PageText>
         <StatusChip label={`Prioridade ${family.prioridade}`} fit {...prioProps} />
         <PageText noWrap>
@@ -484,26 +506,23 @@ function FamiliesPage() {
   )
 
   const filteredFamilies = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
+    const normalizedQuery = normalizeSearch(query)
+    const queryDigits = onlyDigits(query)
+    const normalizedStreetFilter = normalizeSearch(streetFilter)
+
     return familiasList.filter((family) => {
+      const cpfDigits = onlyDigits(family.cpf)
       const matchesQuery =
         !normalizedQuery ||
-        [family.nome_representante, family.cpf, family.endereco, family.bairro, family.cras, family.cas, family.tags.join(' ')]
-          .join(' ')
-          .toLowerCase()
-          .includes(normalizedQuery)
+        normalizeSearch([family.nome_representante, family.cpf].join(' ')).includes(normalizedQuery) ||
+        (queryDigits && cpfDigits.includes(queryDigits))
 
       const matchesStatus = statusFilter === 'Todas' || family.status === statusFilter
       const matchesPriority = priorityFilter === 'Todas' || family.prioridade === priorityFilter
       const matchesDistrict = districtFilter === 'Todos' || family.distrito === districtFilter
-      const normalizedStreetFilter = streetFilter.trim().toLowerCase()
       const matchesStreet =
         !normalizedStreetFilter ||
-        [family.endereco, family.numero, family.complemento, family.bairro]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase()
-          .includes(normalizedStreetFilter)
+        normalizeSearch(family.endereco).includes(normalizedStreetFilter)
       const matchesBenefit =
         benefitFilter === 'Todos' ||
         (benefitFilter === 'Sem benefício'
@@ -604,13 +623,13 @@ function FamiliesPage() {
       <FilterPanel title="Filtros e ordenação">
         <FilterGrid cols={{ xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }}>
           <TextField
-            label="Buscar"
+            label="Buscar por Representante"
             value={query}
             onChange={(e) => { setQuery(e.target.value); resetPage() }}
             placeholder="Nome ou CPF do representante"
           />
           <TextField
-            label="Rua"
+            label="Buscar por Endereço"
             value={streetFilter}
             onChange={(e) => { setStreetFilter(e.target.value); resetPage() }}
             placeholder="Ex.: Santa Cruz"

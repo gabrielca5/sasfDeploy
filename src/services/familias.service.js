@@ -42,7 +42,7 @@ function normalizeFamilia(f, membros = [], prontuarios = [], termos = []) {
   // Mock data already has nome_representante — pass through unchanged
   if (f.nome_representante) return f
 
-  const prontuario = prontuarios.find((p) => p.familiaId === f.id) ?? null
+  const prontuario = prontuarios.find((p) => p.id === f.prontuarioId || p.familiaId === f.id) ?? null
   const membrosFamily = membros.filter((m) => m.familiaId === f.id)
   const representante = membrosFamily.find((m) =>
     m.parentescoOuVinculo?.toLowerCase().includes('representante'),
@@ -69,7 +69,7 @@ function normalizeFamilia(f, membros = [], prontuarios = [], termos = []) {
     ultima_atualizacao: f.ultimaVisita ?? null,
     orientadorId: f.orientadorId ?? null,
     representanteId: f.representanteId ?? null,
-    prontuarioId: f.prontuarioId ?? null,
+    prontuarioId: f.prontuarioId ?? prontuario?.id ?? null,
     documentacao: buildDocumentacao(prontuario, termos),
     tags: [],
     composicao_familiar: membrosFamily.map((m) => ({
@@ -103,16 +103,63 @@ function normalizeFamilia(f, membros = [], prontuarios = [], termos = []) {
   }
 }
 
+function realValue(value, fallback) {
+  return value !== undefined && value !== null && value !== '' && value !== '—' ? value : fallback
+}
+
+function mergeFamiliaContato(family, contato) {
+  const rep = contato?.representante
+  const end = contato?.endereco
+
+  return {
+    ...family,
+    nome_representante: realValue(rep?.nome, family.nome_representante),
+    cpf: realValue(rep?.cpf, family.cpf),
+    endereco: realValue(end?.logradouro, family.endereco),
+    numero: realValue(end?.numero, family.numero),
+    complemento: realValue(end?.complemento, family.complemento),
+    bairro: realValue(end?.bairro, family.bairro),
+    distrito: realValue(end?.distrito, family.distrito),
+    cep: realValue(end?.cep, family.cep),
+    telefone_residencial: realValue(rep?.telefoneResidencial, family.telefone_residencial),
+    telefone_celular: realValue(rep?.telefoneCelular, family.telefone_celular),
+    telefone_outro: realValue(rep?.telefoneOutro ?? rep?.telefone, family.telefone_outro),
+  }
+}
+
+async function getContatoByProntuario(prontuario, prontuarioId) {
+  const prontuarioAtual = prontuario ?? (
+    prontuarioId ? await apiClient.get(`/prontuario/${prontuarioId}`).catch(() => null) : null
+  )
+  const fichaCadastral = prontuarioAtual?.fichaCadastralDaFamiliaId
+    ? await apiClient.get(`/fichacadastral/${prontuarioAtual.fichaCadastralDaFamiliaId}`).catch(() => null)
+    : null
+  const representante = fichaCadastral?.representanteId
+    ? await apiClient.get(`/representante/${fichaCadastral.representanteId}`).catch(() => null)
+    : null
+  const endereco = representante?.enderecoId
+    ? await apiClient.get(`/endereco/${representante.enderecoId}`).catch(() => null)
+    : null
+
+  return { representante, endereco }
+}
+
 export async function listFamilias(params = {}) {
-  const [familias, membros] = await Promise.all([
+  const [familias, membros, prontuarios] = await Promise.all([
     apiClient.get(withPageSize('/familia', params)),
     apiClient.get(withPageSize('/membro')).catch(() => []),
+    apiClient.get(withPageSize('/prontuario')).catch(() => []),
   ])
   const famArray = asArray(familias)
   const memArray = asArray(membros)
-  // Prontuarios e termos não são mais buscados aqui — o doc tracking usa
-  // o lazy load do useFamiliaDetalhe quando o usuário abre o painel.
-  return famArray.map((f) => normalizeFamilia(f, memArray, [], []))
+  const prontuarioArray = asArray(prontuarios)
+  const normalized = famArray.map((f) => normalizeFamilia(f, memArray, prontuarioArray, []))
+
+  return Promise.all(normalized.map(async (family) => {
+    const prontuario = prontuarioArray.find((p) => p.id === family.prontuarioId || p.familiaId === family.id)
+    const contato = await getContatoByProntuario(prontuario, family.prontuarioId)
+    return mergeFamiliaContato(family, contato)
+  }))
 }
 
 export async function getFamilia(id) {
@@ -123,6 +170,11 @@ export async function getFamilia(id) {
     apiClient.get(withPageSize('/termo')).catch(() => []),
   ])
   return normalizeFamilia(familia, asArray(membros), asArray(prontuarios), asArray(termos))
+}
+
+export async function getFamiliaContato(prontuarioId) {
+  if (!prontuarioId) return null
+  return getContatoByProntuario(null, prontuarioId)
 }
 
 export async function createFamilia(payload) {
@@ -137,4 +189,4 @@ export async function deleteFamilia(id) {
   return apiClient.delete(`/familia/${id}`)
 }
 
-export default { listFamilias, getFamilia, createFamilia, updateFamilia, deleteFamilia }
+export default { listFamilias, getFamilia, getFamiliaContato, createFamilia, updateFamilia, deleteFamilia }
