@@ -1,19 +1,27 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   Box,
+  Chip,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
 } from '@mui/material'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
+import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded'
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded'
 import ViewModuleRoundedIcon from '@mui/icons-material/ViewModuleRounded'
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
@@ -22,10 +30,13 @@ import { useNavigate } from 'react-router-dom'
 
 import useFamilias from '../hooks/useFamilias'
 import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
+import { useTranscricoes, useSalvarTranscricao } from '../hooks/useTranscricoes'
 import { DOCS_CONFIG } from '../services/familias.service'
+import { processarEntrevista } from '../services/whisper.service'
 import {
   ActionButton,
   ActionCard,
+  ButtonLoading,
   DetailItem,
   EmptyState,
   ErrorState,
@@ -100,6 +111,186 @@ function getOrientadorInfo(family) {
     color: fallback.color,
     isFallback: true,
   }
+}
+
+const URGENCIA_COLOR = { alta: 'error', media: 'warning', baixa: 'success' }
+
+function EntrevistasSection({ familiaId }) {
+  const inputRef = useRef(null)
+  const [expandedId, setExpandedId] = useState(null)
+  const [processing, setProcessing] = useState(false)
+  const [processError, setProcessError] = useState(null)
+
+  const { data: transcricoes = [], isLoading, isError, refetch } = useTranscricoes(familiaId)
+  const salvar = useSalvarTranscricao(familiaId)
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setProcessing(true)
+    setProcessError(null)
+    try {
+      const res = await processarEntrevista(file)
+      await salvar({
+        arquivo: res.arquivo ?? file.name,
+        transcricao_bruta: res.transcricao_bruta ?? '',
+        resumo_situacao: res.analise_estruturada?.resumo_situacao ?? '',
+        demandas_identificadas: res.analise_estruturada?.demandas_identificadas ?? [],
+        encaminhamentos_sugeridos: res.analise_estruturada?.encaminhamentos_sugeridos ?? [],
+      })
+    } catch (err) {
+      if (err.type === 'quota') {
+        setProcessError('Limite de tokens do serviço de IA atingido. Entre em contato com o desenvolvedor.')
+      } else {
+        setProcessError('Não foi possível processar o áudio. Verifique o arquivo e tente novamente.')
+      }
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  return (
+    <SectionBlock title="Entrevistas" variant="plain">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="audio/mpeg,audio/mp3,.mp3,audio/ogg,.ogg"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
+      <PageStack spacing={1.25}>
+        <PageToolbar justifyContent="flex-start">
+          <ButtonLoading
+            variant="outlined"
+            startIcon={<UploadFileOutlinedIcon />}
+            loading={processing}
+            loadingLabel="Processando áudio..."
+            onClick={() => inputRef.current?.click()}
+          >
+            Enviar áudio de entrevista
+          </ButtonLoading>
+        </PageToolbar>
+
+        {processError && (
+          <ErrorState title="Erro ao processar" message={processError} onRetry={() => inputRef.current?.click()} compact />
+        )}
+
+        {isError && (
+          <ErrorState title="Erro ao carregar entrevistas" onRetry={refetch} compact />
+        )}
+
+        {isLoading && <LoadingState message="Carregando entrevistas..." compact surface={false} />}
+
+        {!isLoading && !isError && transcricoes.length === 0 && !processing && (
+          <EmptyState message="Nenhuma entrevista registrada ainda." />
+        )}
+
+        {transcricoes.map((t) => {
+          const isOpen = expandedId === t.id
+          return (
+            <PageCard key={t.id} surface="block" onClick={() => setExpandedId(isOpen ? null : t.id)} hover>
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="space-between">
+                  <Stack direction="row" spacing={1.25} alignItems="center">
+                    <GraphicEqOutlinedIcon sx={{ fontSize: 18, color: 'primary.main', flexShrink: 0 }} />
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={700} noWrap>{t.arquivo}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {t.data_criacao ? new Date(t.data_criacao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                  <Typography variant="caption" color="primary.main" fontWeight={600}>
+                    {isOpen ? 'Recolher' : 'Ver detalhes'}
+                  </Typography>
+                </Stack>
+
+                {isOpen && (
+                  <PageStack spacing={1.5} sx={{ pt: 1 }}>
+                    {t.resumo_situacao && (
+                      <Box>
+                        <Typography variant="caption" color="text.disabled" fontWeight={700} textTransform="uppercase" letterSpacing={0.8}>
+                          Resumo
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" lineHeight={1.75} mt={0.5}>
+                          {t.resumo_situacao}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {t.demandas_identificadas?.length > 0 && (
+                      <Box>
+                        <Typography variant="caption" color="text.disabled" fontWeight={700} textTransform="uppercase" letterSpacing={0.8}>
+                          Demandas
+                        </Typography>
+                        <PageStack spacing={0.75} sx={{ mt: 0.5 }}>
+                          {t.demandas_identificadas.map((d, i) => (
+                            <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+                              <WarningAmberOutlinedIcon sx={{ fontSize: 15, color: 'text.disabled', mt: 0.3, flexShrink: 0 }} />
+                              <Box>
+                                <Typography variant="body2">{d.demanda}</Typography>
+                                <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap">
+                                  {d.area && <StatusChip label={d.area} />}
+                                  {d.urgencia && (
+                                    <Chip label={`Urgência ${d.urgencia}`} size="small" color={URGENCIA_COLOR[d.urgencia?.toLowerCase()] ?? 'default'} variant="outlined" />
+                                  )}
+                                </Stack>
+                              </Box>
+                            </Stack>
+                          ))}
+                        </PageStack>
+                      </Box>
+                    )}
+
+                    {t.encaminhamentos_sugeridos?.length > 0 && (
+                      <Box>
+                        <Typography variant="caption" color="text.disabled" fontWeight={700} textTransform="uppercase" letterSpacing={0.8}>
+                          Encaminhamentos
+                        </Typography>
+                        <PageStack spacing={0.75} sx={{ mt: 0.5 }}>
+                          {t.encaminhamentos_sugeridos.map((e, i) => (
+                            <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+                              <AssignmentOutlinedIcon sx={{ fontSize: 15, color: 'text.disabled', mt: 0.3, flexShrink: 0 }} />
+                              <Box>
+                                <Typography variant="body2">{e.acao}</Typography>
+                                {e.responsavel && <Box mt={0.5}><StatusChip label={e.responsavel} /></Box>}
+                              </Box>
+                            </Stack>
+                          ))}
+                        </PageStack>
+                      </Box>
+                    )}
+
+                    {t.transcricao_bruta && (
+                      <Box>
+                        <Typography variant="caption" color="text.disabled" fontWeight={700} textTransform="uppercase" letterSpacing={0.8}>
+                          Transcrição bruta
+                        </Typography>
+                        <Box
+                          component="pre"
+                          sx={{
+                            fontFamily: 'inherit', fontSize: '0.8125rem', lineHeight: 1.75,
+                            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                            m: 0, mt: 0.5, p: 1.5, borderRadius: 1.5,
+                            backgroundColor: 'grey.50', border: '1px solid', borderColor: 'divider',
+                            maxHeight: 200, overflowY: 'auto', color: 'text.secondary',
+                          }}
+                        >
+                          {t.transcricao_bruta}
+                        </Box>
+                      </Box>
+                    )}
+                  </PageStack>
+                )}
+              </Stack>
+            </PageCard>
+          )
+        })}
+      </PageStack>
+    </SectionBlock>
+  )
 }
 
 const priorityChipProps = {
@@ -480,6 +671,8 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
           </PageList>
         </SectionBlock>
       )}
+
+      <EntrevistasSection familiaId={family.id} />
     </PageStack>
   )
 }

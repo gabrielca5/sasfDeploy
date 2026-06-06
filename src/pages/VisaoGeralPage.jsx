@@ -47,9 +47,9 @@ const actions = [
     slug: 'transcricao-audio',
     label: 'Registrar anotação em áudio',
     description: 'Organize gravações e anotações de visitas sem precisar digitar.',
-    hint: 'Em preparação — em breve disponível',
+    hint: 'Envie um MP3 e receba a transcrição automaticamente',
     icon: GraphicEqOutlinedIcon,
-    available: false,
+    available: true,
   },
 ]
 

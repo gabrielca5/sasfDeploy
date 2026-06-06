@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8080",
+            "url": "http://98.89.223.51",
             "description": "Generated server url"
         }
     ],
@@ -39,8 +39,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -59,8 +59,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -118,8 +118,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -138,8 +138,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -187,8 +187,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -207,8 +207,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -251,8 +251,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -271,8 +271,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -330,8 +330,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -350,8 +350,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -399,8 +399,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -419,8 +419,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -463,8 +463,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -483,8 +483,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -542,8 +542,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -562,8 +562,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -611,8 +611,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -631,8 +631,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -675,8 +675,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -695,8 +695,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -754,8 +754,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -774,8 +774,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -823,8 +823,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -843,8 +843,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -887,8 +887,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -907,8 +907,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -966,8 +966,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -986,8 +986,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1035,8 +1035,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1055,8 +1055,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1071,10 +1071,10 @@
                 }
             }
         },
-        "/api/registroprosseguimento/{id}": {
+        "/api/prontuario/{id}": {
             "get": {
                 "tags": [
-                    "registro-prosseguimento-controller"
+                    "prontuario-controller"
                 ],
                 "operationId": "buscarPorId_5",
                 "parameters": [
@@ -1099,8 +1099,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1119,220 +1119,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegistroProsseguimentoResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "registro-prosseguimento-controller"
-                ],
-                "operationId": "atualizar_5",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegistroProsseguimentoUpdateDTO"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegistroProsseguimentoResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "registro-prosseguimento-controller"
-                ],
-                "operationId": "deletar_5",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/api/prontuario/{id}": {
-            "get": {
-                "tags": [
-                    "prontuario-controller"
-                ],
-                "operationId": "buscarPorId_6",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1357,7 +1145,7 @@
                 "tags": [
                     "prontuario-controller"
                 ],
-                "operationId": "atualizar_6",
+                "operationId": "atualizar_5",
                 "parameters": [
                     {
                         "name": "id",
@@ -1390,8 +1178,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1410,8 +1198,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1436,7 +1224,7 @@
                 "tags": [
                     "prontuario-controller"
                 ],
-                "operationId": "deletar_6",
+                "operationId": "deletar_5",
                 "parameters": [
                     {
                         "name": "id",
@@ -1459,8 +1247,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1479,8 +1267,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1500,7 +1288,7 @@
                 "tags": [
                     "plano-desenvolvimento-do-usuario-controller"
                 ],
-                "operationId": "buscarPorId_7",
+                "operationId": "buscarPorId_6",
                 "parameters": [
                     {
                         "name": "id",
@@ -1523,8 +1311,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1543,8 +1331,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1569,7 +1357,7 @@
                 "tags": [
                     "plano-desenvolvimento-do-usuario-controller"
                 ],
-                "operationId": "atualizar_7",
+                "operationId": "atualizar_6",
                 "parameters": [
                     {
                         "name": "id",
@@ -1602,8 +1390,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1622,8 +1410,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1648,7 +1436,7 @@
                 "tags": [
                     "plano-desenvolvimento-do-usuario-controller"
                 ],
-                "operationId": "deletar_7",
+                "operationId": "deletar_6",
                 "parameters": [
                     {
                         "name": "id",
@@ -1671,8 +1459,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1691,8 +1479,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1712,7 +1500,7 @@
                 "tags": [
                     "plano-desenvolvimento-familiar-controller"
                 ],
-                "operationId": "buscarPorId_8",
+                "operationId": "buscarPorId_7",
                 "parameters": [
                     {
                         "name": "id",
@@ -1735,8 +1523,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1755,8 +1543,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1781,7 +1569,7 @@
                 "tags": [
                     "plano-desenvolvimento-familiar-controller"
                 ],
-                "operationId": "atualizar_8",
+                "operationId": "atualizar_7",
                 "parameters": [
                     {
                         "name": "id",
@@ -1814,8 +1602,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1834,8 +1622,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1860,7 +1648,7 @@
                 "tags": [
                     "plano-desenvolvimento-familiar-controller"
                 ],
-                "operationId": "deletar_8",
+                "operationId": "deletar_7",
                 "parameters": [
                     {
                         "name": "id",
@@ -1883,8 +1671,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1903,8 +1691,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1924,7 +1712,7 @@
                 "tags": [
                     "orientador-controller"
                 ],
-                "operationId": "buscarPorId_9",
+                "operationId": "buscarPorId_8",
                 "parameters": [
                     {
                         "name": "id",
@@ -1947,8 +1735,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1967,8 +1755,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -1993,7 +1781,7 @@
                 "tags": [
                     "orientador-controller"
                 ],
-                "operationId": "atualizar_9",
+                "operationId": "atualizar_8",
                 "parameters": [
                     {
                         "name": "id",
@@ -2026,8 +1814,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2046,8 +1834,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2072,7 +1860,7 @@
                 "tags": [
                     "orientador-controller"
                 ],
-                "operationId": "deletar_9",
+                "operationId": "deletar_8",
                 "parameters": [
                     {
                         "name": "id",
@@ -2095,8 +1883,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2115,8 +1903,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2136,7 +1924,7 @@
                 "tags": [
                     "membro-composicao-familiar-controller"
                 ],
-                "operationId": "buscarPorId_10",
+                "operationId": "buscarPorId_9",
                 "parameters": [
                     {
                         "name": "id",
@@ -2159,8 +1947,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2179,8 +1967,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2205,7 +1993,7 @@
                 "tags": [
                     "membro-composicao-familiar-controller"
                 ],
-                "operationId": "atualizar_10",
+                "operationId": "atualizar_9",
                 "parameters": [
                     {
                         "name": "id",
@@ -2238,8 +2026,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2258,8 +2046,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2284,7 +2072,7 @@
                 "tags": [
                     "membro-composicao-familiar-controller"
                 ],
-                "operationId": "deletar_10",
+                "operationId": "deletar_9",
                 "parameters": [
                     {
                         "name": "id",
@@ -2307,8 +2095,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2327,8 +2115,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2348,7 +2136,7 @@
                 "tags": [
                     "item-pdf-controller"
                 ],
-                "operationId": "buscarPorId_11",
+                "operationId": "buscarPorId_10",
                 "parameters": [
                     {
                         "name": "id",
@@ -2371,8 +2159,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2391,8 +2179,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2417,7 +2205,7 @@
                 "tags": [
                     "item-pdf-controller"
                 ],
-                "operationId": "atualizar_11",
+                "operationId": "atualizar_10",
                 "parameters": [
                     {
                         "name": "id",
@@ -2450,8 +2238,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2470,8 +2258,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2496,7 +2284,7 @@
                 "tags": [
                     "item-pdf-controller"
                 ],
-                "operationId": "deletar_11",
+                "operationId": "deletar_10",
                 "parameters": [
                     {
                         "name": "id",
@@ -2519,8 +2307,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2539,8 +2327,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2560,7 +2348,7 @@
                 "tags": [
                     "folha-de-prosseguimento-controller"
                 ],
-                "operationId": "buscarPorId_12",
+                "operationId": "buscarPorId_11",
                 "parameters": [
                     {
                         "name": "id",
@@ -2583,8 +2371,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2603,8 +2391,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2629,7 +2417,7 @@
                 "tags": [
                     "folha-de-prosseguimento-controller"
                 ],
-                "operationId": "atualizar_12",
+                "operationId": "atualizar_11",
                 "parameters": [
                     {
                         "name": "id",
@@ -2662,8 +2450,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2682,8 +2470,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2708,7 +2496,7 @@
                 "tags": [
                     "folha-de-prosseguimento-controller"
                 ],
-                "operationId": "deletar_12",
+                "operationId": "deletar_11",
                 "parameters": [
                     {
                         "name": "id",
@@ -2731,8 +2519,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2751,8 +2539,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2772,7 +2560,7 @@
                 "tags": [
                     "ficha-visita-domiciliar-controller"
                 ],
-                "operationId": "buscarPorId_13",
+                "operationId": "buscarPorId_12",
                 "parameters": [
                     {
                         "name": "id",
@@ -2795,8 +2583,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2815,8 +2603,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2841,7 +2629,7 @@
                 "tags": [
                     "ficha-visita-domiciliar-controller"
                 ],
-                "operationId": "atualizar_13",
+                "operationId": "atualizar_12",
                 "parameters": [
                     {
                         "name": "id",
@@ -2874,8 +2662,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2894,8 +2682,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2920,7 +2708,7 @@
                 "tags": [
                     "ficha-visita-domiciliar-controller"
                 ],
-                "operationId": "deletar_13",
+                "operationId": "deletar_12",
                 "parameters": [
                     {
                         "name": "id",
@@ -2943,8 +2731,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2963,8 +2751,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -2984,7 +2772,7 @@
                 "tags": [
                     "ficha-cadastral-da-familia-controller"
                 ],
-                "operationId": "buscarPorId_14",
+                "operationId": "buscarPorId_13",
                 "parameters": [
                     {
                         "name": "id",
@@ -3007,8 +2795,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3027,8 +2815,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3053,7 +2841,7 @@
                 "tags": [
                     "ficha-cadastral-da-familia-controller"
                 ],
-                "operationId": "atualizar_14",
+                "operationId": "atualizar_13",
                 "parameters": [
                     {
                         "name": "id",
@@ -3086,8 +2874,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3106,8 +2894,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3132,7 +2920,7 @@
                 "tags": [
                     "ficha-cadastral-da-familia-controller"
                 ],
-                "operationId": "deletar_14",
+                "operationId": "deletar_13",
                 "parameters": [
                     {
                         "name": "id",
@@ -3155,8 +2943,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3175,8 +2963,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3196,7 +2984,7 @@
                 "tags": [
                     "ficha-de-atualizacao-quadro-situacional-controller"
                 ],
-                "operationId": "buscarPorId_15",
+                "operationId": "buscarPorId_14",
                 "parameters": [
                     {
                         "name": "id",
@@ -3219,8 +3007,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3239,8 +3027,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3265,7 +3053,7 @@
                 "tags": [
                     "ficha-de-atualizacao-quadro-situacional-controller"
                 ],
-                "operationId": "atualizar_15",
+                "operationId": "atualizar_14",
                 "parameters": [
                     {
                         "name": "id",
@@ -3298,8 +3086,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3318,8 +3106,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3344,7 +3132,7 @@
                 "tags": [
                     "ficha-de-atualizacao-quadro-situacional-controller"
                 ],
-                "operationId": "deletar_15",
+                "operationId": "deletar_14",
                 "parameters": [
                     {
                         "name": "id",
@@ -3367,8 +3155,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3387,8 +3175,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3408,7 +3196,7 @@
                 "tags": [
                     "familia-controller"
                 ],
-                "operationId": "buscarPorId_16",
+                "operationId": "buscarPorId_15",
                 "parameters": [
                     {
                         "name": "id",
@@ -3431,8 +3219,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3451,8 +3239,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3477,7 +3265,7 @@
                 "tags": [
                     "familia-controller"
                 ],
-                "operationId": "atualizar_16",
+                "operationId": "atualizar_15",
                 "parameters": [
                     {
                         "name": "id",
@@ -3510,8 +3298,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3530,8 +3318,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3556,7 +3344,7 @@
                 "tags": [
                     "familia-controller"
                 ],
-                "operationId": "deletar_16",
+                "operationId": "deletar_15",
                 "parameters": [
                     {
                         "name": "id",
@@ -3579,8 +3367,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3599,8 +3387,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3620,7 +3408,7 @@
                 "tags": [
                     "endereco-controller"
                 ],
-                "operationId": "buscarPorId_17",
+                "operationId": "buscarPorId_16",
                 "parameters": [
                     {
                         "name": "id",
@@ -3643,8 +3431,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3663,8 +3451,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3689,7 +3477,7 @@
                 "tags": [
                     "endereco-controller"
                 ],
-                "operationId": "atualizar_17",
+                "operationId": "atualizar_16",
                 "parameters": [
                     {
                         "name": "id",
@@ -3722,8 +3510,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3742,8 +3530,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3768,7 +3556,7 @@
                 "tags": [
                     "endereco-controller"
                 ],
-                "operationId": "deletar_17",
+                "operationId": "deletar_16",
                 "parameters": [
                     {
                         "name": "id",
@@ -3791,8 +3579,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3811,8 +3599,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3832,7 +3620,7 @@
                 "tags": [
                     "dados-sasf-controller"
                 ],
-                "operationId": "buscarPorId_18",
+                "operationId": "buscarPorId_17",
                 "parameters": [
                     {
                         "name": "id",
@@ -3855,8 +3643,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3875,8 +3663,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3901,7 +3689,7 @@
                 "tags": [
                     "dados-sasf-controller"
                 ],
-                "operationId": "atualizar_18",
+                "operationId": "atualizar_17",
                 "parameters": [
                     {
                         "name": "id",
@@ -3934,8 +3722,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3954,8 +3742,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3980,7 +3768,7 @@
                 "tags": [
                     "dados-sasf-controller"
                 ],
-                "operationId": "deletar_18",
+                "operationId": "deletar_17",
                 "parameters": [
                     {
                         "name": "id",
@@ -4003,8 +3791,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4023,8 +3811,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4044,7 +3832,7 @@
                 "tags": [
                     "cuidador-controller"
                 ],
-                "operationId": "buscarPorId_19",
+                "operationId": "buscarPorId_18",
                 "parameters": [
                     {
                         "name": "id",
@@ -4067,8 +3855,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4087,8 +3875,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4113,7 +3901,7 @@
                 "tags": [
                     "cuidador-controller"
                 ],
-                "operationId": "atualizar_19",
+                "operationId": "atualizar_18",
                 "parameters": [
                     {
                         "name": "id",
@@ -4146,8 +3934,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4166,8 +3954,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4192,7 +3980,7 @@
                 "tags": [
                     "cuidador-controller"
                 ],
-                "operationId": "deletar_19",
+                "operationId": "deletar_18",
                 "parameters": [
                     {
                         "name": "id",
@@ -4215,8 +4003,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4235,8 +4023,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4256,7 +4044,7 @@
                 "tags": [
                     "crianca-controller"
                 ],
-                "operationId": "buscarPorId_20",
+                "operationId": "buscarPorId_19",
                 "parameters": [
                     {
                         "name": "id",
@@ -4279,8 +4067,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4299,8 +4087,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4325,7 +4113,7 @@
                 "tags": [
                     "crianca-controller"
                 ],
-                "operationId": "atualizar_20",
+                "operationId": "atualizar_19",
                 "parameters": [
                     {
                         "name": "id",
@@ -4358,8 +4146,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4378,8 +4166,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4404,7 +4192,7 @@
                 "tags": [
                     "crianca-controller"
                 ],
-                "operationId": "deletar_20",
+                "operationId": "deletar_19",
                 "parameters": [
                     {
                         "name": "id",
@@ -4427,8 +4215,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4447,8 +4235,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4468,7 +4256,7 @@
                 "tags": [
                     "acao-pdu-controller"
                 ],
-                "operationId": "buscarPorId_21",
+                "operationId": "buscarPorId_20",
                 "parameters": [
                     {
                         "name": "id",
@@ -4491,8 +4279,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4511,8 +4299,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4537,7 +4325,7 @@
                 "tags": [
                     "acao-pdu-controller"
                 ],
-                "operationId": "atualizar_21",
+                "operationId": "atualizar_20",
                 "parameters": [
                     {
                         "name": "id",
@@ -4570,8 +4358,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4590,8 +4378,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4616,7 +4404,7 @@
                 "tags": [
                     "acao-pdu-controller"
                 ],
-                "operationId": "deletar_21",
+                "operationId": "deletar_20",
                 "parameters": [
                     {
                         "name": "id",
@@ -4639,8 +4427,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4659,8 +4447,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4680,7 +4468,7 @@
                 "tags": [
                     "acao-intersetorial-pdu-controller"
                 ],
-                "operationId": "buscarPorId_22",
+                "operationId": "buscarPorId_21",
                 "parameters": [
                     {
                         "name": "id",
@@ -4703,8 +4491,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4723,8 +4511,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4749,7 +4537,7 @@
                 "tags": [
                     "acao-intersetorial-pdu-controller"
                 ],
-                "operationId": "atualizar_22",
+                "operationId": "atualizar_21",
                 "parameters": [
                     {
                         "name": "id",
@@ -4782,8 +4570,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4802,8 +4590,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4828,7 +4616,7 @@
                 "tags": [
                     "acao-intersetorial-pdu-controller"
                 ],
-                "operationId": "deletar_22",
+                "operationId": "deletar_21",
                 "parameters": [
                     {
                         "name": "id",
@@ -4851,8 +4639,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4871,8 +4659,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4893,29 +4681,19 @@
                     "usuario-controller"
                 ],
                 "operationId": "listar",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4934,15 +4712,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/UsuarioResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageUsuarioResponseDTO"
                                 }
                             }
                         }
@@ -4975,8 +4770,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -4995,8 +4790,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5045,8 +4840,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5065,8 +4860,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5094,29 +4889,19 @@
                     "termo-autorizacao-de-uso-de-imagem-controller"
                 ],
                 "operationId": "listar_1",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5135,15 +4920,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/TermoAutorizacaoDeUsoDeImagemResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageTermoAutorizacaoDeUsoDeImagemResponseDTO"
                                 }
                             }
                         }
@@ -5176,8 +4978,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5196,8 +4998,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5225,29 +5027,19 @@
                     "tecnico-controller"
                 ],
                 "operationId": "listar_2",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5266,15 +5058,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/TecnicoResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageTecnicoResponseDTO"
                                 }
                             }
                         }
@@ -5307,8 +5116,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5327,8 +5136,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5356,29 +5165,19 @@
                     "sintese-pdu-por-area-controller"
                 ],
                 "operationId": "listar_3",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5397,15 +5196,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/SintesePduPorAreaResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageSintesePduPorAreaResponseDTO"
                                 }
                             }
                         }
@@ -5438,8 +5254,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5458,8 +5274,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5487,29 +5303,19 @@
                     "representante-controller"
                 ],
                 "operationId": "listar_4",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5528,15 +5334,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RepresentanteResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageRepresentanteResponseDTO"
                                 }
                             }
                         }
@@ -5569,8 +5392,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5589,8 +5412,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5612,166 +5435,25 @@
                 }
             }
         },
-        "/api/registroprosseguimento": {
-            "get": {
-                "tags": [
-                    "registro-prosseguimento-controller"
-                ],
-                "operationId": "listar_5",
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/RegistroProsseguimentoResponseDTO"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "registro-prosseguimento-controller"
-                ],
-                "operationId": "criar_5",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegistroProsseguimentoSaveDTO"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RegistroProsseguimentoResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/prontuario": {
             "get": {
                 "tags": [
                     "prontuario-controller"
                 ],
-                "operationId": "listar_6",
+                "operationId": "listar_5",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5790,15 +5472,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ProntuarioResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageProntuarioResponseDTO"
                                 }
                             }
                         }
@@ -5809,7 +5508,7 @@
                 "tags": [
                     "prontuario-controller"
                 ],
-                "operationId": "criar_6",
+                "operationId": "criar_5",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -5831,8 +5530,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5851,8 +5550,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5879,30 +5578,20 @@
                 "tags": [
                     "plano-desenvolvimento-do-usuario-controller"
                 ],
-                "operationId": "listar_7",
+                "operationId": "listar_6",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5921,15 +5610,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/PlanoDesenvolvimentoDoUsuarioResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PagePlanoDesenvolvimentoDoUsuarioResponseDTO"
                                 }
                             }
                         }
@@ -5940,7 +5646,7 @@
                 "tags": [
                     "plano-desenvolvimento-do-usuario-controller"
                 ],
-                "operationId": "criar_7",
+                "operationId": "criar_6",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -5962,8 +5668,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -5982,8 +5688,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6010,30 +5716,20 @@
                 "tags": [
                     "plano-desenvolvimento-familiar-controller"
                 ],
-                "operationId": "listar_8",
+                "operationId": "listar_7",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6052,15 +5748,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/PlanoDesenvolvimentoFamiliarResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PagePlanoDesenvolvimentoFamiliarResponseDTO"
                                 }
                             }
                         }
@@ -6071,7 +5784,7 @@
                 "tags": [
                     "plano-desenvolvimento-familiar-controller"
                 ],
-                "operationId": "criar_8",
+                "operationId": "criar_7",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6093,8 +5806,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6113,8 +5826,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6141,30 +5854,20 @@
                 "tags": [
                     "orientador-controller"
                 ],
-                "operationId": "listar_9",
+                "operationId": "listar_8",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6183,15 +5886,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/OrientadorResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageOrientadorResponseDTO"
                                 }
                             }
                         }
@@ -6202,7 +5922,7 @@
                 "tags": [
                     "orientador-controller"
                 ],
-                "operationId": "criar_9",
+                "operationId": "criar_8",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6224,8 +5944,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6244,8 +5964,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6272,30 +5992,20 @@
                 "tags": [
                     "membro-composicao-familiar-controller"
                 ],
-                "operationId": "listar_10",
+                "operationId": "listar_9",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6314,15 +6024,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MembroComposicaoFamiliarResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageMembroComposicaoFamiliarResponseDTO"
                                 }
                             }
                         }
@@ -6333,7 +6060,7 @@
                 "tags": [
                     "membro-composicao-familiar-controller"
                 ],
-                "operationId": "criar_10",
+                "operationId": "criar_9",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6355,8 +6082,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6375,8 +6102,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6403,30 +6130,20 @@
                 "tags": [
                     "item-pdf-controller"
                 ],
-                "operationId": "listar_11",
+                "operationId": "listar_10",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6445,15 +6162,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ItemPdfResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageItemPdfResponseDTO"
                                 }
                             }
                         }
@@ -6464,7 +6198,7 @@
                 "tags": [
                     "item-pdf-controller"
                 ],
-                "operationId": "criar_11",
+                "operationId": "criar_10",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6486,8 +6220,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6506,8 +6240,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6570,31 +6304,19 @@
                             "type": "integer",
                             "format": "int32"
                         }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
                     }
                 ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6613,15 +6335,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/GoogleCalendarEventResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageGoogleCalendarEventResponseDTO"
                                 }
                             }
                         }
@@ -6654,8 +6393,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6674,8 +6413,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6724,8 +6463,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6744,8 +6483,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6772,30 +6511,20 @@
                 "tags": [
                     "folha-de-prosseguimento-controller"
                 ],
-                "operationId": "listar_12",
+                "operationId": "listar_11",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6814,15 +6543,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/FolhaDeProsseguimentoResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageFolhaDeProsseguimentoResponseDTO"
                                 }
                             }
                         }
@@ -6833,7 +6579,7 @@
                 "tags": [
                     "folha-de-prosseguimento-controller"
                 ],
-                "operationId": "criar_12",
+                "operationId": "criar_11",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6855,8 +6601,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6875,8 +6621,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6903,30 +6649,20 @@
                 "tags": [
                     "ficha-visita-domiciliar-controller"
                 ],
-                "operationId": "listar_13",
+                "operationId": "listar_12",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -6945,15 +6681,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/FichaVisitaDomiciliarResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageFichaVisitaDomiciliarResponseDTO"
                                 }
                             }
                         }
@@ -6964,7 +6717,7 @@
                 "tags": [
                     "ficha-visita-domiciliar-controller"
                 ],
-                "operationId": "criar_13",
+                "operationId": "criar_12",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6986,8 +6739,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7006,8 +6759,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7034,30 +6787,20 @@
                 "tags": [
                     "ficha-cadastral-da-familia-controller"
                 ],
-                "operationId": "listar_14",
+                "operationId": "listar_13",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7076,15 +6819,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/FichaCadastralDaFamiliaResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageFichaCadastralDaFamiliaResponseDTO"
                                 }
                             }
                         }
@@ -7095,7 +6855,7 @@
                 "tags": [
                     "ficha-cadastral-da-familia-controller"
                 ],
-                "operationId": "criar_14",
+                "operationId": "criar_13",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -7117,8 +6877,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7137,8 +6897,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7165,30 +6925,20 @@
                 "tags": [
                     "ficha-de-atualizacao-quadro-situacional-controller"
                 ],
-                "operationId": "listar_15",
+                "operationId": "listar_14",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7207,15 +6957,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/FichaDeAtualizacaoQuadroSituacionalResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageFichaDeAtualizacaoQuadroSituacionalResponseDTO"
                                 }
                             }
                         }
@@ -7226,7 +6993,7 @@
                 "tags": [
                     "ficha-de-atualizacao-quadro-situacional-controller"
                 ],
-                "operationId": "criar_15",
+                "operationId": "criar_14",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -7248,8 +7015,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7268,8 +7035,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7296,30 +7063,20 @@
                 "tags": [
                     "familia-controller"
                 ],
-                "operationId": "listar_16",
+                "operationId": "listar_15",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7338,15 +7095,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/FamiliaResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageFamiliaResponseDTO"
                                 }
                             }
                         }
@@ -7357,7 +7131,7 @@
                 "tags": [
                     "familia-controller"
                 ],
-                "operationId": "criar_16",
+                "operationId": "criar_15",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -7379,8 +7153,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7399,8 +7173,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7422,35 +7196,26 @@
                 }
             }
         },
-        "/api/endereco": {
+        "/api/familia/{familiaId}/transcricao": {
             "get": {
                 "tags": [
-                    "endereco-controller"
+                    "transcricao-controller"
                 ],
-                "operationId": "listar_17",
+                "operationId": "listarPorFamilia",
+                "parameters": [
+                    {
+                        "name": "familiaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7469,6 +7234,26 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
@@ -7476,8 +7261,157 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/EnderecoResponseDTO"
+                                        "$ref": "#/components/schemas/TranscricaoResponseDTO"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "transcricao-controller"
+                ],
+                "operationId": "criar_16",
+                "parameters": [
+                    {
+                        "name": "familiaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TranscricaoSaveDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TranscricaoResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/endereco": {
+            "get": {
+                "tags": [
+                    "endereco-controller"
+                ],
+                "operationId": "listar_16",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageEnderecoResponseDTO"
                                 }
                             }
                         }
@@ -7510,8 +7444,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7530,8 +7464,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7558,30 +7492,20 @@
                 "tags": [
                     "dados-sasf-controller"
                 ],
-                "operationId": "listar_18",
+                "operationId": "listar_17",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7600,15 +7524,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/DadosSasfResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageDadosSasfResponseDTO"
                                 }
                             }
                         }
@@ -7641,8 +7582,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7661,8 +7602,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7689,30 +7630,20 @@
                 "tags": [
                     "cuidador-controller"
                 ],
-                "operationId": "listar_19",
+                "operationId": "listar_18",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7731,15 +7662,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CuidadorResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageCuidadorResponseDTO"
                                 }
                             }
                         }
@@ -7772,8 +7720,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7792,8 +7740,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7820,30 +7768,20 @@
                 "tags": [
                     "crianca-controller"
                 ],
-                "operationId": "listar_20",
+                "operationId": "listar_19",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7862,15 +7800,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CriancaResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageCriancaResponseDTO"
                                 }
                             }
                         }
@@ -7903,8 +7858,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7923,8 +7878,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7951,30 +7906,20 @@
                 "tags": [
                     "acao-pdu-controller"
                 ],
-                "operationId": "listar_21",
+                "operationId": "listar_20",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -7993,15 +7938,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AcaoPduResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageAcaoPduResponseDTO"
                                 }
                             }
                         }
@@ -8034,8 +7996,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8054,8 +8016,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8082,30 +8044,20 @@
                 "tags": [
                     "acao-intersetorial-pdu-controller"
                 ],
-                "operationId": "listar_22",
+                "operationId": "listar_21",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
                 "responses": {
                     "404": {
                         "description": "Not Found",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorDTO"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8124,15 +8076,32 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "*/*": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AcaoIntersetorialPduResponseDTO"
-                                    }
+                                    "$ref": "#/components/schemas/PageAcaoIntersetorialPduResponseDTO"
                                 }
                             }
                         }
@@ -8165,8 +8134,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8185,8 +8154,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8225,8 +8194,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8245,8 +8214,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8285,8 +8254,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8305,8 +8274,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8345,8 +8314,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8365,8 +8334,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8403,8 +8372,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8423,8 +8392,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8456,8 +8425,8 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8476,8 +8445,8 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -8495,6 +8464,157 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/familia/{familiaId}/transcricao/{id}": {
+            "get": {
+                "tags": [
+                    "transcricao-controller"
+                ],
+                "operationId": "buscarPorId_22",
+                "parameters": [
+                    {
+                        "name": "familiaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TranscricaoResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "transcricao-controller"
+                ],
+                "operationId": "deletar_22",
+                "parameters": [
+                    {
+                        "name": "familiaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorDTO"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -8615,22 +8735,6 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "usuarioAutorizanteId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "numeroCedulaIdentidade": {
-                        "type": "string"
-                    },
-                    "cpf": {
-                        "type": "string"
-                    },
-                    "nomesCriancasAutorizadas": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "dataAssinatura": {
                         "type": "string",
                         "format": "date-time"
@@ -8647,22 +8751,6 @@
                     "prontuarioId": {
                         "type": "string",
                         "format": "uuid"
-                    },
-                    "usuarioAutorizanteId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "numeroCedulaIdentidade": {
-                        "type": "string"
-                    },
-                    "cpf": {
-                        "type": "string"
-                    },
-                    "nomesCriancasAutorizadas": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "dataAssinatura": {
                         "type": "string",
@@ -9088,42 +9176,6 @@
                     }
                 }
             },
-            "RegistroProsseguimentoUpdateDTO": {
-                "type": "object",
-                "properties": {
-                    "dataRegistro": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "demanda": {
-                        "type": "string"
-                    },
-                    "tecnicoResponsavelId": {
-                        "type": "string",
-                        "format": "uuid"
-                    }
-                }
-            },
-            "RegistroProsseguimentoResponseDTO": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "dataRegistro": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "demanda": {
-                        "type": "string"
-                    },
-                    "tecnicoResponsavelId": {
-                        "type": "string",
-                        "format": "uuid"
-                    }
-                }
-            },
             "ProntuarioUpdateDTO": {
                 "type": "object",
                 "properties": {
@@ -9500,9 +9552,6 @@
                             "format": "uuid"
                         }
                     },
-                    "assinaturaResponsavelFamilia": {
-                        "type": "string"
-                    },
                     "tecnicoReferenciaId": {
                         "type": "string",
                         "format": "uuid"
@@ -9565,9 +9614,6 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    "assinaturaResponsavelFamilia": {
-                        "type": "string"
                     },
                     "tecnicoReferenciaId": {
                         "type": "string",
@@ -9894,12 +9940,16 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "registrosIds": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
+                    "dataRegistro": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "demanda": {
+                        "type": "string"
+                    },
+                    "tecnicoResponsavelId": {
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "observacoes": {
                         "type": "string"
@@ -9927,12 +9977,16 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "registrosIds": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
+                    "dataRegistro": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "demanda": {
+                        "type": "string"
+                    },
+                    "tecnicoResponsavelId": {
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "observacoes": {
                         "type": "string"
@@ -10417,6 +10471,9 @@
                         "type": "string",
                         "format": "uuid"
                     },
+                    "nomeRepresentante": {
+                        "type": "string"
+                    },
                     "membrosIds": {
                         "type": "array",
                         "items": {
@@ -10471,6 +10528,9 @@
                     "cep": {
                         "type": "string"
                     },
+                    "cidade": {
+                        "type": "string"
+                    },
                     "distrito": {
                         "type": "string"
                     },
@@ -10499,6 +10559,9 @@
                         "type": "string"
                     },
                     "cep": {
+                        "type": "string"
+                    },
+                    "cidade": {
                         "type": "string"
                     },
                     "distrito": {
@@ -10549,9 +10612,6 @@
                     },
                     "grauParentesco": {
                         "type": "string"
-                    },
-                    "ausente": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -10567,9 +10627,6 @@
                     },
                     "grauParentesco": {
                         "type": "string"
-                    },
-                    "ausente": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -10852,22 +10909,6 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "usuarioAutorizanteId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "numeroCedulaIdentidade": {
-                        "type": "string"
-                    },
-                    "cpf": {
-                        "type": "string"
-                    },
-                    "nomesCriancasAutorizadas": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "dataAssinatura": {
                         "type": "string",
                         "format": "date-time"
@@ -11077,22 +11118,6 @@
                     }
                 }
             },
-            "RegistroProsseguimentoSaveDTO": {
-                "type": "object",
-                "properties": {
-                    "dataRegistro": {
-                        "type": "string",
-                        "format": "date"
-                    },
-                    "demanda": {
-                        "type": "string"
-                    },
-                    "tecnicoResponsavelId": {
-                        "type": "string",
-                        "format": "uuid"
-                    }
-                }
-            },
             "ProntuarioSaveDTO": {
                 "type": "object",
                 "properties": {
@@ -11299,9 +11324,6 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    "assinaturaResponsavelFamilia": {
-                        "type": "string"
                     },
                     "tecnicoReferenciaId": {
                         "type": "string",
@@ -11590,12 +11612,16 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "registrosIds": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
+                    "dataRegistro": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "demanda": {
+                        "type": "string"
+                    },
+                    "tecnicoResponsavelId": {
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "observacoes": {
                         "type": "string"
@@ -11854,6 +11880,95 @@
                     }
                 }
             },
+            "DemandaIdentificada": {
+                "type": "object",
+                "properties": {
+                    "demanda": {
+                        "type": "string"
+                    },
+                    "area": {
+                        "type": "string"
+                    },
+                    "urgencia": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EncaminhamentoSugerido": {
+                "type": "object",
+                "properties": {
+                    "acao": {
+                        "type": "string"
+                    },
+                    "responsavel": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TranscricaoSaveDTO": {
+                "type": "object",
+                "properties": {
+                    "arquivo": {
+                        "type": "string"
+                    },
+                    "transcricao_bruta": {
+                        "type": "string"
+                    },
+                    "resumo_situacao": {
+                        "type": "string"
+                    },
+                    "demandas_identificadas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DemandaIdentificada"
+                        }
+                    },
+                    "encaminhamentos_sugeridos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EncaminhamentoSugerido"
+                        }
+                    }
+                }
+            },
+            "TranscricaoResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "familiaId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "arquivo": {
+                        "type": "string"
+                    },
+                    "transcricao_bruta": {
+                        "type": "string"
+                    },
+                    "resumo_situacao": {
+                        "type": "string"
+                    },
+                    "demandas_identificadas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DemandaIdentificada"
+                        }
+                    },
+                    "encaminhamentos_sugeridos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EncaminhamentoSugerido"
+                        }
+                    },
+                    "data_criacao": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
             "EnderecoSaveDTO": {
                 "type": "object",
                 "properties": {
@@ -11870,6 +11985,9 @@
                         "type": "string"
                     },
                     "cep": {
+                        "type": "string"
+                    },
+                    "cidade": {
                         "type": "string"
                     },
                     "distrito": {
@@ -11902,9 +12020,6 @@
                     },
                     "grauParentesco": {
                         "type": "string"
-                    },
-                    "ausente": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -12016,6 +12131,619 @@
                     }
                 }
             },
+            "Pageable": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "sort": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "PageUsuarioResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UsuarioResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageableObject": {
+                "type": "object",
+                "properties": {
+                    "offset": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "pageNumber": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "paged": {
+                        "type": "boolean"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "unpaged": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "SortObject": {
+                "type": "object",
+                "properties": {
+                    "empty": {
+                        "type": "boolean"
+                    },
+                    "sorted": {
+                        "type": "boolean"
+                    },
+                    "unsorted": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageTermoAutorizacaoDeUsoDeImagemResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TermoAutorizacaoDeUsoDeImagemResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageTecnicoResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TecnicoResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageSintesePduPorAreaResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SintesePduPorAreaResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageRepresentanteResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RepresentanteResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageProntuarioResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProntuarioResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PagePlanoDesenvolvimentoDoUsuarioResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlanoDesenvolvimentoDoUsuarioResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PagePlanoDesenvolvimentoFamiliarResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlanoDesenvolvimentoFamiliarResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageOrientadorResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrientadorResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageMembroComposicaoFamiliarResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MembroComposicaoFamiliarResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageItemPdfResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemPdfResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageGoogleCalendarEventResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GoogleCalendarEventResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
             "GoogleCalendarAuthUrlDTO": {
                 "type": "object",
                 "properties": {
@@ -12027,6 +12755,512 @@
                     },
                     "redirectUri": {
                         "type": "string"
+                    }
+                }
+            },
+            "PageFolhaDeProsseguimentoResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FolhaDeProsseguimentoResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageFichaVisitaDomiciliarResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FichaVisitaDomiciliarResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageFichaCadastralDaFamiliaResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FichaCadastralDaFamiliaResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageFichaDeAtualizacaoQuadroSituacionalResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FichaDeAtualizacaoQuadroSituacionalResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageFamiliaResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FamiliaResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageEnderecoResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EnderecoResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageDadosSasfResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DadosSasfResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageCuidadorResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CuidadorResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageCriancaResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CriancaResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageAcaoPduResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AcaoPduResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageAcaoIntersetorialPduResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AcaoIntersetorialPduResponseDTO"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
                     }
                 }
             }
