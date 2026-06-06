@@ -62,9 +62,11 @@ function PageSection({
               )
             ) : null}
 
-            <Typography variant="h4" fontWeight={800} gutterBottom sx={textSx}>
-              {title}
-            </Typography>
+            {title ? (
+              <Typography variant="h4" fontWeight={800} gutterBottom sx={textSx}>
+                {title}
+              </Typography>
+            ) : null}
 
             {description ? (
               <Typography color="text.secondary" sx={{ maxWidth: 820, ...textSx }}>
@@ -98,9 +100,11 @@ function PageSection({
               )
             ) : null}
 
-            <Typography variant="h4" fontWeight={800} gutterBottom sx={textSx}>
-              {title}
-            </Typography>
+            {title ? (
+              <Typography variant="h4" fontWeight={800} gutterBottom sx={textSx}>
+                {title}
+              </Typography>
+            ) : null}
 
             {description ? (
               <Typography color="text.secondary" sx={{ maxWidth: 820, ...textSx }}>

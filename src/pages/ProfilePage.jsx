@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
 import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
@@ -7,8 +8,10 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined'
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined'
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined'
+import { Box, Typography } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -19,6 +22,7 @@ import {
   AuthForm,
   AuthTextField,
   ButtonLoading,
+  ConfirmDialog,
   ErrorState,
   InfoGrid,
   InlineFeedback,
@@ -75,6 +79,8 @@ function EditProfileDialog({ open, onClose, onSaved, profile, userId }) {
     mutationFn: (data) =>
       put(`/usuario/${userId}`, {
         ...data,
+        email: profile.email,
+        cpf: profile.cpf,
         cargo: profile.cargo,
         ativo: profile.ativo,
         dataDeInclusao: profile.dataDeInclusao,
@@ -135,8 +141,9 @@ function EditProfileDialog({ open, onClose, onSaved, profile, userId }) {
           {...register('email')}
           label="Email"
           type="email"
+          disabled
           error={!!errors.email}
-          helperText={errors.email?.message}
+          helperText="Email não pode ser alterado"
         />
         <AuthTextField
           {...register('telefone')}
@@ -149,8 +156,9 @@ function EditProfileDialog({ open, onClose, onSaved, profile, userId }) {
           {...register('cpf')}
           label="CPF"
           inputMode="numeric"
+          disabled
           error={!!errors.cpf}
-          helperText={errors.cpf?.message}
+          helperText="CPF não pode ser alterado"
         />
         <AuthTextField
           {...register('endereco')}
@@ -164,8 +172,10 @@ function EditProfileDialog({ open, onClose, onSaved, profile, userId }) {
 }
 
 function ProfilePage() {
-  const { user } = useAuth()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [editOpen, setEditOpen] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const [savedProfile, setSavedProfile] = useState(false)
 
   const { data: profile, isLoading, isError, refetch } = useQuery({
@@ -198,6 +208,11 @@ function ProfilePage() {
   const nome = profile?.name ?? user?.email ?? ''
   const cargo = profile?.cargo ?? user?.cargo ?? ''
   const cargoLabel = cargoLabels[cargo] ?? cargo
+  const handleConfirmLogout = () => {
+    setLogoutDialogOpen(false)
+    logout()
+    navigate('/login')
+  }
   const profileDetails = [
     {
       label: 'Nome completo',
@@ -235,36 +250,108 @@ function ProfilePage() {
     <PageWrapper maxWidth={1200} spacing={3}>
       <PageSection
         eyebrow="Meu perfil"
-        title={nome}
-        description={cargoLabel}
+        contentSx={{ display: { xs: 'none', sm: 'grid' } }}
+        childrenSx={{ mt: { xs: 0, sm: -1 } }}
         actions={
-          <ActionButton
-            startIcon={<EditRoundedIcon />}
-            onClick={() => {
-              setSavedProfile(false)
-              setEditOpen(true)
-            }}
-            disabled={!profile}
-          >
-            Editar perfil
-          </ActionButton>
+          <PageToolbar direction="row" justifyContent="flex-end">
+            <ActionButton
+              color="error"
+              variant="outlined"
+              startIcon={<LogoutRoundedIcon />}
+              onClick={() => setLogoutDialogOpen(true)}
+              sx={{
+                color: 'error.main',
+                borderColor: 'error.main',
+                '&:hover': { borderColor: 'error.dark', backgroundColor: 'rgba(211, 47, 47, 0.04)' },
+              }}
+            >
+              Sair
+            </ActionButton>
+            <ActionButton
+              startIcon={<EditRoundedIcon />}
+              onClick={() => { setSavedProfile(false); setEditOpen(true) }}
+              disabled={!profile}
+            >
+              Editar perfil
+            </ActionButton>
+          </PageToolbar>
         }
       >
-        <PageToolbar
-          direction={{ xs: 'column', sm: 'row' }}
-          justifyContent="flex-start"
-          alignItems={{ xs: 'flex-start', sm: 'center' }}
+        {/* Hero do usuário — linha horizontal: avatar | info */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: { xs: 1.5, sm: 2.5 },
+            mb: 1,
+          }}
         >
-          <PageAvatar size="lg">{initials(nome)}</PageAvatar>
-          <PageToolbar direction="row">
-            <StatusChip label={cargoLabel} tone="highlight" />
-            {profile?.ativo === false && <StatusChip label="Inativo" tone="error" />}
-          </PageToolbar>
-        </PageToolbar>
+          <PageAvatar
+            size="lg"
+            sx={{
+              width: { xs: 56, sm: 72 },
+              height: { xs: 56, sm: 72 },
+              fontSize: { xs: '1.15rem', sm: '1.5rem' },
+            }}
+          >
+            {initials(nome)}
+          </PageAvatar>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography sx={{
+              fontSize: { xs: '1.1rem', sm: '1.35rem' },
+              fontWeight: 800,
+              lineHeight: 1.2,
+              color: 'text.primary',
+              mt: 0.3,
+              mb: 1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {nome}
+            </Typography>
+            <PageToolbar direction="row" sx={{ mt: 0 }}>
+              <StatusChip label={cargoLabel} tone="highlight" />
+              {profile?.ativo === false && <StatusChip label="Inativo" tone="error" />}
+            </PageToolbar>
+          </Box>
+        </Box>
 
         <SectionBlock title="Dados do perfil" variant="plain">
           <InfoGrid detailVariant="plain" items={profileDetails} />
         </SectionBlock>
+
+        <PageToolbar
+          direction="row"
+          spacing={0.75}
+          justifyContent="flex-start"
+          sx={{ display: { xs: 'flex', sm: 'none' }, mt: -0.5 }}
+        >
+          <ActionButton
+            color="error"
+            variant="outlined"
+            size="sm"
+            startIcon={<LogoutRoundedIcon />}
+            onClick={() => setLogoutDialogOpen(true)}
+            sx={{
+              minHeight: 34,
+              color: 'error.main',
+              borderColor: 'error.main',
+              '&:hover': { borderColor: 'error.dark', backgroundColor: 'rgba(211, 47, 47, 0.04)' },
+            }}
+          >
+            Sair
+          </ActionButton>
+          <ActionButton
+            size="sm"
+            startIcon={<EditRoundedIcon />}
+            onClick={() => { setSavedProfile(false); setEditOpen(true) }}
+            disabled={!profile}
+            sx={{ minHeight: 34 }}
+          >
+            Editar perfil
+          </ActionButton>
+        </PageToolbar>
 
         {isError && (
           <InlineFeedback severity="error" message="Não foi possível atualizar os dados do perfil agora." />
@@ -304,6 +391,16 @@ function ProfilePage() {
           userId={user.userId}
         />
       )}
+      <ConfirmDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleConfirmLogout}
+        title="Confirmar saída"
+        titleIcon={<LogoutRoundedIcon color="error" />}
+        message="Deseja realmente sair da sua conta?"
+        confirmLabel="Sair"
+        confirmColor="error"
+      />
     </PageWrapper>
   )
 }

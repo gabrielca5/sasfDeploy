@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
+import { get } from '../lib/apiClient'
 import {
   AppBar, Avatar, Box, Divider, Drawer, IconButton,
   List, ListItemButton, ListItemIcon, ListItemText,
@@ -18,6 +20,7 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import logoPng from '../assets/chicoLogo.png'
 import DashboardContent from './DashboardContent'
 import { dashboardSections } from '../data/dashboardSections'
+import { ConfirmDialog } from '../pages/ui'
 
 const DRAWER_WIDTH = 256
 
@@ -36,10 +39,10 @@ const cargoLabels = {
   ORIENTADOR: 'Orientador',
 }
 
-function initials(email) {
-  if (!email) return '?'
-  const name = email.split('@')[0]
-  const parts = name.split(/[._-]/)
+function initials(value) {
+  if (!value) return '?'
+  const name = String(value).trim().split('@')[0]
+  const parts = name.split(/[\s._-]/).filter(Boolean)
   return parts.length >= 2
     ? (parts[0][0] + parts[1][0]).toUpperCase()
     : name.slice(0, 2).toUpperCase()
@@ -149,11 +152,11 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
             backgroundColor: 'primary.main',
             fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
           }}>
-            {initials(user?.email)}
+            {initials(user?.name)}
           </Avatar>
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user?.email ?? ''}
+              {user?.name ?? ''}
             </Typography>
             <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', lineHeight: 1.3, mt: 0.2 }}>
               {cargoLabels[user?.cargo] ?? user?.cargo ?? ''}
@@ -190,11 +193,31 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
   const { user, logout } = useAuth()
   const theme = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const { data: profile } = useQuery({
+    queryKey: ['usuario', user?.userId],
+    queryFn: () => get(`/usuario/${user.userId}`),
+    enabled: !!user?.userId,
+    staleTime: 5 * 60 * 1000,
+  })
+  const displayUser = {
+    ...user,
+    ...profile,
+    name: profile?.name ?? profile?.nome ?? user?.name ?? user?.nome ?? user?.email ?? '',
+    email: profile?.email ?? user?.email ?? '',
+    cargo: profile?.cargo ?? user?.cargo ?? '',
+  }
 
   const handleNavigate = (section) => {
     setMobileOpen(false)
-    if (section?.slug === 'sair') { logout(); navigate('/login'); return }
+    if (section?.slug === 'sair') { setLogoutDialogOpen(true); return }
     if (section) navigate(`/dashboard/${section.slug}`)
+  }
+
+  const handleConfirmLogout = () => {
+    setLogoutDialogOpen(false)
+    logout()
+    navigate('/login')
   }
 
   const currentSection = dashboardSections.find((s) => s.slug === sectionSlug)
@@ -217,7 +240,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           },
         }}
       >
-        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={user} />
+        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={displayUser} />
       </Drawer>
 
       {/* Mobile drawer */}
@@ -231,7 +254,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: '#ffffff' },
         }}
       >
-        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={user} onClose={() => setMobileOpen(false)} />
+        <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={displayUser} onClose={() => setMobileOpen(false)} />
       </Drawer>
 
       {/* Main */}
@@ -245,11 +268,11 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
             backgroundColor: '#ffffff',
             color: 'text.primary',
             borderBottom: '1px solid #e5e7eb',
-            zIndex: theme.zIndex.drawer + 1,
+            zIndex: theme.zIndex.appBar,
           }}
         >
           <Toolbar sx={{ gap: 1.5, minHeight: '52px !important', px: 2 }}>
-            <IconButton onClick={() => setMobileOpen(true)} size="small" edge="start">
+            <IconButton onClick={() => setMobileOpen(prev => !prev)} size="small" edge="start">
               <MenuRoundedIcon fontSize="small" />
             </IconButton>
             <Box component="img" src={logoPng} alt="SASF" sx={{ width: 26, height: 26, objectFit: 'contain' }} />
@@ -257,7 +280,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
               {currentSection?.label ?? 'SASF'}
             </Typography>
             <Avatar sx={{ width: 28, height: 28, backgroundColor: 'primary.main', fontSize: '0.7rem', fontWeight: 700 }}>
-              {initials(user?.email)}
+              {initials(displayUser.name ?? displayUser.email)}
             </Avatar>
           </Toolbar>
         </AppBar>
@@ -267,6 +290,16 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           <DashboardContent sectionSlug={sectionSlug} formId={formId} actionSlug={actionSlug} />
         </Box>
       </Box>
+      <ConfirmDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleConfirmLogout}
+        title="Confirmar saída"
+        titleIcon={<LogoutRoundedIcon color="error" />}
+        message="Deseja realmente sair da sua conta?"
+        confirmLabel="Sair"
+        confirmColor="error"
+      />
     </Box>
   )
 }

@@ -5,7 +5,7 @@ import logoPng from '../assets/chicoLogo.png'
 import AuthLayout from '../components/AuthLayout'
 import BrandHeader from '../components/BrandHeader'
 import LoginForm from '../components/LoginForm'
-import { ActionButton, EmptyState, PageDialog } from './ui'
+import { ActionButton, InlineFeedback, PageDialog } from './ui'
 
 function LoginPage() {
   const location = useLocation()
@@ -27,7 +27,10 @@ function LoginPage() {
           </ActionButton>
         }
       >
-        <EmptyState message="Cadastro enviado. Aguarde a aprovação do administrativo para fazer login." />
+        <InlineFeedback
+          severity="warning"
+          message="Cadastro enviado. Aguarde a aprovação do administrativo para fazer login."
+        />
       </PageDialog>
     </AuthLayout>
   )
