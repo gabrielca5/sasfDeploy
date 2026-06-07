@@ -5,6 +5,7 @@ async function fetchDetalhe(prontuarioId) {
   if (!prontuarioId) return null
 
   const prontuario = await get(`/prontuario/${prontuarioId}`).catch(() => null)
+  const familiaId = prontuario?.familiaId
 
   const [
     fichaCadastral,
@@ -12,6 +13,7 @@ async function fetchDetalhe(prontuarioId) {
     folhaProsseguimento,
     pdu,
     todosTermos,
+    membros,
   ] = await Promise.all([
     prontuario?.fichaCadastralDaFamiliaId
       ? get(`/fichacadastral/${prontuario.fichaCadastralDaFamiliaId}`).catch(() => null)
@@ -26,6 +28,7 @@ async function fetchDetalhe(prontuarioId) {
       ? get(`/pdu/${prontuario.planosDesenvolvimentoUsuarioIds[0]}`).catch(() => null)
       : null,
     get('/termo?size=2000').catch(() => []),
+    familiaId ? get(`/membro?familiaId=${familiaId}&size=100`).catch(() => []) : [],
   ])
 
   const representante = fichaCadastral?.representanteId
@@ -43,6 +46,12 @@ async function fetchDetalhe(prontuarioId) {
       : []
   const termos = termosArray.filter((t) => t.prontuarioId === prontuarioId)
 
+  const membrosArray = Array.isArray(membros)
+    ? membros
+    : Array.isArray(membros?.content)
+      ? membros.content
+      : []
+
   return {
     prontuario,
     fichaCadastral,
@@ -52,6 +61,7 @@ async function fetchDetalhe(prontuarioId) {
     folhaProsseguimento,
     pdu,
     termos,
+    membros: membrosArray,
   }
 }
 

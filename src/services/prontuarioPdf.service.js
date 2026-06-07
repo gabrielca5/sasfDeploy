@@ -91,7 +91,7 @@ function triggerBlobDownload(blob, filename) {
   }
 }
 
-export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId }) {
+export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId, print = false }) {
   const path = buildFichaPdfPath({ prontuarioId, tipoFicha, fichaId })
   const { blob, headers } = await getBlob(path, {
     headers: {
@@ -101,7 +101,17 @@ export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fich
   const headerFilename = getFilenameFromContentDisposition(headers.get('Content-Disposition'))
   const filename = normalizePdfFilename(headerFilename, tipoFicha)
 
-  triggerBlobDownload(blob, filename)
+  if (print) {
+    const objectUrl = URL.createObjectURL(blob)
+    const printWindow = window.open(objectUrl, '_blank')
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    }
+  } else {
+    triggerBlobDownload(blob, filename)
+  }
 
   return { filename }
 }

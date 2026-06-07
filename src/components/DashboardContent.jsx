@@ -120,6 +120,13 @@ function buildTermDraftFromTriagem(triagemDraft = {}) {
 }
 
 function buildDemandaInitialDraft(demandaDraft = {}, triagemDraft = {}) {
+  // O demandaDraft pode vir com a estrutura antiga (objeto) ou nova (array para tabela)
+  // Garantimos que demanda_encaminhamentos seja um array para o FormRenderer (tipo: tabela)
+  const rawDemanda = demandaDraft.demanda_encaminhamentos ?? triagemDraft.demanda_encaminhamentos
+  const demandaTable = Array.isArray(rawDemanda) 
+    ? rawDemanda 
+    : [] // Se for objeto (antigo), ignoramos para a tabela e deixamos o FormRenderer inicializar
+
   return {
     ...triagemDraft,
     ...demandaDraft,
@@ -127,10 +134,13 @@ function buildDemandaInitialDraft(demandaDraft = {}, triagemDraft = {}) {
       ...(triagemDraft.dados_representante ?? {}),
       ...(demandaDraft.dados_representante ?? {}),
     },
-    demanda_encaminhamentos: {
-      ...(triagemDraft.demanda_encaminhamentos ?? {}),
-      ...(demandaDraft.demanda_encaminhamentos ?? {}),
-    },
+    // Seção de tabela
+    demanda_encaminhamentos: demandaTable.length > 0 ? demandaTable : undefined,
+    // Nova seção de campos simples
+    dados_atendimento: {
+      ...(triagemDraft.dados_atendimento ?? {}),
+      ...(demandaDraft.dados_atendimento ?? {}),
+    }
   }
 }
 
@@ -383,7 +393,7 @@ function CadastroLandingPage({ onStartForm, onStartFlowIntro, addFichaForms, sta
   }
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Novo registro"
         title="Como você deseja iniciar o atendimento?"
@@ -567,7 +577,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
 
   if (isCadastroSection && hasActiveFlow && formId && !currentForm) {
     return (
-      <PageWrapper maxWidth={900} spacing={3}>
+      <PageWrapper maxWidth={1440} spacing={3}>
         <PermissionState message="Esta ficha não está disponível para o seu perfil neste fluxo." />
       </PageWrapper>
     )
@@ -603,16 +613,13 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
       }
 
       if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TRIAGEM_FORM_ID) {
-        persistFlowDraft(currentForm.id, draft)
+        // 1. Persistência Imediata da Triagem
+        newContext = await saveFormStep('ficha_cadastral_familia', draft, formContext)
       } else if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === DEMANDA_FORM_ID) {
-        const triagemDraft = flowDrafts[TRIAGEM_FORM_ID] ?? {}
-        const demandaDraft = buildDemandaInitialDraft(draft, triagemDraft)
-
-        newContext = await saveFormStep('ficha_cadastral_familia', demandaDraft, formContext)
-        newContext = await saveFormStep('ficha_cadastral_complementar', demandaDraft, newContext)
-        await saveFormStep(TERMO_USO_FORM_ID, buildTermDraftFromTriagem(triagemDraft), newContext)
+        // 2. Conclusão da Ficha Cadastral com a Demanda
+        await saveFormStep('ficha_cadastral_complementar', draft, formContext)
       } else {
-        newContext = await saveFormStep(currentForm.id, draft, formContext)
+        await saveFormStep(currentForm.id, draft, formContext)
       }
 
       queryClient.invalidateQueries({ queryKey: ['familias'] })
@@ -637,7 +644,6 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
     if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TERMO_USO_FORM_ID) {
       const currentIndex = flowForms.findIndex((flowForm) => flowForm.id === currentForm.id)
       const previousForm = flowForms[currentIndex - 1]
-      const nextForm = flowForms[currentIndex + 1]
 
       return (
         <TermoUsoStep
@@ -646,7 +652,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
           termDraft={buildTermDraftFromTriagem(flowDrafts[TRIAGEM_FORM_ID] ?? {})}
           onBack={() => navigate('/dashboard/cadastro')}
           onPrevious={() => previousForm && navigateToForm(previousForm.id)}
-          onContinue={() => nextForm && navigateToForm(nextForm.id)}
+          onContinue={handleFormSave}
           onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
           pdfDownloadContext={{ prontuarioId: formContext.prontuarioId }}
           stepperTitle={stepperTitle}
@@ -785,7 +791,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   }
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow={currentSection.title}
         title="Área em preparação"

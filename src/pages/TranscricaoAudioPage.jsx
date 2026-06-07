@@ -275,7 +275,7 @@ function TranscricaoAudioPage({ onBack }) {
   const canSave = Boolean(resultado && familiaSelected && !saved)
 
   return (
-    <PageWrapper maxWidth={900} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Áudio"
         title="Transcrição de Entrevista"

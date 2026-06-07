@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
-import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
+import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded'
 import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
 import {
   ActionButton,
@@ -13,46 +13,17 @@ import {
   FormStepper,
   InlineFeedback,
   PageSection,
-  PageStack,
   PageToolbar,
 } from '../pages/ui'
 import {
-  termDetailItemSx,
-  termDetailLabelSx,
-  termDetailsGridSx,
-  termDetailValueSx,
-  termDocumentTitleSx,
-  termInlineValueSx,
   formCardPlainSx,
   formPageHeaderTopSx,
-  termParagraphSx,
-  termPrintSurfaceSx,
-  termSignatureGridSx,
-  termSignatureLabelSx,
-  termSignatureLineSx,
 } from '../pages/ui/uiStyles'
-
-function valueOrDash(value) {
-  return value || '—'
-}
-
-function TermDetail({ label, value }) {
-  return (
-    <Box sx={termDetailItemSx}>
-      <Typography variant="caption" sx={termDetailLabelSx}>
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={termDetailValueSx}>
-        {valueOrDash(value)}
-      </Typography>
-    </Box>
-  )
-}
 
 function TermoUsoStep({
   form,
   flowForms,
-  termDraft,
+  termDraft: initialTermDraft,
   onBack,
   onPrevious,
   onContinue,
@@ -61,26 +32,33 @@ function TermoUsoStep({
   stepperTitle,
   stepperSubtitle,
 }) {
+  const prontuarioId = pdfDownloadContext?.prontuarioId
   const [downloadingPdf, setDownloadingPdf] = useState(false)
   const [downloadError, setDownloadError] = useState(null)
-  const fields = termDraft?.dados_autorizante ?? {}
-  const canDownloadPdf = Boolean(pdfDownloadContext?.prontuarioId)
+  const [creatingTermo, setCreatingTermo] = useState(false)
+
+  const handleContinueAction = async () => {
+    setCreatingTermo(true)
+    try {
+      await onContinue(initialTermDraft)
+    } finally {
+      setCreatingTermo(false)
+    }
+  }
 
   const handlePdfAction = async () => {
-    if (!canDownloadPdf) {
-      window.print()
-      return
-    }
+    if (!prontuarioId) return
 
     setDownloadingPdf(true)
     setDownloadError(null)
     try {
       await downloadFichaProntuarioPdf({
-        prontuarioId: pdfDownloadContext.prontuarioId,
+        prontuarioId,
         tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
+        print: false,
       })
     } catch (err) {
-      setDownloadError(err?.message || 'Não foi possível baixar o PDF do termo. Tente novamente.')
+      setDownloadError(err?.message || 'Não foi possível baixar o PDF. Tente novamente.')
     } finally {
       setDownloadingPdf(false)
     }
@@ -113,7 +91,7 @@ function TermoUsoStep({
         }
         eyebrow={form.orgao}
         title={form.titulo}
-        description="Revise o termo preenchido com os dados da triagem, imprima o documento e avance para registrar a demanda."
+        description="Gere o documento oficial para assinatura do representante familiar."
         childrenSx={{ mt: 2 }}
       >
         <FormCard
@@ -132,30 +110,15 @@ function TermoUsoStep({
                 </ActionButton>
               }
               actions={
-                <PageToolbar
-                  direction={{ xs: 'column', sm: 'row' }}
-                  alignItems={{ xs: 'stretch', sm: 'center' }}
-                  justifyContent="flex-end"
+                <ButtonLoading
+                  type="button"
+                  variant="contained"
+                  endIcon={<ArrowForwardRoundedIcon />}
+                  loading={creatingTermo}
+                  onClick={handleContinueAction}
                 >
-                  <ButtonLoading
-                    type="button"
-                    variant="outlined"
-                    startIcon={<PrintRoundedIcon />}
-                    loading={downloadingPdf}
-                    loadingLabel="Baixando..."
-                    onClick={handlePdfAction}
-                  >
-                    {canDownloadPdf ? 'Baixar PDF' : 'Imprimir'}
-                  </ButtonLoading>
-                  <ActionButton
-                    type="button"
-                    variant="contained"
-                    endIcon={<ArrowForwardRoundedIcon />}
-                    onClick={onContinue}
-                  >
-                    Continuar
-                  </ActionButton>
-                </PageToolbar>
+                  Continuar
+                </ButtonLoading>
               }
             />
           }
@@ -164,50 +127,48 @@ function TermoUsoStep({
             <InlineFeedback severity="error" message={downloadError} compact />
           )}
 
-          <Box sx={termPrintSurfaceSx}>
-            <Typography variant="h6" sx={termDocumentTitleSx}>
-              {form.titulo}
-            </Typography>
-
-            <Typography variant="body1" sx={termParagraphSx}>
-              Eu, <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.nome_autorizante)}</Box>,
-              portador(a) do RG <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.rg_autorizante)}</Box>
-              {' '}e CPF <Box component="span" sx={termInlineValueSx}>{valueOrDash(fields.cpf_autorizante)}</Box>,
-              autorizo o uso de imagem conforme os termos do acompanhamento realizado pelo serviço.
-            </Typography>
-
-            <PageStack spacing={1}>
-              <Typography variant="subtitle2" color="text.primary">
-                Dados preenchidos
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            py: 8,
+            textAlign: 'center',
+            gap: 3
+          }}>
+            <Box>
+              <Typography variant="h5" fontWeight={800} gutterBottom>
+                Pronto para impressão
               </Typography>
-              <Box sx={termDetailsGridSx}>
-                <TermDetail label="Nome do autorizante" value={fields.nome_autorizante} />
-                <TermDetail label="CPF" value={fields.cpf_autorizante} />
-                <TermDetail label="RG" value={fields.rg_autorizante} />
-                <TermDetail label="Data de assinatura" value={fields.data_assinatura} />
-                <TermDetail label="Crianças autorizadas" value={fields.nomes_criancas} />
-              </Box>
-            </PageStack>
-
-            <Box sx={termSignatureGridSx}>
-              <SignatureLine label="Assinatura do autorizante" />
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 500 }}>
+                O termo de autorização de uso de imagem e áudio utiliza os dados já preenchidos na triagem.
+                Clique no botão abaixo para baixar o arquivo PDF.
+              </Typography>
             </Box>
+
+            <ButtonLoading
+              type="button"
+              variant="outlined"
+              size="large"
+              startIcon={<GetAppRoundedIcon />}
+              loading={downloadingPdf}
+              loadingLabel="Gerando PDF..."
+              onClick={handlePdfAction}
+              disabled={!prontuarioId}
+              sx={{ minWidth: 280, height: 56, borderRadius: 2 }}
+            >
+              Baixar Termo (PDF)
+            </ButtonLoading>
+
+            <InlineFeedback
+              severity="info"
+              message="Você deve imprimir este documento, coletar a assinatura e anexar ao prontuário físico."
+              compact
+            />
           </Box>
         </FormCard>
       </PageSection>
     </FormFlowLayout>
-  )
-}
-
-function SignatureLine({ label }) {
-  return (
-    <Box sx={termSignatureLineSx}>
-      <Box sx={termSignatureLabelSx}>
-        <Typography variant="caption" color="text.secondary" fontWeight={800}>
-          {label}
-        </Typography>
-      </Box>
-    </Box>
   )
 }
 

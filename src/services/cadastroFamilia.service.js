@@ -56,12 +56,23 @@ const FATOR_RISCO_MAP = {
 }
 
 function toEnum(value, map) {
+  if (value && !map[value]) {
+    console.error(`Mapeamento enum não encontrado para o valor: "${value}". Verifique o Swagger.`)
+  }
   return map[value] ?? null
 }
 
 function toEnumArray(arr, map) {
   if (!Array.isArray(arr)) return []
-  return arr.map((v) => map[v]).filter(Boolean)
+  return arr
+    .map((v) => {
+      const mapped = map[v]
+      if (v && !mapped) {
+        console.error(`Mapeamento enum não encontrado para o valor: "${v}". Verifique o Swagger.`)
+      }
+      return mapped
+    })
+    .filter(Boolean)
 }
 
 function todayIsoDate() {
@@ -94,6 +105,14 @@ function createSaveError(message, err) {
   const error = new Error(message)
   error.cause = err
   return error
+}
+
+function toNumeric(value) {
+  if (value === null || value === undefined || value === '') return null
+  if (typeof value === 'number') return value
+  const digits = String(value).replace(/\D/g, '')
+  if (!digits) return null
+  return Number(digits) / 100
 }
 
 // ─── Handlers por formulário ─────────────────────────────────────────────────
@@ -142,7 +161,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       parentescoOuVinculo: 'Representante',
       profissao: representante.profissao || null,
       ocupacao: null,
-      renda: representante.renda ? Number(representante.renda) : null,
+      renda: toNumeric(representante.renda),
       fatoresRiscoSocial: [],
       familiaId: familia.id,
     })
@@ -161,7 +180,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       parentescoOuVinculo: row.parentesco_vinculo || null,
       profissao: row.profissao || null,
       ocupacao: row.ocupacao || null,
-      renda: row.renda ? Number(row.renda) : null,
+      renda: toNumeric(row.renda),
       fatoresRiscoSocial: toEnumArray(row.fatores_risco, FATOR_RISCO_MAP),
       familiaId: familia.id,
     })
@@ -222,7 +241,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
         'Empregado': 'EMPREGADO', 'Desempregado': 'DESEMPREGADO',
         'Aposentado': 'APOSENTADO', 'Pensionista': 'PENSIONISTA',
       }),
-      renda: representante.renda ? Number(representante.renda) : null,
+      renda: toNumeric(representante.renda),
       enderecoId: enderecoObj.id,
       telefoneResidencial: endereco.telefone_residencial || null,
       telefoneCelular: endereco.telefone_celular || null,
@@ -249,9 +268,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       numeroMatricula: representante.numero_matricula || null,
       dataDesligamento: toIsoDate(representante.data_desligamento),
       condicoesMoradia: toEnum(moradia.condicao_moradia, CONDICAO_MORADIA_MAP),
-      valorAluguelOuFinanciamento: moradia.valor_aluguel_financiamento
-        ? Number(moradia.valor_aluguel_financiamento)
-        : null,
+      valorAluguelOuFinanciamento: toNumeric(moradia.valor_aluguel_financiamento),
       tipoConstrucao: toEnum(moradia.tipo_construcao, TIPO_CONSTRUCAO_MAP),
       situacaoHabitacional:
         toEnumArray(moradia.situacao_habitacional, SITUACAO_HABITACIONAL_MAP)[0] ?? null,
@@ -294,19 +311,42 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
 }
 
 async function saveFichaCadastralComplementar(draft, context) {
-  const demanda = draft.demanda_encaminhamentos ?? {}
+  const demandas = Array.isArray(draft.demanda_encaminhamentos) ? draft.demanda_encaminhamentos : []
+  const dados = draft.dados_atendimento ?? {}
   const user = getUser()
 
+  // Concatena as linhas da tabela em uma string formatada
+  const textoFormatado = demandas
+    .filter(row => row.demanda?.trim() || row.orientacoes?.trim() || row.encaminhamentos?.trim())
+    .map((row, idx) => {
+      const partes = []
+      if (row.demanda?.trim()) partes.push(`DEMANDA: ${row.demanda.trim()}`)
+      if (row.orientacoes?.trim()) partes.push(`ORIENTAÇÃO: ${row.orientacoes.trim()}`)
+      if (row.encaminhamentos?.trim()) partes.push(`ENCAMINHAMENTO: ${row.encaminhamentos.trim()}`)
+      return `ITEM ${idx + 1}:\n${partes.join('\n')}`
+    })
+    .join('\n\n')
+
   try {
-    if (demanda.demanda_texto?.trim()) {
+    // 1. Cria registro de prosseguimento (histórico)
+    if (textoFormatado.trim()) {
       await apiClient.post('/registroprosseguimento', {
-        dataRegistro: toIsoDateOrToday(demanda.data_atendimento),
-        demanda: demanda.demanda_texto,
+        dataRegistro: toIsoDateOrToday(dados.data_atendimento),
+        demanda: textoFormatado,
         tecnicoResponsavelId: user?.userId ?? null,
       })
     }
+
+    // 2. Atualiza a Ficha Cadastral com a demanda (conclusão da ficha)
+    if (context.fichaCadastralId && textoFormatado.trim()) {
+      const currentFicha = await apiClient.get(`/fichacadastral/${context.fichaCadastralId}`)
+      await apiClient.put(`/fichacadastral/${context.fichaCadastralId}`, {
+        ...currentFicha,
+        demandaApresentadaOrientacoesEncaminhamentos: textoFormatado,
+      })
+    }
   } catch (err) {
-    console.warn('Não foi possível salvar registroprosseguimento:', err?.message)
+    console.warn('Não foi possível salvar demanda na ficha:', err?.message)
     throw createSaveError('Não foi possível salvar a demanda do prontuário. Tente novamente.', err)
   }
 
@@ -316,9 +356,22 @@ async function saveFichaCadastralComplementar(draft, context) {
 async function saveFichaVisita(draft, context) {
   const identificacao = draft.identificacao_visita ?? {}
   const conteudo = draft.conteudo_visita ?? {}
+  const demandas = Array.isArray(draft.demandas_detalhadas) ? draft.demandas_detalhadas : []
 
   // Data da visita em formato YYYY-MM-DD (usada também para atualizar a família)
   const dataVisitaISO = toIsoDateOrToday(identificacao.data_visita)
+
+  // Concatena as linhas da tabela em uma string formatada
+  const textoFormatado = demandas
+    .filter(row => row.demanda?.trim() || row.orientacoes?.trim() || row.encaminhamentos?.trim())
+    .map((row, idx) => {
+      const partes = []
+      if (row.demanda?.trim()) partes.push(`DEMANDA: ${row.demanda.trim()}`)
+      if (row.orientacoes?.trim()) partes.push(`ORIENTAÇÃO: ${row.orientacoes.trim()}`)
+      if (row.encaminhamentos?.trim()) partes.push(`ENCAMINHAMENTO: ${row.encaminhamentos.trim()}`)
+      return `ITEM ${idx + 1}:\n${partes.join('\n')}`
+    })
+    .join('\n\n')
 
   try {
     await apiClient.post('/fichavisita', {
@@ -328,7 +381,7 @@ async function saveFichaVisita(draft, context) {
       dataVisita: new Date(`${dataVisitaISO}T12:00:00`).toISOString(),
       objetivoDaVisita: conteudo.objetivo_visita || '',
       pessoasFamiliaQueConversaram: conteudo.pessoas_presentes || '',
-      demandasOrientacoesEncaminhamentos: conteudo.demandas_encaminhamentos || '',
+      demandasOrientacoesEncaminhamentos: textoFormatado,
     })
     // O backend não propaga a data da visita para a entidade Familia, então
     // atualizamos `ultimaVisita` aqui para que os cards/listagem reflitam a visita.
@@ -403,8 +456,12 @@ async function saveTermo(draft, context) {
       dataAssinatura: toIsoDateTime(campos.data_assinatura) ?? new Date().toISOString(),
     })
   } catch (err) {
-    console.warn('Não foi possível salvar termo:', err?.message)
-    throw createSaveError('Não foi possível salvar o termo de uso. Tente novamente.', err)
+    if (err.status === 409) {
+      console.info('Termo já existe para este prontuário (409 Conflict). Prosseguindo...')
+    } else {
+      console.warn('Falha ao salvar termo (não fatal):', err?.message)
+    }
+    // Não lançamos erro para não interromper o fluxo do usuário
   }
   return context
 }
@@ -470,9 +527,7 @@ async function savePdu(draft, context) {
   const dadosPdu = draft.identificacao_pdu ?? {}
   const situacaoAp = draft.situacao_apresentada ?? {}
   const agravo = draft.situacoes_agravo ?? {}
-  const situacoesEnum = Array.isArray(agravo.situacoes_agravo)
-    ? agravo.situacoes_agravo.map(s => AGRAVO_ENUM_MAP[s]).filter(Boolean)
-    : []
+  const situacoesEnum = toEnumArray(agravo.situacoes_agravo, AGRAVO_ENUM_MAP)
   try {
     const pdu = await apiClient.post('/pdu', {
       familiaId: context.familiaId,

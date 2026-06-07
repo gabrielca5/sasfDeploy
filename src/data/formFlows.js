@@ -25,11 +25,13 @@ const TRIAGEM_SECTION_REFS = [
   ['ficha_cadastral_familia', 'moradia'],
   ['ficha_cadastral_familia', 'beneficios'],
   ['ficha_cadastral_familia', 'composicao_familiar'],
-  ['ficha_cadastral_complementar', 'informacoes_complementares', { titulo: 'Composição familiar (crianças e adolescentes)' }],
+  ['ficha_cadastral_complementar', 'informacoes_complementares', { titulo: 'Composição Familiar (crianças e adolescentes)' }],
 ]
 
 const DEMANDA_SECTION_REFS = [
-  ['ficha_cadastral_complementar', 'demanda_encaminhamentos'],
+  ['ficha_cadastral_complementar', 'demanda_encaminhamentos', { 
+    descricao: 'Lembre-se de gravar o atendimento via áudio no WhatsApp para usar a transcrição de áudio para completar a ficha depois.' 
+  }],
 ]
 
 // TODO: confirmar com o backend/produto se ADMIN deve contar como perfil de gestão.

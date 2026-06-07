@@ -67,13 +67,14 @@ import {
   formReadOnlyValueSx,
 } from '../pages/ui/uiStyles'
 import { isValidCpf } from '../utils/formatters'
+import apiClient from '../lib/apiClient'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
     return field.valor_padrao
   }
 
-  if (field.id === 'data_assinatura' && field.tipo === 'date') {
+  if ((field.id === 'data_assinatura' || field.id === 'data_matricula') && field.tipo === 'date') {
     const now = new Date()
     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
     const [year, month, day] = localDate.toISOString().slice(0, 10).split('-')
@@ -88,8 +89,14 @@ function getInitialFieldValue(field) {
 }
 
 function mergeDraftValue(baseValue, initialValue) {
-  if (initialValue === undefined) {
+  if (initialValue === undefined || initialValue === null) {
     return baseValue
+  }
+
+  // Se baseValue é um array, o initialValue DEVE ser um array.
+  // Caso contrário, ignoramos o rascunho antigo incompatível.
+  if (Array.isArray(baseValue)) {
+    return Array.isArray(initialValue) ? initialValue : baseValue
   }
 
   if (
@@ -97,7 +104,6 @@ function mergeDraftValue(baseValue, initialValue) {
     initialValue &&
     typeof baseValue === 'object' &&
     typeof initialValue === 'object' &&
-    !Array.isArray(baseValue) &&
     !Array.isArray(initialValue)
   ) {
     return Object.keys({ ...baseValue, ...initialValue }).reduce((accumulator, key) => {
@@ -207,6 +213,18 @@ function formatPhone(value) {
   return `(${part1}) ${part2}-${part3}`
 }
 
+function formatCurrency(value) {
+  const digits = onlyDigits(value)
+  if (!digits) return ''
+
+  const amount = (parseInt(digits, 10) / 100).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  return `R$ ${amount}`
+}
+
 function isCpfField(field) {
   return field?.id?.toLowerCase().includes('cpf')
 }
@@ -215,7 +233,7 @@ function formatFieldValue(field, value) {
   if (field?.tipo === 'date') {
     return formatDateInput(value)
   }
-  if (field?.id?.includes('cpf')) {
+  if (field?.id?.includes('cpf') || field?.mascara === '000.000.000-00') {
     return formatCpf(value)
   }
   if (field?.id === 'rg' || field?.id?.includes('rg_') || field?.mascara === '00.000.000-0') {
@@ -224,8 +242,11 @@ function formatFieldValue(field, value) {
   if (field?.id === 'cep' || field?.mascara === '00000-000') {
     return formatCep(value)
   }
-  if (field?.tipo === 'tel' || field?.id?.includes('telefone')) {
+  if (field?.tipo === 'tel' || field?.id?.includes('telefone') || field?.mascara?.includes('(00)')) {
     return formatPhone(value)
+  }
+  if (field?.mascara === 'R$ 0,00') {
+    return formatCurrency(value)
   }
   return value
 }
@@ -302,7 +323,11 @@ function collectRequiredFieldError(errors, key, field, value) {
 }
 
 function isVisibleField(field) {
-  return field?.tipo !== 'assinatura'
+  return (
+    field?.tipo !== 'assinatura' &&
+    !(field?.id === 'numero' && field?.tipo === 'static') &&
+    field?.id !== 'numero_matricula'
+  )
 }
 
 function validateFormDraft(form, draft) {
@@ -415,8 +440,13 @@ function getRepeatableAddLabel(section) {
 }
 
 function ReadOnlyFieldsSection({ section, values = {} }) {
+  const description = section.description || section.descricao
+
   return (
     <FormSection title={section.titulo}>
+      {description && (
+        <InlineFeedback severity="info" message={description} compact />
+      )}
       <Box sx={formReadOnlyGridSx}>
         {(section.campos ?? []).map((field) => (
           <Box key={field.id} sx={formReadOnlyItemSx}>
@@ -680,7 +710,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
     )
   }
 
-  if (field.tipo === 'number') {
+  if (field.tipo === 'number' && !field.mascara) {
     return (
       <TextField
         label={fieldLabel}
@@ -702,7 +732,7 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
   return (
     <TextField
       label={fieldLabel}
-      value={value}
+      value={formatFieldValue(field, value)}
       onChange={(event) => {
         const nextValue = formatFieldValue(field, event.target.value)
         onChange(nextValue)
@@ -726,8 +756,9 @@ function FieldInput({ field, value, onChange, rowNumber, helperText: helperTextO
 }
 
 function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, validationErrors = {}, rhfSetValue = null, control = null }) {
-  const columns = section.colunas ?? section.campos_por_item ?? []
+  const columns = (section.colunas ?? section.campos_por_item ?? []).filter(isVisibleField)
   const rowLimit = section.max_linhas ?? section.max_itens ?? 1
+  const description = section.description || section.descricao
 
   // useFieldArray for RHF sync
   const { fields, append, remove, update, replace } = useFieldArray({ control, name: section.id })
@@ -760,9 +791,10 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, 
   }
 
   return (
-    <FormSection
-      title={section.titulo}
-    >
+    <FormSection title={section.titulo}>
+      {description && (
+        <InlineFeedback severity="info" message={description} compact />
+      )}
       <Stack spacing={1}>
         {fields.map((fieldObj, rowIndex) => (
           <RepeatableFormItem
@@ -845,7 +877,12 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
   }
 
   return (
-    <FormSection title={section.titulo} description={`Registre os itens na ordem de prioridade. Limite de linhas: ${rowLimit}.`}>
+    <FormSection title={section.titulo}>
+      <InlineFeedback
+        severity="info"
+        message={`Registre os itens na ordem de prioridade. Limite de linhas: ${rowLimit}.`}
+        compact
+      />
       <Stack spacing={1}>
         {fields.map((fieldObj, rowIndex) => (
           <RepeatableFormItem
@@ -883,10 +920,15 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
 }
 
 function QuantitySection({ section, values, onChange, validationErrors = {}, rhfSetValue = null }) {
-  const columns = section.colunas ?? []
+  const columns = (section.colunas ?? []).filter(isVisibleField)
 
   return (
-    <FormSection title={section.titulo} description="Preencha as quantidades para cada indicador do quadro situacional.">
+    <FormSection title={section.titulo}>
+      <InlineFeedback
+        severity="info"
+        message="Preencha as quantidades para cada indicador do quadro situacional."
+        compact
+      />
       <FormGrid>
         {columns.map((field) => {
           const errorKey = getFieldErrorKey(section.id, field.id)
@@ -940,6 +982,46 @@ export function FormRenderer({
   const previousFlowForm = currentFlowIndex > 0 ? flowSteps[currentFlowIndex - 1] : undefined
   const nextFlowForm = currentFlowIndex >= 0 && currentFlowIndex < flowSteps.length - 1 ? flowSteps[currentFlowIndex + 1] : undefined
   const nextFlowLabel = isNextSheet(form, nextFlowForm) ? 'Próxima folha' : 'Próxima etapa'
+
+  useEffect(() => {
+    let active = true
+    apiClient
+      .get('/dados')
+      .then((res) => {
+        const serviceData = res?.content?.[0]
+        if (active && serviceData) {
+          setDraft((current) => {
+            const next = { ...current }
+
+            if (next.identificacao_servico) {
+              next.identificacao_servico = {
+                ...next.identificacao_servico,
+                nome_servico_sasf: serviceData.nomeServicoSasf,
+                cas: serviceData.cas,
+                cras: serviceData.cras,
+                numero_matricula: serviceData.numeroMatricula,
+              }
+            }
+
+            Object.keys(next).forEach((sectionId) => {
+              const section = next[sectionId]
+              if (section && typeof section === 'object' && !Array.isArray(section)) {
+                if ('numero_matricula' in section) {
+                  section.numero_matricula = serviceData.numeroMatricula
+                }
+              }
+            })
+
+            return next
+          })
+        }
+      })
+      .catch((err) => console.warn('Falha ao carregar dados do serviço:', err))
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const actionConfig = {
     save: {
@@ -1177,11 +1259,16 @@ export function FormRenderer({
     }
 
     if (Array.isArray(section.campos)) {
+      const description = section.description || section.descricao
+
       return (
         <FormSection
           key={section.id}
           title={section.titulo}
         >
+          {description && (
+            <InlineFeedback severity="info" message={description} compact />
+          )}
           <FormGrid>
             {section.campos.filter(isVisibleField).map((field) => {
               const errorKey = getFieldErrorKey(section.id, field.id)

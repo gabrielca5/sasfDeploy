@@ -187,7 +187,7 @@ function ProfilePage() {
 
   if (isLoading) {
     return (
-      <PageWrapper maxWidth={1200} spacing={3}>
+      <PageWrapper maxWidth={1440} spacing={3}>
         <LoadingState message="Carregando perfil..." skeleton variant="form" rows={4} />
       </PageWrapper>
     )
@@ -195,7 +195,7 @@ function ProfilePage() {
 
   if (isError && !profile) {
     return (
-      <PageWrapper maxWidth={1200} spacing={3}>
+      <PageWrapper maxWidth={1440} spacing={3}>
         <ErrorState
           title="Não foi possível carregar o perfil"
           message="Verifique sua conexão e tente novamente."
@@ -247,7 +247,7 @@ function ProfilePage() {
   ]
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Meu perfil"
         contentSx={{ display: { xs: 'none', sm: 'grid' } }}

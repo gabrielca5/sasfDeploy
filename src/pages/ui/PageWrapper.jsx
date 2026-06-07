@@ -5,7 +5,7 @@ import { Box, Stack } from '@mui/material'
  * Constrains page content to a max-width and centers it horizontally.
  * Mirrors the wrapper used in FamiliasPage.jsx.
  */
-function PageWrapper({ children, maxWidth=1200, spacing=3, centered = false, contentSx = {}, sx = {}, ...props }) {
+function PageWrapper({ children, maxWidth=1440, spacing=3, centered = false, contentSx = {}, sx = {}, ...props }) {
   return (
     <Box
       sx={{

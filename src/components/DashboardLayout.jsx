@@ -8,7 +8,6 @@ import {
   List, ListItemButton, ListItemIcon, ListItemText,
   Stack, Toolbar, Tooltip, Typography, useTheme,
 } from '@mui/material'
-import { alpha } from '@mui/material/styles'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'

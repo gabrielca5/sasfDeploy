@@ -69,7 +69,7 @@ function PageSection({
             ) : null}
 
             {description ? (
-              <Typography color="text.secondary" sx={{ maxWidth: 820, ...textSx }}>
+              <Typography color="text.secondary" sx={{ maxWidth: 1440, ...textSx }}>
                 {description}
               </Typography>
             ) : null}
@@ -107,7 +107,7 @@ function PageSection({
             ) : null}
 
             {description ? (
-              <Typography color="text.secondary" sx={{ maxWidth: 820, ...textSx }}>
+              <Typography color="text.secondary" sx={{ maxWidth: 1440, ...textSx }}>
                 {description}
               </Typography>
             ) : null}

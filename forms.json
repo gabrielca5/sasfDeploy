@@ -13,7 +13,9 @@
             { "id": "nome_servico_sasf", "label": "Nome do Serviço SASF", "tipo": "text" },
             { "id": "cas", "label": "CAS", "tipo": "text" },
             { "id": "cras", "label": "CRAS", "tipo": "text" },
-            { "id": "fl", "label": "FL.", "tipo": "text", "valor_padrao": "1/2" }
+            { "id": "numero_matricula", "label": "Nº de Matrícula", "tipo": "text" },
+            { "id": "data_matricula", "label": "Data de Matrícula", "tipo": "date" },
+            { "id": "data_desligamento", "label": "Data de Desligamento", "tipo": "date" }
           ]
         },
         {
@@ -25,9 +27,6 @@
               "id": "sexo", "label": "Sexo", "tipo": "radio",
               "opcoes": ["F", "M"]
             },
-            { "id": "data_matricula", "label": "Data de Matrícula", "tipo": "date" },
-            { "id": "numero_matricula", "label": "Nº de Matrícula", "tipo": "text" },
-            { "id": "data_desligamento", "label": "Data de Desligamento", "tipo": "date" },
             { "id": "nis_nit_nb", "label": "Nº NIS/NIT/NB", "tipo": "text" },
             { "id": "data_nascimento", "label": "Data de Nascimento", "tipo": "date" },
             { "id": "naturalidade", "label": "Naturalidade (Município/Estado)", "tipo": "text" },
@@ -40,7 +39,8 @@
               "opcoes": ["Sim", "Não"]
             },
             { "id": "cpf", "label": "CPF", "tipo": "text", "mascara": "000.000.000-00" },
-            { "id": "rg", "label": "RG", "tipo": "text" },
+            { "id": "rg", "label": "RG", "tipo": "text","mascara": "00.000.000-0" },
+            { "id": "data_emissao_rg", "label": "Data de Emissão", "tipo": "date" },
             { "id": "orgao_emissor", "label": "Órgão Emissor", "tipo": "text" },
             { "id": "uf", "label": "UF", "tipo": "text", "max_length": 2 },
             { "id": "ctps_numero", "label": "CTPS Nº", "tipo": "text" },
@@ -53,7 +53,7 @@
               "opcoes": ["Solteiro", "Casado", "Separado", "Divorciado", "Viúvo"]
             },
             {
-              "id": "grau_instrucao", "label": "Grau de Instrução", "tipo": "radio",
+              "id": "grau_instrucao", "label": "Grau de Instrução", "tipo": "select",
               "opcoes": [
                 "Analfabeto",
                 "Ensino Fundamental Completo",
@@ -67,10 +67,10 @@
             { "id": "profissao", "label": "Profissão", "tipo": "text" },
             { "id": "ocupacao_descricao", "label": "Ocupação", "tipo": "text" },
             {
-              "id": "ocupacao_situacao", "label": "Situação Ocupacional", "tipo": "radio",
+              "id": "ocupacao_situacao", "label": "Situação Ocupacional", "tipo": "select",
               "opcoes": ["Empregado", "Desempregado", "Aposentado", "Pensionista"]
             },
-            { "id": "renda", "label": "Renda (R$)", "tipo": "number", "min": 0 }
+            { "id": "renda", "label": "Renda (R$)", "tipo": "number", "min": 0, "mascara": "R$ 0,00" }
           ]
         },
         {
@@ -84,10 +84,10 @@
             { "id": "cidade", "label": "Cidade", "tipo": "text" },
             { "id": "bairro", "label": "Bairro", "tipo": "text" },
             { "id": "distrito", "label": "Distrito", "tipo": "text" },
-            { "id": "telefone_residencial", "label": "Telefone Residencial", "tipo": "tel" },
-            { "id": "telefone_celular", "label": "Telefone Celular", "tipo": "tel" },
-            { "id": "telefone_outro", "label": "Outro Telefone", "tipo": "tel" },
-            { "id": "ponto_referencia", "label": "Ponto de Referência", "tipo": "text" }
+            { "id": "ponto_referencia", "label": "Ponto de Referência", "tipo": "text" },
+            { "id": "telefone_residencial", "label": "Telefone Residencial", "tipo": "tel", "mascara": "(00) 0000-0000" },
+            { "id": "telefone_celular", "label": "Telefone Celular", "tipo": "tel", "mascara": "(00) 00000-0000" },
+            { "id": "telefone_outro", "label": "Outro Telefone", "tipo": "tel", "mascara": "(00) 00000-0000" }
           ]
         },
         {
@@ -99,7 +99,7 @@
               "opcoes": ["Própria", "Alugada", "Cedida"]
             },
             { "id": "numero_comodos", "label": "Nº de Cômodos", "tipo": "number", "min": 1 },
-            { "id": "valor_aluguel_financiamento", "label": "Valor do Aluguel ou Financiamento (R$)", "tipo": "number", "min": 0 },
+            { "id": "valor_aluguel_financiamento", "label": "Valor do Aluguel ou Financiamento (R$)", "tipo": "number", "min": 0, "mascara": "R$ 0,00" },
             {
               "id": "tipo_construcao", "label": "Tipo de Construção", "tipo": "radio",
               "opcoes": ["Alvenaria", "Madeira", "Mista"]
@@ -141,12 +141,11 @@
             { "id": "parentesco_vinculo", "label": "Parentesco / Vínculo", "tipo": "text" },
             { "id": "profissao", "label": "Profissão", "tipo": "text" },
             { "id": "ocupacao", "label": "Ocupação", "tipo": "text" },
-            { "id": "renda", "label": "Renda (R$)", "tipo": "number" },
+            { "id": "renda", "label": "Renda (R$)", "tipo": "number", "mascara": "R$ 0,00" },
             {
               "id": "fatores_risco",
               "label": "Fator(es) de Risco Social",
               "tipo": "multiselect",
-              "nota": "(b) 1-Alcoolismo; 2-Def. auditiva; 3-Def. física; 4-Def. mental; 5-Def. visual; 6-Desemprego; 7-Drogadição; 8-HIV+; 9-Prob. psiquiátricos; 10-Situação de rua; 11-Trabalho infantil; 12-Violência doméstica; 13-Medida Socioeducativa; 14-Privação de liberdade; 15-Acolhimento Institucional; 16-Outro",
               "opcoes": [
                 "1 - Alcoolismo",
                 "2 - Deficiência auditiva",
@@ -195,9 +194,20 @@
         },
         {
           "id": "demanda_encaminhamentos",
-          "titulo": "Demanda Apresentada / Orientações / Encaminhamentos",
+          "titulo": "Demandas, Orientações e Encaminhamentos",
+          "tipo": "tabela",
+          "max_linhas": 10,
+          "colunas": [
+            { "id": "numero", "label": "Nº", "tipo": "static" },
+            { "id": "demanda", "label": "Demanda Apresentada", "tipo": "textarea", "linhas": 3 },
+            { "id": "orientacoes", "label": "Orientações Realizadas", "tipo": "textarea", "linhas": 3 },
+            { "id": "encaminhamentos", "label": "Encaminhamentos Efetuados", "tipo": "textarea", "linhas": 3 }
+          ]
+        },
+        {
+          "id": "dados_atendimento",
+          "titulo": "Dados do Atendimento",
           "campos": [
-            { "id": "demanda_texto", "label": "Demanda / Orientações / Encaminhamentos", "tipo": "textarea", "linhas": 20 },
             { "id": "tecnico_referencia", "label": "Técnico de Referência do Atendimento", "tipo": "text" },
             { "id": "data_atendimento", "label": "Data", "tipo": "date" }
           ]
@@ -468,8 +478,19 @@
           "titulo": "Conteúdo da Visita",
           "campos": [
             { "id": "objetivo_visita", "label": "Objetivo da Visita", "tipo": "textarea", "linhas": 4 },
-            { "id": "pessoas_presentes", "label": "Pessoa(s) da Família que Conversou(aram) com o Técnico", "tipo": "textarea", "linhas": 3 },
-            { "id": "demandas_encaminhamentos", "label": "Demandas Apresentadas / Orientações / Encaminhamentos", "tipo": "textarea", "linhas": 30 }
+            { "id": "pessoas_presentes", "label": "Pessoa(s) da Família que Conversou(aram) com o Técnico", "tipo": "textarea", "linhas": 3 }
+          ]
+        },
+        {
+          "id": "demandas_detalhadas",
+          "titulo": "Demandas, Orientações e Encaminhamentos",
+          "tipo": "tabela",
+          "max_linhas": 20,
+          "colunas": [
+            { "id": "numero", "label": "Nº", "tipo": "static" },
+            { "id": "demanda", "label": "Demanda Apresentada", "tipo": "textarea", "linhas": 3 },
+            { "id": "orientacoes", "label": "Orientações Realizadas", "tipo": "textarea", "linhas": 3 },
+            { "id": "encaminhamentos", "label": "Encaminhamentos Efetuados", "tipo": "textarea", "linhas": 3 }
           ]
         }
       ]

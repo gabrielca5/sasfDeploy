@@ -11,7 +11,7 @@ import ProntuarioFlowIntroContent from './ProntuarioFlowIntroContent'
 
 function ProntuarioFlowIntroPage({ config, onBack, onStart }) {
   return (
-    <PageWrapper maxWidth={880} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Fluxo"
         title={config.title}

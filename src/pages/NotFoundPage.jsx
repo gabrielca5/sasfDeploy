@@ -7,7 +7,7 @@ function NotFoundPage() {
   const navigate = useNavigate()
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageState
         type="notFound"
         title="Página não encontrada"

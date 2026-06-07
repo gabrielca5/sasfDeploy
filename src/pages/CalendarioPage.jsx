@@ -373,7 +373,7 @@ function CalendarioPage() {
   const userName = profile?.name ?? user?.email ?? '—'
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Minha Agenda"
         title="Calendário de atendimentos"

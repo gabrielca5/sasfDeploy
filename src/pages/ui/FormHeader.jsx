@@ -21,7 +21,7 @@ function FormHeader({ eyebrow = 'Formulário', title, subtitle, meta, backLabel,
             {title}
           </Typography>
           {subtitle ? (
-            <Typography color="text.secondary" sx={{ maxWidth: 820, ...textSx }}>
+            <Typography color="text.secondary" sx={{ maxWidth: 1440, ...textSx }}>
               {subtitle}
             </Typography>
           ) : null}

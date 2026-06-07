@@ -17,7 +17,6 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
-import PrintRoundedIcon from '@mui/icons-material/PrintRounded'
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded'
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
@@ -688,8 +687,6 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
   const orientadorRepresentante = getOrientadorInfo(family)
   const prioPropsDetail = priorityChipProps[family.prioridade] ?? {}
   const prontuarioDetalhe = detalhe?.prontuario
-  const hasFichaCadastral = Boolean(prontuarioDetalhe?.fichaCadastralDaFamiliaId)
-  const hasTermoImagem = Boolean(detalhe?.termos?.some((termo) => termo.prontuarioId === prontuarioDetalhe?.id))
 
   // Família antiga/incompleta: tem prontuário, mas o lazy load não encontrou
   // representante nem ficha cadastral vinculados. Oferece completar o cadastro.
@@ -712,6 +709,14 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
     } finally {
       setDownloadingFichaKey(null)
     }
+  }
+
+  const handleWhatsApp = (telefone) => {
+    if (!telefone || telefone === '—') return
+    const cleanPhone = telefone.replace(/\D/g, '')
+    if (!cleanPhone) return
+    const formattedPhone = cleanPhone.length >= 12 && cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`
+    window.open(`https://wa.me/${formattedPhone}`, '_blank')
   }
 
   return (
@@ -759,34 +764,18 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         <ActionButton startIcon={<AddRoundedIcon />} onClick={() => onNovaAtualizacao?.(family)}>
           Nova ficha de atualização
         </ActionButton>
-        <ButtonLoading
-          startIcon={<PictureAsPdfRoundedIcon />}
-          loading={downloadingFichaKey === `${FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA}:unique`}
-          loadingLabel="Baixando..."
-          disabled={loadingDetalhe || !family.prontuarioId || !hasFichaCadastral}
-          onClick={() => handleDownloadFichaPdf({
-            tipoFicha: FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA,
-            downloadKey: `${FICHA_PDF_TYPES.FICHA_CADASTRAL_FAMILIA}:unique`,
-          })}
+        <ActionButton
+          startIcon={<PhoneRoundedIcon />}
+          onClick={() => handleWhatsApp(family.orientador?.telefone)}
+          disabled={!family.orientador?.telefone || family.orientador?.telefone === '—'}
         >
-          Ficha cadastral PDF
-        </ButtonLoading>
-        <ButtonLoading
-          startIcon={<PrintRoundedIcon />}
-          loading={downloadingFichaKey === `${FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM}:unique`}
-          loadingLabel="Baixando..."
-          disabled={loadingDetalhe || !family.prontuarioId || !hasTermoImagem}
-          onClick={() => handleDownloadFichaPdf({
-            tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
-            downloadKey: `${FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM}:unique`,
-          })}
-        >
-          Termo em PDF
-        </ButtonLoading>
-        <ActionButton startIcon={<PhoneRoundedIcon />} onClick={() => {}}>
           Contatar orientador
         </ActionButton>
-        <ActionButton startIcon={<OpenInNewRoundedIcon />} onClick={() => {}}>
+        <ActionButton
+          startIcon={<OpenInNewRoundedIcon />}
+          onClick={() => handleWhatsApp(family.telefone_celular)}
+          disabled={!family.telefone_celular || family.telefone_celular === '—'}
+        >
           Contatar representante
         </ActionButton>
       </ActionCard>
@@ -811,7 +800,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
       <RichDataSection detalhe={detalhe} loadingDetalhe={loadingDetalhe} />
 
       {family.composicao_familiar?.length > 0 && (
-        <SectionBlock title="Composição familiar" variant="plain">
+        <SectionBlock title="Composição Familiar" variant="plain">
           <PageList variant="embedded">
             {family.composicao_familiar.map((member) => {
               const orientadorMembro = getOrientadorLabel(`${family.id}-${member.nome}`)
@@ -969,7 +958,7 @@ function FamiliesPage() {
   }
 
   return (
-    <PageWrapper maxWidth={1200} spacing={3}>
+    <PageWrapper maxWidth={1440} spacing={3}>
       <PageSection
         eyebrow="Consultar Famílias"
         title="Acompanhamento de famílias"
