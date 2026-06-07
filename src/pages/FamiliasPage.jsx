@@ -550,7 +550,7 @@ function FamilyListItem({ family, selected, onSelect }) {
 }
 
 function RichDataSection({ detalhe, loadingDetalhe }) {
-  if (loadingDetalhe) return null
+  if (loadingDetalhe) return <LoadingState skeleton variant="list" rows={4} message="Carregando detalhes da família..." />
   if (!detalhe) return null
 
   const { representante: rep, endereco: end, fichaCadastral: fc, planoFamiliar: pdf, folhaProsseguimento: folha, pdu, termos } = detalhe
