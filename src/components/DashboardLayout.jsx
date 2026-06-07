@@ -65,7 +65,7 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
       {/* Brand */}
       <Box sx={{ px: 2.5, pt: 2.5, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Stack direction="row" spacing={1.5}>
-          <Box component="img" src={logoPng} alt="SASF" sx={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0, filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+          <Box component="img" src={logoPng} alt="SASF" sx={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0 }} />
           <Box>
             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: SIDEBAR_TEXT, lineHeight: 1 }}>
               SASF · Painel

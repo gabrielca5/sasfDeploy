@@ -361,7 +361,7 @@ async function atualizaUltimaVisita(familiaId, dataVisitaISO) {
 async function atualizaProntuario(context, field, newId) {
   if (!context.prontuarioId || !newId) return
   try {
-    const atual = await apiClient.get(`/prontuario/${context.prontuarioId}`).catch(() => ({}))
+    const atual = await apiClient.get(`/prontuario/${context.prontuarioId}`)
     const merge = (existing = [], id) =>
       Array.isArray(existing) && !existing.includes(id) ? [...existing, id] : existing
 

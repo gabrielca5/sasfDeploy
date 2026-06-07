@@ -11,6 +11,7 @@ async function fetchDetalhe(prontuarioId) {
     planoFamiliar,
     folhaProsseguimento,
     pdu,
+    todosTermos,
   ] = await Promise.all([
     prontuario?.fichaCadastralDaFamiliaId
       ? get(`/fichacadastral/${prontuario.fichaCadastralDaFamiliaId}`).catch(() => null)
@@ -24,6 +25,7 @@ async function fetchDetalhe(prontuarioId) {
     prontuario?.planosDesenvolvimentoUsuarioIds?.[0]
       ? get(`/pdu/${prontuario.planosDesenvolvimentoUsuarioIds[0]}`).catch(() => null)
       : null,
+    get('/termo?size=2000').catch(() => []),
   ])
 
   const representante = fichaCadastral?.representanteId
@@ -34,8 +36,6 @@ async function fetchDetalhe(prontuarioId) {
     ? await get(`/endereco/${representante.enderecoId}`).catch(() => null)
     : null
 
-  const todosTermos = await get('/termo?size=2000').catch(() => [])
-  // O backend devolve coleções paginadas (Spring Page: { content: [...] }).
   const termosArray = Array.isArray(todosTermos)
     ? todosTermos
     : Array.isArray(todosTermos?.content)

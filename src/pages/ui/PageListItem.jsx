@@ -58,7 +58,7 @@ function PageListItem({
       onClick={onClick}
       onKeyDown={handleKeyDown}
       sx={{
-        p: compact ? 1.25 : 1.5,
+        p: compact ? 1.25 : 2,
         borderRadius: compact ? 1.5 : 2,
         borderColor,
         backgroundColor,

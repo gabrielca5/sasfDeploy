@@ -971,7 +971,6 @@ export const formCardSx = {
   borderRadius: 2,
   borderColor: 'rgba(17, 24, 39, 0.08)',
   backgroundColor: '#ffffff',
-  boxShadow: '0 10px 28px rgba(17, 24, 39, 0.06)',
   overflow: 'visible',
   minWidth: 0,
 }
@@ -1283,10 +1282,8 @@ export const formActionsFooterSx = {
   bottom: 0,
   zIndex: 2,
   p: { xs: 1, sm: 1.15 },
-  borderTop: '1px solid',
-  borderColor: 'rgba(17, 24, 39, 0.08)',
-  backgroundColor: 'rgba(255, 255, 255, 0.96)',
-  backdropFilter: 'blur(10px)',
+  borderTop: '1px solid rgba(0,0,0,0.10)',
+  backgroundColor: 'rgba(255,255,255,0.98)',
   minWidth: 0,
 }
 
@@ -1494,7 +1491,7 @@ export const authShellSx = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: { xs: 'center', md: 'flex-start' },
-  background: 'linear-gradient(135deg, #0f1729 0%, #1a2744 40%, #1e3a5f 70%, #1565c0 100%)',
+  backgroundColor: '#0f1729',
   px: { xs: 2, sm: 3 },
 }
 
@@ -1508,18 +1505,7 @@ export const authContentSx = {
 }
 
 export const authIllustrationSx = {
-  position: 'fixed',
-  right: { xs: '-20%', sm: '-10%', md: '-4%', lg: '0%' },
-  bottom: { xs: '-8%', sm: '-12%', md: '-14%' },
-  width: { xs: '90vw', sm: '60vw', md: '48vw', lg: '44vw' },
-  maxWidth: 860,
-  height: 'auto',
-  opacity: { xs: 0.12, sm: 0.2, md: 0.32, lg: 0.42 },
-  filter: 'saturate(0.6) contrast(1.1) brightness(1.4)',
-  pointerEvents: 'none',
-  userSelect: 'none',
-  zIndex: 0,
-  display: 'block',
+  display: 'none',
 }
 
 export const authCardSx = {

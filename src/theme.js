@@ -5,14 +5,41 @@ const theme = createTheme({
     mode: 'light',
     primary: { main: '#1e88e5', dark: '#1565c0', light: '#64b5f6', 50: '#e3f2fd', 100: '#bbdefb' },
     secondary: { main: '#f6c343', dark: '#b38b00' },
-    background: { default: '#f3f6fa', paper: '#ffffff' },
+    background: { default: '#f5f6f8', paper: '#ffffff' },
     text: { primary: '#111827', secondary: '#6b7280' },
-    divider: '#e5e7eb',
+    divider: 'rgba(0,0,0,0.07)',
     error: { main: '#dc2626', light: '#fee2e2' },
     success: { main: '#16a34a', light: '#dcfce7' },
     warning: { main: '#d97706', light: '#fef3c7' },
   },
   shape: { borderRadius: 8 },
+  shadows: [
+    'none',
+    '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+    '0 2px 6px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)',
+    '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05)',
+    '0 6px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05)',
+    '0 8px 20px rgba(0,0,0,0.08), 0 3px 8px rgba(0,0,0,0.05)',
+    '0 10px 24px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.05)',
+    '0 12px 28px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)',
+    '0 14px 32px rgba(0,0,0,0.08), 0 5px 14px rgba(0,0,0,0.05)',
+    '0 16px 36px rgba(0,0,0,0.08), 0 5px 16px rgba(0,0,0,0.05)',
+    '0 18px 40px rgba(0,0,0,0.08), 0 6px 18px rgba(0,0,0,0.05)',
+    '0 20px 44px rgba(0,0,0,0.08), 0 6px 20px rgba(0,0,0,0.05)',
+    '0 22px 48px rgba(0,0,0,0.08), 0 7px 22px rgba(0,0,0,0.05)',
+    '0 24px 52px rgba(0,0,0,0.08), 0 7px 24px rgba(0,0,0,0.05)',
+    '0 26px 56px rgba(0,0,0,0.08), 0 8px 26px rgba(0,0,0,0.05)',
+    '0 28px 60px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.05)',
+    '0 30px 64px rgba(0,0,0,0.08), 0 9px 30px rgba(0,0,0,0.05)',
+    '0 32px 68px rgba(0,0,0,0.08), 0 9px 32px rgba(0,0,0,0.05)',
+    '0 34px 72px rgba(0,0,0,0.08), 0 10px 34px rgba(0,0,0,0.05)',
+    '0 36px 76px rgba(0,0,0,0.08), 0 10px 36px rgba(0,0,0,0.05)',
+    '0 38px 80px rgba(0,0,0,0.08), 0 11px 38px rgba(0,0,0,0.05)',
+    '0 40px 84px rgba(0,0,0,0.08), 0 11px 40px rgba(0,0,0,0.05)',
+    '0 42px 88px rgba(0,0,0,0.08), 0 12px 42px rgba(0,0,0,0.05)',
+    '0 44px 92px rgba(0,0,0,0.08), 0 12px 44px rgba(0,0,0,0.05)',
+    '0 46px 96px rgba(0,0,0,0.08), 0 13px 46px rgba(0,0,0,0.05)',
+  ],
   // ✅ Removed spacing: 4 — MUI default (8px/unit) is correct
   typography: {
     fontFamily: ['Inter', 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(','),
@@ -33,7 +60,7 @@ const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: { margin: 0, minHeight: '100vh', backgroundColor: '#f3f6fa', color: '#111827' },
+        body: { margin: 0, minHeight: '100vh', backgroundColor: '#f5f6f8', color: '#111827' },
         '#root': { minHeight: '100vh' },
       },
     },
@@ -101,18 +128,15 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontWeight: 600,
+          fontWeight: 700,
           fontSize: '0.875rem',
           borderRadius: '8px',
-          // ✅ Correct proportions — was '5px 12px' which was too short
           padding: '8px 16px',
           transition: 'all 180ms ease',
-          '&:hover': { transform: 'translateY(-1px)' },
-          '&:active': { transform: 'translateY(0)' },
         },
         contained: {
-          boxShadow: '0 1px 4px rgba(30,136,229,0.2)',
-          '&:hover': { boxShadow: '0 4px 12px rgba(30,136,229,0.28)' },
+          boxShadow: 'none',
+          '&:hover': { boxShadow: 'none', filter: 'brightness(1.06)' },
         },
         outlined: {
           borderColor: '#d1d5db',
@@ -120,7 +144,6 @@ const theme = createTheme({
           backgroundColor: '#ffffff',
           '&:hover': { backgroundColor: '#f9fafb', borderColor: '#9ca3af' },
         },
-        // ✅ sizeLarge/sizeSmall padding in correct proportion
         sizeLarge: { padding: '11px 24px', fontSize: '0.9375rem' },
         sizeSmall: { padding: '5px 12px', fontSize: '0.8125rem' },
       },

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
@@ -53,15 +53,15 @@ const actions = [
   },
 ]
 
-function StatCard({ icon: Icon, label, value, color = '#1e88e5', bg = '#e3f2fd', borderColor = '#1e88e5', loading }) {
+function StatCard({ icon: Icon, label, value, color = '#1e88e5', bg = '#e3f2fd', loading }) {
   return (
     <Box sx={{
       p: 2.5,
       borderRadius: 3,
       backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderTop: `3px solid ${borderColor}`,
-      boxShadow: '0 2px 8px rgba(17,24,39,0.05)',
+      border: '1px solid',
+      borderColor: 'divider',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       display: 'flex',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
@@ -122,10 +122,10 @@ function VisaoGeralPage({ onOpenAction }) {
       )}
 
       <PageGrid variant="stats">
-        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} color="#1d4ed8" bg="#dbeafe" borderColor="#1d4ed8" loading={isLoading} />
-        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#b91c1c" bg="#fee2e2" borderColor="#ef4444" loading={isLoading} />
-        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065f46" bg="#d1fae5" borderColor="#10b981" loading={isLoading} />
-        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400e" bg="#fef3c7" borderColor="#f59e0b" loading={isLoading} />
+        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} color="#1d4ed8" bg="#dbeafe" loading={isLoading} />
+        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#b91c1c" bg="#fee2e2" loading={isLoading} />
+        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065f46" bg="#d1fae5" loading={isLoading} />
+        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400e" bg="#fef3c7" loading={isLoading} />
       </PageGrid>
 
       <PageSection
