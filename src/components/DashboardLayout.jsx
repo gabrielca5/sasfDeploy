@@ -47,7 +47,7 @@ function initials(value) {
     : name.slice(0, 2).toUpperCase()
 }
 
-const SIDEBAR_BG = '#0f1729'
+const SIDEBAR_BG = '#475569'
 const SIDEBAR_SELECTED_BG = 'rgba(255,255,255,0.10)'
 const SIDEBAR_HOVER_BG = 'rgba(255,255,255,0.06)'
 const SIDEBAR_TEXT = 'rgba(255,255,255,0.55)'
@@ -150,7 +150,7 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
         }}>
           <Avatar sx={{
             width: 34, height: 34,
-            backgroundColor: '#2563eb',
+            backgroundColor: '#1d4ed8',
             fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
           }}>
             {initials(user?.name)}

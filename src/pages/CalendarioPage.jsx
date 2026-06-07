@@ -65,7 +65,7 @@ const messages = {
 }
 
 const calendarLegendItems = [
-  { label: 'Google Agenda', color: '#1e88e5' },
+  { label: 'Google Agenda', color: '#1d4ed8' },
   { label: 'Reavaliação PDU', color: '#d97706' },
   { label: 'Validade PDU', color: '#db2777' },
 ]

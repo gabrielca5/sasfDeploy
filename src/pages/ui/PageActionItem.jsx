@@ -32,7 +32,7 @@ function PageActionItem({
         p: { xs: 2, sm: 2.5 },
         borderRadius: 2.5,
         border: '1.6px solid',
-        borderColor: disabled ? 'divider' : selected ? 'primary.main' : 'rgba(30, 136, 229, 0.32)',
+        borderColor: disabled ? 'divider' : selected ? 'primary.main' : 'rgba(29, 78, 216, 0.32)',
         backgroundColor: '#ffffff',
         cursor: interactive ? 'pointer' : 'default',
         opacity: disabled ? 0.55 : 1,

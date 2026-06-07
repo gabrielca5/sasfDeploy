@@ -29,11 +29,11 @@ function CalendarMonthGrid({ weekHeaders = [], cells = [], today, eventDays = ne
                 borderRadius: 1.5,
                 border: '1px solid',
                 borderColor: isToday ? 'primary.main' : cell.isCurrentMonth ? 'divider' : 'transparent',
-                backgroundColor: isToday ? alpha('#1e88e5', 0.08) : cell.isCurrentMonth ? '#ffffff' : 'transparent',
+                backgroundColor: isToday ? alpha('#1d4ed8', 0.08) : cell.isCurrentMonth ? '#ffffff' : 'transparent',
                 cursor: cell.isCurrentMonth ? 'pointer' : 'default',
                 transition: 'all 150ms ease',
                 '&:hover': cell.isCurrentMonth
-                  ? { borderColor: 'primary.light', backgroundColor: alpha('#1e88e5', 0.05) }
+                  ? { borderColor: 'primary.light', backgroundColor: alpha('#1d4ed8', 0.05) }
                   : {},
               }}
             >

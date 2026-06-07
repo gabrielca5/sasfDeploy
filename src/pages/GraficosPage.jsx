@@ -134,7 +134,7 @@ function GraficosPage() {
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltipCard />} />
                 <Legend />
-                <Area type="monotone" dataKey="familias" name="Famílias" stroke="#1e88e5" fill="#1e88e5" fillOpacity={0.18} strokeWidth={2} />
+                <Area type="monotone" dataKey="familias" name="Famílias" stroke="#1d4ed8" fill="#1d4ed8" fillOpacity={0.18} strokeWidth={2} />
                 <Area type="monotone" dataKey="cadastros" name="Cadastros" stroke="#5b9bd9" fill="#5b9bd9" fillOpacity={0.16} strokeWidth={2} />
                 <Area type="monotone" dataKey="atendimentos" name="Atendimentos" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.14} strokeWidth={2} />
               </AreaChart>
@@ -179,7 +179,7 @@ function GraficosPage() {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltipCard />} />
-                <Bar dataKey="value" name="Cadastros" fill="#1e88e5" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="value" name="Cadastros" fill="#1d4ed8" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartFrame>

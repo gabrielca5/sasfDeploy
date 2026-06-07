@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Stack, Typography } from '@mui/material'
+import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -45,6 +46,19 @@ const CARGOS = [
   { value: 'ORIENTADOR', label: 'Orientador' },
 ]
 
+const CARGOS_COM_COR = ['TECNICO', 'ORIENTADOR']
+
+const COR_PALETTE = [
+  { backgroundColor: '#FDECEC', color: '#B91C1C', label: 'Vermelho' },
+  { backgroundColor: '#FEF9C3', color: '#A16207', label: 'Amarelo' },
+  { backgroundColor: '#DCFCE7', color: '#15803D', label: 'Verde' },
+  { backgroundColor: '#DBEAFE', color: '#1D4ED8', label: 'Azul' },
+  { backgroundColor: '#F3E8FF', color: '#7E22CE', label: 'Roxo' },
+  { backgroundColor: '#FFEDD5', color: '#C2410C', label: 'Laranja' },
+  { backgroundColor: '#FCE7F3', color: '#BE185D', label: 'Rosa' },
+  { backgroundColor: '#D1FAE5', color: '#065F46', label: 'Esmeralda' },
+]
+
 const registerSchema = z.object({
   nome: z.string().min(2, 'Informe seu nome'),
   cpf: z.string().superRefine((value, context) => {
@@ -70,9 +84,18 @@ const registerSchema = z.object({
   cargo: z.enum(['ADMIN', 'GESTOR', 'TECNICO', 'ORIENTADOR'], { required_error: 'Selecione o cargo' }),
   endereco: z.string().min(3, 'Informe o endereço'),
   repetirSenha: z.string(),
+  corIndex: z.number().optional(),
 }).refine((d) => d.senha === d.repetirSenha, {
   message: 'As senhas não conferem',
   path: ['repetirSenha'],
+}).refine((d) => {
+  if (CARGOS_COM_COR.includes(d.cargo)) {
+    return d.corIndex !== undefined
+  }
+  return true
+}, {
+  message: 'Selecione uma cor para identificação',
+  path: ['corIndex'],
 })
 
 function PasswordRequirementsChecklist({ password, visible }) {
@@ -113,13 +136,63 @@ function PasswordRequirementsChecklist({ password, visible }) {
   )
 }
 
+function ColorPicker({ value, onChange, error }) {
+  return (
+    <Stack spacing={0.75}>
+      <Typography variant="caption" sx={{ fontWeight: 700, color: error ? 'error.main' : 'text.primary', fontSize: '0.82rem' }}>
+        Cor de identificação <span style={{ color: 'inherit' }}>*</span>
+      </Typography>
+      <Stack direction="row" flexWrap="wrap" gap={1}>
+        {COR_PALETTE.map((cor, index) => {
+          const selected = value === index
+          return (
+            <Tooltip key={index} title={cor.label} placement="top">
+              <Box
+                component="button"
+                type="button"
+                onClick={() => onChange(index)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  backgroundColor: cor.backgroundColor,
+                  border: '2px solid',
+                  borderColor: selected ? cor.color : 'rgba(0,0,0,0.12)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 140ms ease',
+                  outline: 'none',
+                  p: 0,
+                  '&:hover': { borderColor: cor.color, transform: 'scale(1.1)' },
+                  '&:focus-visible': { boxShadow: `0 0 0 3px ${cor.backgroundColor}` },
+                }}
+              >
+                {selected && <CheckRoundedIcon sx={{ fontSize: 16, color: cor.color }} />}
+              </Box>
+            </Tooltip>
+          )
+        })}
+      </Stack>
+      {error && (
+        <Typography variant="caption" color="error.main" sx={{ mt: 0.25 }}>
+          {error}
+        </Typography>
+      )}
+    </Stack>
+  )
+}
+
 function RegisterForm() {
   const { register, control, handleSubmit, formState: { errors, isSubmitted } } = useForm({
     resolver: zodResolver(registerSchema),
   })
   const cpfField = register('cpf')
   const password = useWatch({ control, name: 'senha', defaultValue: '' })
+  const cargo = useWatch({ control, name: 'cargo', defaultValue: '' })
   const showPasswordChecklist = Boolean(password || errors.senha)
+  const showColorPicker = CARGOS_COM_COR.includes(cargo)
   const handleCpfChange = (event) => {
     event.target.value = formatCpf(event.target.value)
     cpfField.onChange(event)
@@ -134,6 +207,7 @@ function RegisterForm() {
     setIsLoading(true)
     setError(null)
     const today = new Date().toISOString().split('T')[0]
+    const cor = data.corIndex !== undefined ? COR_PALETTE[data.corIndex] : null
     try {
       await registerUser({
         name: data.nome,
@@ -146,6 +220,7 @@ function RegisterForm() {
         dataDeInclusao: today,
         ultimaAtualizacao: today,
         ativo: true,
+        ...(cor ? { corFundo: cor.backgroundColor, corTexto: cor.color } : {}),
       })
       navigate('/login', { state: { registered: true } })
     } catch (e) {
@@ -224,6 +299,21 @@ function RegisterForm() {
             </FormControl>
           )}
         />
+
+        {showColorPicker && (
+          <Controller
+            name="corIndex"
+            control={control}
+            render={({ field }) => (
+              <ColorPicker
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.corIndex?.message}
+              />
+            )}
+          />
+        )}
+
         <AuthTextField
           {...register('endereco')}
           label="Endereço"

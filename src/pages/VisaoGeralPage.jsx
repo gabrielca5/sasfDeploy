@@ -53,7 +53,7 @@ const actions = [
   },
 ]
 
-function StatCard({ icon: Icon, label, value, color = '#1e88e5', bg = '#e3f2fd', loading }) {
+function StatCard({ icon: Icon, label, value, color = '#1d4ed8', bg = '#eff6ff', loading }) {
   return (
     <Box sx={{
       p: 2.5,
@@ -124,7 +124,7 @@ function VisaoGeralPage({ onOpenAction }) {
       <PageGrid variant="stats">
         <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} color="#1d4ed8" bg="#dbeafe" loading={isLoading} />
         <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#b91c1c" bg="#fee2e2" loading={isLoading} />
-        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065f46" bg="#d1fae5" loading={isLoading} />
+        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#1d4ed8" bg="#dbeafe" loading={isLoading} />
         <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400e" bg="#fef3c7" loading={isLoading} />
       </PageGrid>
 

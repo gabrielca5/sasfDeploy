@@ -80,7 +80,7 @@ export const surfaceCompactBlockSx = {
   borderRadius: 0,
   border: 0,
   borderLeft: '2px solid',
-  borderColor: 'rgba(25, 118, 210, 0.18)',
+  borderColor: 'rgba(29, 78, 216, 0.18)',
   backgroundColor: 'transparent',
   minWidth: 0,
   maxWidth: '100%',
@@ -125,7 +125,7 @@ export const surfaceDetailSoftSx = {
   minWidth: 0,
   transition: 'border-color 160ms ease, background-color 160ms ease',
   '&:hover': {
-    borderColor: 'rgba(25, 118, 210, 0.18)',
+    borderColor: 'rgba(29, 78, 216, 0.18)',
     backgroundColor: '#ffffff',
   },
 }
@@ -141,7 +141,7 @@ export const surfaceDetailPlainSx = {
   minWidth: 0,
   transition: 'border-color 160ms ease',
   '&:hover': {
-    borderColor: 'rgba(25, 118, 210, 0.22)',
+    borderColor: 'rgba(29, 78, 216, 0.22)',
   },
 }
 
@@ -346,9 +346,9 @@ export const calendarSurfaceSx = {
     background: '#fff',
     '&:hover': { background: '#f3f4f6' },
     '&.rbc-active': {
-      background: '#1e88e5 !important',
+      background: '#1d4ed8 !important',
       color: '#fff !important',
-      borderColor: '#1e88e5 !important',
+      borderColor: '#1d4ed8 !important',
     },
   },
   '& .rbc-month-view': {
@@ -366,9 +366,9 @@ export const calendarSurfaceSx = {
   },
   '& .rbc-day-bg': { backgroundColor: '#ffffff', borderColor: '#f3f4f6 !important' },
   '& .rbc-off-range-bg': { background: '#fafafa' },
-  '& .rbc-today': { background: 'rgba(30,136,229,0.06) !important' },
+  '& .rbc-today': { background: 'rgba(37,99,235,0.06) !important' },
   '& .rbc-event': {
-    background: '#1e88e5',
+    background: '#1d4ed8',
     borderRadius: '6px !important',
     fontSize: '0.75rem',
     fontWeight: 600,
@@ -376,7 +376,7 @@ export const calendarSurfaceSx = {
     px: '6px !important',
   },
   '& .rbc-show-more': {
-    color: '#1e88e5',
+    color: '#1d4ed8',
     fontSize: '0.75rem',
     fontWeight: 600,
   },
@@ -498,7 +498,7 @@ export const detailItemCopyButtonSx = {
   transition: 'opacity 160ms ease, color 160ms ease',
   '&:hover': {
     color: 'primary.main',
-    backgroundColor: 'rgba(25, 118, 210, 0.06)',
+    backgroundColor: 'rgba(29, 78, 216, 0.06)',
   },
   '& .MuiSvgIcon-root': {
     fontSize: 15,
@@ -670,7 +670,7 @@ export const flowIntroMarkerSx = {
   placeItems: 'center',
   backgroundColor: 'primary.50',
   border: '1px solid',
-  borderColor: 'rgba(25, 118, 210, 0.28)',
+  borderColor: 'rgba(29, 78, 216, 0.28)',
   color: 'primary.dark',
   fontWeight: 800,
 }
@@ -830,7 +830,7 @@ export const formStepButtonSx = ({ isActive }) => ({
   minWidth: 0,
   minHeight: 34,
   '& .flow-step-indicator': {
-    boxShadow: isActive ? '0 0 0 4px rgba(30, 136, 229, 0.12)' : 'none',
+    boxShadow: isActive ? '0 0 0 4px rgba(29, 78, 216, 0.12)' : 'none',
   },
   '&:hover .flow-step-indicator': {
     borderColor: 'primary.main',
@@ -840,7 +840,7 @@ export const formStepButtonSx = ({ isActive }) => ({
     outline: 'none',
   },
   '&:focus-visible .flow-step-indicator': {
-    boxShadow: '0 0 0 4px rgba(30, 136, 229, 0.18)',
+    boxShadow: '0 0 0 4px rgba(29, 78, 216, 0.18)',
   },
 })
 
@@ -949,7 +949,7 @@ export const formBackLinkSx = {
 }
 
 export const formMetaChipSx = {
-  backgroundColor: 'rgba(30, 136, 229, 0.1)',
+  backgroundColor: 'rgba(29, 78, 216, 0.1)',
   color: 'primary.dark',
   fontWeight: 800,
 }
@@ -1184,7 +1184,7 @@ export const formSignatureShellSx = {
 
 export const formSignatureCanvasFrameSx = ({ signed = false, error = false } = {}) => ({
   border: '1px dashed',
-  borderColor: error ? 'error.main' : signed ? 'rgba(25, 118, 210, 0.38)' : 'rgba(17, 24, 39, 0.24)',
+  borderColor: error ? 'error.main' : signed ? 'rgba(29, 78, 216, 0.38)' : 'rgba(17, 24, 39, 0.24)',
   borderRadius: 1.5,
   overflow: 'hidden',
   backgroundColor: '#ffffff',
@@ -1265,7 +1265,7 @@ export const formAddRowButtonSx = {
   minHeight: 34,
   px: 1.1,
   borderRadius: 1.25,
-  borderColor: 'rgba(25, 118, 210, 0.28)',
+  borderColor: 'rgba(29, 78, 216, 0.28)',
   backgroundColor: '#ffffff',
 }
 
@@ -1491,7 +1491,7 @@ export const authShellSx = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: { xs: 'center', md: 'flex-start' },
-  backgroundColor: '#0f1729',
+  backgroundColor: '#475569',
   px: { xs: 2, sm: 3 },
 }
 
@@ -1511,8 +1511,8 @@ export const authIllustrationSx = {
 export const authCardSx = {
   borderRadius: 3,
   backgroundColor: '#ffffff',
-  boxShadow: '0 24px 80px rgba(0,0,0,0.32), 0 4px 16px rgba(0,0,0,0.18)',
-  border: 'none',
+  boxShadow: '0 4px 24px rgba(17,24,39,0.08), 0 1px 6px rgba(17,24,39,0.04)',
+  border: '1px solid rgba(17,24,39,0.06)',
   overflow: 'hidden',
 }
 

@@ -1404,6 +1404,7 @@ export function FormRenderer({
                     direction={{ xs: 'column', sm: 'row' }}
                     alignItems={{ xs: 'stretch', sm: 'center' }}
                     justifyContent="flex-end"
+                    flexWrap="nowrap"
                   >
                     <ActionButton
                       type="button"
