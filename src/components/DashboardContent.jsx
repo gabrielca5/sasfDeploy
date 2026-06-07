@@ -8,7 +8,7 @@ import {
   Snackbar,
   TextField,
 } from '@mui/material'
-import { useMemo, useState, useCallback, useEffect } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { Navigate, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
@@ -27,9 +27,7 @@ import {
   getFlowForms,
 } from '../data/formFlows'
 import { FLOW_INTRO_TYPES, getFlowIntroConfig } from '../data/prontuarioFlowIntro'
-import { usersCatalog } from '../data/usersCatalog'
 import useFamilias from '../hooks/useFamilias'
-import AtualizarUsuarioPage from '../pages/AtualizarUsuarioPage'
 import CadastrarUsuarioPage from '../pages/CadastrarUsuarioPage'
 import CalendarioPage from '../pages/CalendarioPage'
 import FamiliasPage from '../pages/FamiliasPage'
@@ -55,7 +53,6 @@ import {
   PageCard,
   PageDialog,
   PageGrid,
-  PageList,
   PageListItem,
   PermissionState,
   PageSection,
@@ -321,9 +318,9 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
                 )}
 
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <PageList variant="embedded" sx={{ 
+                  <Box sx={{ 
                     display: 'grid', 
-                    gridTemplateColumns: { xs: '1fr', md: `repeat(${Math.min(FAMILIES_PER_PAGE, paginatedFamilies.length || 1)}, 1fr)` }, 
+                    gridTemplateColumns: { xs: '1fr', md: `repeat(${Math.min(FAMILIES_PER_PAGE, Math.max(paginatedFamilies.length, 1))}, 1fr)` }, 
                     gap: 1.5 
                   }}>
                     {isError ? (
@@ -366,7 +363,7 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
                         action={<ActionButton onClick={() => { setQuery(''); setFamilyPage(0); }}>Limpar busca</ActionButton>}
                       />
                     )}
-                  </PageList>
+                  </Box>
                 </Box>
 
                 {filteredFamilies.length > FAMILIES_PER_PAGE && (
@@ -427,9 +424,9 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
   )
 }
 
-function CadastroLandingPage({ onStartForm, onStartFlowIntro, addFichaForms, startMode }) {
+function CadastroLandingPage({ onStartForm, onStartFlowIntro, addFichaForms, startMode, startIntro }) {
   const [dialogMode, setDialogMode] = useState(startMode ?? null)
-  const [introType, setIntroType] = useState(null)
+  const [introType, setIntroType] = useState(startIntro ?? null)
   const introConfig = getFlowIntroConfig(introType)
   const location = useLocation()
   const [successNotice, setSuccessNotice] = useState(location.state?.successMessage || null)
@@ -610,13 +607,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   }
 
   if (isCadastroSection && actionSlug === 'atualizar') {
-    return (
-      <AtualizarUsuarioPage
-        users={usersCatalog}
-        onBack={() => navigate('/dashboard/cadastro')}
-        onOpenForm={() => navigate('/dashboard/cadastro/formulario/ficha_atualizacao_unas')}
-      />
-    )
+    return <Navigate to="/dashboard/cadastro?start=adicionarFicha" replace />
   }
 
   if (isCadastroSection && actionSlug === 'fluxo') {
@@ -780,11 +771,13 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
 
   if (isCadastroSection) {
     const startMode = searchParams.get('start') === FLOW_INTRO_TYPES.ADICIONAR_FICHA ? 'existente' : null
+    const startIntro = searchParams.get('start') === FLOW_INTRO_TYPES.ABRIR_PRONTUARIO ? FLOW_INTRO_TYPES.ABRIR_PRONTUARIO : null
 
     return (
       <CadastroLandingPage
-        key={startMode ?? 'catalogo'}
+        key={startMode ?? startIntro ?? 'catalogo'}
         startMode={startMode}
+        startIntro={startIntro}
         onStartFlowIntro={(type) => {
           const config = getFlowIntroConfig(type)
 
@@ -821,24 +814,12 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
     )
   }
 
-  if (isVisaoGeralSection && actionSlug === 'cadastrar-usuario') {
-    return (
-      <CadastrarUsuarioPage
-        forms={cadastroForms}
-        onBack={() => navigate('/dashboard/visao-geral')}
-        onOpenForm={(nextFormId) => navigateToForm(nextFormId)}
-      />
-    )
+  if (isVisaoGeralSection && actionSlug === 'novo-prontuario') {
+    return <Navigate to="/dashboard/cadastro?start=abrirProntuario" replace />
   }
 
   if (isVisaoGeralSection && actionSlug === 'atualizar-usuario') {
-    return (
-      <AtualizarUsuarioPage
-        users={usersCatalog}
-        onBack={() => navigate('/dashboard/visao-geral')}
-        onOpenForm={() => navigate('/dashboard/cadastro/formulario/ficha_atualizacao_unas')}
-      />
-    )
+    return <Navigate to="/dashboard/cadastro?start=adicionarFicha" replace />
   }
 
   if (isVisaoGeralSection && actionSlug === 'acessar-mensario') {

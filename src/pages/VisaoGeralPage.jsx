@@ -20,8 +20,8 @@ import {
 
 const actions = [
   {
-    slug: 'cadastrar-usuario',
-    label: 'Cadastrar uma Família Nova',
+    slug: 'novo-prontuario',
+    label: 'Cadastrar um Novo Prontuário',
     description: 'Para famílias que ainda não têm registro no sistema.',
     hint: 'Ideal para o primeiro atendimento',
     icon: PersonAddAlt1OutlinedIcon,
@@ -29,7 +29,7 @@ const actions = [
   },
   {
     slug: 'atualizar-usuario',
-    label: 'Atualizar Dados de uma Família',
+    label: 'Atualizar Dados de um Prontuário',
     description: 'Para corrigir ou completar informações como endereço, documentos ou contatos.',
     hint: 'Quando algo mudou ou precisa ser ajustado',
     icon: ManageAccountsOutlinedIcon,
