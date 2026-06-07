@@ -109,7 +109,7 @@ function VisaoGeralPage({ onOpenAction }) {
       <PageSection
         eyebrow="Visão geral"
         title="Olá, bem-vindo"
-        description="Resumo do painel e ações rápidas."
+        description="Escolha o que você precisa fazer. Cada opção abre um passo a passo."
       />
 
       {isError && (
@@ -127,11 +127,6 @@ function VisaoGeralPage({ onOpenAction }) {
         <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#1d4ed8" bg="#dbeafe" loading={isLoading} />
         <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400e" bg="#fef3c7" loading={isLoading} />
       </PageGrid>
-
-      <PageSection
-        title="Eu quero..."
-        description="Escolha o que você precisa fazer. Cada opção abre um passo a passo."
-      />
 
       <PageStack spacing={1.5}>
         {actions.map((action) => (

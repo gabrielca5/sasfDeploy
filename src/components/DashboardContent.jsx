@@ -1,5 +1,7 @@
 import {
+  Box,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -41,6 +43,8 @@ import TranscricaoAudioPage from '../pages/TranscricaoAudioPage'
 import VisaoGeralPage from '../pages/VisaoGeralPage'
 import ProfilePage from '../pages/ProfilePage'
 import TermoUsoStep from './TermoUsoStep'
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import {
   ActionButton,
   ButtonLoading,
@@ -61,6 +65,7 @@ import {
   PageWrapper,
   SectionBlock,
   StatusChip,
+  flowIntroActionsSx,
 } from '../pages/ui'
 
 function getTodayFormattedDate() {
@@ -182,6 +187,7 @@ function getFormSaveMessages({ activeFlowId, formId, isAtualizacaoForm }) {
 
 function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showIntroFirst = false }) {
   const [query, setQuery] = useState('')
+  const [familyPage, setFamilyPage] = useState(0)
   const [selectedFamilyId, setSelectedFamilyId] = useState('')
   const [selectedFormId, setSelectedFormId] = useState(formsList[0]?.id ?? '')
   const [dialogStep, setDialogStep] = useState(showIntroFirst ? 'intro' : 'selection')
@@ -194,6 +200,7 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
 
   const resetState = () => {
     setQuery('')
+    setFamilyPage(0)
     setSelectedFamilyId('')
     setSelectedFormId(formsList[0]?.id ?? '')
     setDialogStep(showIntroFirst ? 'intro' : 'selection')
@@ -228,6 +235,10 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
     )
   }, [familiasList, query])
 
+  const FAMILIES_PER_PAGE = 3
+  const familyPageCount = Math.ceil(filteredFamilies.length / FAMILIES_PER_PAGE)
+  const paginatedFamilies = filteredFamilies.slice(familyPage * FAMILIES_PER_PAGE, (familyPage + 1) * FAMILIES_PER_PAGE)
+
   const selectedFamily = familiasList.find((family) => family.id === selectedFamilyId) ?? null
   const canContinue = mode === 'novo' ? Boolean(effectiveSelectedFormId) : Boolean(selectedFamilyId && effectiveSelectedFormId)
   const addFichaIntroConfig = mode === 'existente' ? getFlowIntroConfig(FLOW_INTRO_TYPES.ADICIONAR_FICHA) : null
@@ -244,16 +255,24 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
       closeLabel="Fechar seleção de prontuário"
       actions={
         isIntroStep ? (
-          <>
+          <PageToolbar
+            direction={{ xs: 'column-reverse', sm: 'row' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+            sx={flowIntroActionsSx}
+          >
             <ActionButton variant="outlined" onClick={handleClose}>
               {addFichaIntroConfig.backLabel}
             </ActionButton>
             <ActionButton variant="contained" onClick={() => setDialogStep('selection')}>
               {addFichaIntroConfig.primaryActionLabel}
             </ActionButton>
-          </>
+          </PageToolbar>
         ) : (
-          <>
+          <PageToolbar
+            direction={{ xs: 'column-reverse', sm: 'row' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+            sx={flowIntroActionsSx}
+          >
             <ActionButton variant="outlined" onClick={handleClose}>
               Cancelar
             </ActionButton>
@@ -266,7 +285,7 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
             >
               Continuar
             </ButtonLoading>
-          </>
+          </PageToolbar>
         )
       }
     >
@@ -286,83 +305,113 @@ function NovoRegistroDialog({ open, mode, onClose, onStartForm, formsList, showI
               <TextField
                 label="Buscar família"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => { setQuery(event.target.value); setFamilyPage(0); }}
                 placeholder="Nome do representante ou CPF"
               />
 
-              <PageList variant="embedded">
-                {isError ? (
-                  <ErrorState
-                    title="Não foi possível carregar famílias"
-                    message="Tente novamente para selecionar um prontuário."
-                    onRetry={refetch}
-                    compact
-                  />
-                ) : isLoading ? (
-                  <LoadingState message="Carregando famílias..." compact surface={false} />
-                ) : filteredFamilies.map((family) => {
-                  const selected = family.id === selectedFamilyId
-
-                  return (
-                    <PageListItem
-                      key={family.id}
-                      title={family.nome_representante}
-                      subtitle={
-                        family.endereco && family.endereco !== '—'
-                          ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}${family.bairro !== '—' ? ` • ${family.bairro}` : ''}`
-                          : null
-                      }
-                      selected={selected}
-                      onClick={() => setSelectedFamilyId(family.id)}
-                      variant="compact"
-                      footer={
-                        <PageToolbar justifyContent="flex-start">
-                          {family.cpf && family.cpf !== '—' && <StatusChip label={family.cpf} />}
-                          <StatusChip label={`Prioridade ${family.prioridade}`} />
-                        </PageToolbar>
-                      }
-                    />
-                  )
-                })}
-
-                {!isLoading && !isError && filteredFamilies.length === 0 && (
-                  <EmptyState
-                    message="Nenhuma família encontrada."
-                    action={<ActionButton onClick={() => setQuery('')}>Limpar busca</ActionButton>}
-                  />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {filteredFamilies.length > FAMILIES_PER_PAGE && (
+                  <IconButton
+                    disabled={familyPage === 0}
+                    onClick={() => setFamilyPage(p => p - 1)}
+                    sx={{ flexShrink: 0 }}
+                  >
+                    <ChevronLeftRoundedIcon />
+                  </IconButton>
                 )}
-              </PageList>
+
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <PageList variant="embedded" sx={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: { xs: '1fr', md: `repeat(${Math.min(FAMILIES_PER_PAGE, paginatedFamilies.length || 1)}, 1fr)` }, 
+                    gap: 1.5 
+                  }}>
+                    {isError ? (
+                      <ErrorState
+                        title="Não foi possível carregar famílias"
+                        message="Tente novamente para selecionar um prontuário."
+                        onRetry={refetch}
+                        compact
+                      />
+                    ) : isLoading ? (
+                      <LoadingState message="Carregando famílias..." compact surface={false} />
+                    ) : paginatedFamilies.map((family) => {
+                      const selected = family.id === selectedFamilyId
+
+                      return (
+                        <PageListItem
+                          key={family.id}
+                          title={family.nome_representante}
+                          subtitle={
+                            family.endereco && family.endereco !== '—'
+                              ? `${family.endereco}${family.numero !== '—' ? `, ${family.numero}` : ''}${family.bairro !== '—' ? ` • ${family.bairro}` : ''}`
+                              : null
+                          }
+                          selected={selected}
+                          onClick={() => setSelectedFamilyId(family.id)}
+                          variant="compact"
+                          footer={
+                            <PageToolbar justifyContent="flex-start">
+                              {family.cpf && family.cpf !== '—' && <StatusChip label={family.cpf} />}
+                              <StatusChip label={`Prioridade ${family.prioridade}`} />
+                            </PageToolbar>
+                          }
+                        />
+                      )
+                    })}
+
+                    {!isLoading && !isError && filteredFamilies.length === 0 && (
+                      <EmptyState
+                        message="Nenhuma família encontrada."
+                        action={<ActionButton onClick={() => { setQuery(''); setFamilyPage(0); }}>Limpar busca</ActionButton>}
+                      />
+                    )}
+                  </PageList>
+                </Box>
+
+                {filteredFamilies.length > FAMILIES_PER_PAGE && (
+                  <IconButton
+                    disabled={familyPage >= familyPageCount - 1}
+                    onClick={() => setFamilyPage(p => p + 1)}
+                    sx={{ flexShrink: 0 }}
+                  >
+                    <ChevronRightRoundedIcon />
+                  </IconButton>
+                )}
+              </Box>
             </PageStack>
           </SectionBlock>
         )}
 
-        {mode === 'existente' && (
-          <SectionBlock title="Fichas já registradas" variant="plain">
-            <PageToolbar justifyContent="flex-start">
-              {/* TODO: buscar fichas existentes do prontuário via prontuario-controller */}
-              {formsList.slice(0, 3).map((form) => (
-                <StatusChip key={form.id} label={form.titulo} />
-              ))}
-            </PageToolbar>
-          </SectionBlock>
-        )}
+        <PageGrid variant="detail2">
+          {mode === 'existente' && (
+            <SectionBlock title="Fichas já registradas" variant="plain">
+              <PageToolbar justifyContent="flex-start">
+                {/* TODO: buscar fichas existentes do prontuário via prontuario-controller */}
+                {formsList.slice(0, 3).map((form) => (
+                  <StatusChip key={form.id} label={form.titulo} />
+                ))}
+              </PageToolbar>
+            </SectionBlock>
+          )}
 
-        <SectionBlock title="Tipo de ficha" variant="plain">
-          <FormControl fullWidth>
-            <InputLabel>Tipo de ficha</InputLabel>
-            <Select
-              value={effectiveSelectedFormId}
-              label="Tipo de ficha"
-              onChange={(event) => setSelectedFormId(event.target.value)}
-            >
-              {formsList.map((form) => (
-                <MenuItem key={form.id} value={form.id}>
-                  {form.titulo}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </SectionBlock>
+          <SectionBlock title="Tipo de ficha" variant="plain">
+            <FormControl fullWidth>
+              <InputLabel>Tipo de ficha</InputLabel>
+              <Select
+                value={effectiveSelectedFormId}
+                label="Tipo de ficha"
+                onChange={(event) => setSelectedFormId(event.target.value)}
+              >
+                {formsList.map((form) => (
+                  <MenuItem key={form.id} value={form.id}>
+                    {form.titulo}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </SectionBlock>
+        </PageGrid>
 
         {mode === 'existente' && selectedFamily && (
           <SectionBlock title="Prontuário selecionado" variant="compact">
