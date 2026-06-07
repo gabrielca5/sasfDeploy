@@ -48,32 +48,41 @@ function initials(value) {
     : name.slice(0, 2).toUpperCase()
 }
 
+const SIDEBAR_BG = '#0f1729'
+const SIDEBAR_SELECTED_BG = 'rgba(255,255,255,0.10)'
+const SIDEBAR_HOVER_BG = 'rgba(255,255,255,0.06)'
+const SIDEBAR_TEXT = 'rgba(255,255,255,0.55)'
+const SIDEBAR_TEXT_SELECTED = '#ffffff'
+const SIDEBAR_ICON = 'rgba(255,255,255,0.4)'
+const SIDEBAR_ICON_SELECTED = '#60a5fa'
+const SIDEBAR_DIVIDER = 'rgba(255,255,255,0.08)'
+
 function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
   const visibleSections = dashboardSections.filter((s) => !s.hidden)
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: SIDEBAR_BG }}>
       {/* Brand */}
       <Box sx={{ px: 2.5, pt: 2.5, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Stack direction="row" spacing={1.5}  >
-          <Box component="img" src={logoPng} alt="SASF" sx={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0 }} />
+        <Stack direction="row" spacing={1.5}>
+          <Box component="img" src={logoPng} alt="SASF" sx={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0, filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
           <Box>
-            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'text.secondary', lineHeight: 1 }}>
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: SIDEBAR_TEXT, lineHeight: 1 }}>
               SASF · Painel
             </Typography>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 800, lineHeight: 1.3, color: 'text.primary' }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 800, lineHeight: 1.3, color: SIDEBAR_TEXT_SELECTED }}>
               Chico Mendes
             </Typography>
           </Box>
         </Stack>
         {onClose && (
-          <IconButton size="small" onClick={onClose} sx={{ color: 'text.secondary', ml: 1 }}>
+          <IconButton size="small" onClick={onClose} sx={{ color: SIDEBAR_TEXT, ml: 1, '&:hover': { color: SIDEBAR_TEXT_SELECTED, backgroundColor: SIDEBAR_HOVER_BG } }}>
             <CloseRoundedIcon fontSize="small" />
           </IconButton>
         )}
       </Box>
 
-      <Divider />
+      <Divider sx={{ borderColor: SIDEBAR_DIVIDER }} />
 
       {/* Nav */}
       <Box sx={{ flex: 1, px: 1.5, py: 1.5, overflowY: 'auto' }}>
@@ -91,18 +100,18 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
                   px: 1.5,
                   minHeight: 40,
                   '&.Mui-selected': {
-                    backgroundColor: alpha('#1e88e5', 0.09),
-                    color: '#1565c0',
-                    '& .MuiListItemIcon-root': { color: '#1e88e5' },
-                    '&:hover': { backgroundColor: alpha('#1e88e5', 0.13) },
+                    backgroundColor: SIDEBAR_SELECTED_BG,
+                    color: SIDEBAR_TEXT_SELECTED,
+                    '& .MuiListItemIcon-root': { color: SIDEBAR_ICON_SELECTED },
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.13)' },
                   },
                   '&:not(.Mui-selected)': {
-                    color: '#6b7280',
-                    '& .MuiListItemIcon-root': { color: '#9ca3af' },
+                    color: SIDEBAR_TEXT,
+                    '& .MuiListItemIcon-root': { color: SIDEBAR_ICON },
                     '&:hover': {
-                      backgroundColor: alpha('#111827', 0.05),
-                      color: '#111827',
-                      '& .MuiListItemIcon-root': { color: '#374151' },
+                      backgroundColor: SIDEBAR_HOVER_BG,
+                      color: 'rgba(255,255,255,0.85)',
+                      '& .MuiListItemIcon-root': { color: 'rgba(255,255,255,0.7)' },
                     },
                   },
                 }}
@@ -110,26 +119,19 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
                 <ListItemIcon sx={{ minWidth: 32, mr: 0.5 }}>
                   {sectionIcons[section.slug] ?? <DashboardOutlinedIcon fontSize="small" />}
                 </ListItemIcon>
-               <ListItemText
+                <ListItemText
                   disableTypography
                   primary={
                     <Typography
                       component="span"
-                      sx={{
-                        fontWeight: selected ? 700 : 500,
-                        fontSize: '0.875rem',
-                        lineHeight: 1.4,
-                      }}
+                      sx={{ fontWeight: selected ? 700 : 500, fontSize: '0.875rem', lineHeight: 1.4 }}
                     >
                       {section.label}
                     </Typography>
                   }
                 />
                 {selected && (
-                  <Box sx={{
-                    width: 3, height: 18, borderRadius: 2,
-                    backgroundColor: 'primary.main', flexShrink: 0, ml: 1,
-                  }} />
+                  <Box sx={{ width: 3, height: 18, borderRadius: 2, backgroundColor: SIDEBAR_ICON_SELECTED, flexShrink: 0, ml: 1 }} />
                 )}
               </ListItemButton>
             )
@@ -137,28 +139,28 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
         </List>
       </Box>
 
-      <Divider />
+      <Divider sx={{ borderColor: SIDEBAR_DIVIDER }} />
 
       {/* User footer */}
       <Box sx={{ px: 1.5, py: 1.5 }}>
         <Box sx={{
           display: 'flex', alignItems: 'center', gap: 1.25,
           p: 1.25, borderRadius: 2,
-          backgroundColor: '#f8f9fb',
-          border: '1px solid #e5e7eb',
+          backgroundColor: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.08)',
         }}>
           <Avatar sx={{
             width: 34, height: 34,
-            backgroundColor: 'primary.main',
+            backgroundColor: '#2563eb',
             fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
           }}>
             {initials(user?.name)}
           </Avatar>
           <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700, lineHeight: 1.2, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.name ?? ''}
             </Typography>
-            <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', lineHeight: 1.3, mt: 0.2 }}>
+            <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3, mt: 0.2 }}>
               {cargoLabels[user?.cargo] ?? user?.cargo ?? ''}
             </Typography>
           </Box>
@@ -167,16 +169,11 @@ function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
               size="small"
               onClick={() => onNavigate({ slug: 'sair' })}
               sx={{
-                color: 'error.main',
-                backgroundColor: 'error.light',
-                border: '1px solid',
-                borderColor: alpha('#dc2626', 0.18),
+                color: '#f87171',
+                backgroundColor: 'rgba(220,38,38,0.15)',
+                border: '1px solid rgba(220,38,38,0.2)',
                 flexShrink: 0,
-                '&:hover': {
-                  color: '#ffffff',
-                  backgroundColor: 'error.main',
-                  borderColor: 'error.main',
-                },
+                '&:hover': { color: '#ffffff', backgroundColor: '#dc2626', borderColor: '#dc2626' },
               }}
             >
               <LogoutRoundedIcon sx={{ fontSize: 16 }} />
@@ -234,9 +231,9 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
-            borderRight: '1px solid #e5e7eb',
-            backgroundColor: '#ffffff',
-            boxShadow: '1px 0 6px rgba(17,24,39,0.04)',
+            borderRight: 'none',
+            backgroundColor: SIDEBAR_BG,
+            boxShadow: '4px 0 24px rgba(0,0,0,0.18)',
           },
         }}
       >
@@ -251,7 +248,7 @@ function DashboardLayout({ sectionSlug, formId, actionSlug }) {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: '#ffffff' },
+          '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: SIDEBAR_BG, borderRight: 'none' },
         }}
       >
         <SidebarContent sectionSlug={sectionSlug} onNavigate={handleNavigate} user={displayUser} onClose={() => setMobileOpen(false)} />

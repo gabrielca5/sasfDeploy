@@ -14,22 +14,22 @@ function BrandHeader({ logoSrc, subtitle }) {
           component="img"
           src={logoSrc}
           alt="Logo SASF"
-          sx={{ width: 72, height: 72, objectFit: 'contain', display: 'block' }}
+          sx={{ width: 72, height: 72, objectFit: 'contain', display: 'block', filter: 'brightness(0) invert(1)', opacity: 0.92 }}
         />
       </Box>
 
       <Box>
         <Typography
           component="h1"
-          sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em', color: 'text.primary', lineHeight: 1.2 }}
+          sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em', color: '#ffffff', lineHeight: 1.2 }}
         >
           SASF Chico Mendes
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25, lineHeight: 1.5 }}>
+        <Typography variant="caption" sx={{ display: 'block', mt: 0.25, lineHeight: 1.5, color: 'rgba(255,255,255,0.6)' }}>
           Serviço de Assistência Social à Família
         </Typography>
         {subtitle && (
-          <Typography variant="body2" color="primary.dark" sx={{ fontWeight: 600, mt: 0.5 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5, color: '#90caf9' }}>
             {subtitle}
           </Typography>
         )}

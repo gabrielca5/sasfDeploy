@@ -1034,7 +1034,7 @@ function FamiliesPage() {
               <PageText variant="subtitle2" color="primary" fontWeight={800}>
                 Famílias encontradas
               </PageText>
-              <StatusChip label={`${sortedFamilies.length}`} />
+              {!isLoading && <StatusChip label={`${sortedFamilies.length}`} />}
               {sortedFamilies.length > PAGE_SIZE && (
                 <PageText variant="caption">
                   Página {currentPage} de {totalPages}

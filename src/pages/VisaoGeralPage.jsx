@@ -53,21 +53,32 @@ const actions = [
   },
 ]
 
-function StatCard({ icon: Icon, label, value, color = 'primary.main', bg = 'primary.50', loading }) {
+function StatCard({ icon: Icon, label, value, color = '#1e88e5', bg = '#e3f2fd', borderColor = '#1e88e5', loading }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-      <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', backgroundColor: bg, color, flexShrink: 0 }}>
-        <Icon sx={{ fontSize: 22 }} />
-      </Box>
+    <Box sx={{
+      p: 2.5,
+      borderRadius: 3,
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderTop: `3px solid ${borderColor}`,
+      boxShadow: '0 2px 8px rgba(17,24,39,0.05)',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 1.5,
+    }}>
       <Box>
-        <Typography variant="h5" fontWeight={800} lineHeight={1.1}>
+        <Typography sx={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', color: 'text.primary', mb: 0.75 }}>
           {loading ? '—' : value}
         </Typography>
-        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+        <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ lineHeight: 1.3 }}>
           {label}
         </Typography>
       </Box>
-    </Paper>
+      <Box sx={{ width: 42, height: 42, borderRadius: 2, display: 'grid', placeItems: 'center', backgroundColor: bg, color, flexShrink: 0, mt: 0.25 }}>
+        <Icon sx={{ fontSize: 22 }} />
+      </Box>
+    </Box>
   )
 }
 
@@ -111,10 +122,10 @@ function VisaoGeralPage({ onOpenAction }) {
       )}
 
       <PageGrid variant="stats">
-        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} loading={isLoading} />
-        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#B91C1C" bg="#FEE2E2" loading={isLoading} />
-        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065F46" bg="#D1FAE5" loading={isLoading} />
-        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400E" bg="#FEF3C7" loading={isLoading} />
+        <StatCard icon={FamilyRestroomOutlinedIcon} label="Famílias registradas" value={stats.total} color="#1d4ed8" bg="#dbeafe" borderColor="#1d4ed8" loading={isLoading} />
+        <StatCard icon={WarningAmberOutlinedIcon} label="Prioridade Alta" value={stats.alta} color="#b91c1c" bg="#fee2e2" borderColor="#ef4444" loading={isLoading} />
+        <StatCard icon={EventAvailableOutlinedIcon} label="Visitadas (30 dias)" value={stats.visitadasRecente} color="#065f46" bg="#d1fae5" borderColor="#10b981" loading={isLoading} />
+        <StatCard icon={ScheduleOutlinedIcon} label="Visita pendente" value={stats.proximaVisitaHoje} color="#92400e" bg="#fef3c7" borderColor="#f59e0b" loading={isLoading} />
       </PageGrid>
 
       <PageSection

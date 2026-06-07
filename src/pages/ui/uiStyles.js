@@ -1494,7 +1494,7 @@ export const authShellSx = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: { xs: 'center', md: 'flex-start' },
-  background: 'linear-gradient(150deg, #f0f7ff 0%, #e8f4fd 50%, #f5f9ff 100%)',
+  background: 'linear-gradient(135deg, #0f1729 0%, #1a2744 40%, #1e3a5f 70%, #1565c0 100%)',
   px: { xs: 2, sm: 3 },
 }
 
@@ -1514,8 +1514,8 @@ export const authIllustrationSx = {
   width: { xs: '90vw', sm: '60vw', md: '48vw', lg: '44vw' },
   maxWidth: 860,
   height: 'auto',
-  opacity: { xs: 0.1, sm: 0.16, md: 0.22, lg: 0.28 },
-  filter: 'saturate(0.85) contrast(1.05)',
+  opacity: { xs: 0.12, sm: 0.2, md: 0.32, lg: 0.42 },
+  filter: 'saturate(0.6) contrast(1.1) brightness(1.4)',
   pointerEvents: 'none',
   userSelect: 'none',
   zIndex: 0,
@@ -1525,8 +1525,8 @@ export const authIllustrationSx = {
 export const authCardSx = {
   borderRadius: 3,
   backgroundColor: '#ffffff',
-  boxShadow: '0 8px 40px rgba(17,24,39,0.10), 0 2px 8px rgba(17,24,39,0.05)',
-  border: '1px solid #e5e7eb',
+  boxShadow: '0 24px 80px rgba(0,0,0,0.32), 0 4px 16px rgba(0,0,0,0.18)',
+  border: 'none',
   overflow: 'hidden',
 }
 
