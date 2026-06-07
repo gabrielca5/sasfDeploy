@@ -3,10 +3,11 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
 } from '@mui/material'
-import { useMemo, useState, useCallback } from 'react'
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { useMemo, useState, useCallback, useEffect } from 'react'
+import { Navigate, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { saveFormStep } from '../services/cadastroFamilia.service'
@@ -381,6 +382,8 @@ function CadastroLandingPage({ onStartForm, onStartFlowIntro, addFichaForms, sta
   const [dialogMode, setDialogMode] = useState(startMode ?? null)
   const [introType, setIntroType] = useState(null)
   const introConfig = getFlowIntroConfig(introType)
+  const location = useLocation()
+  const [successNotice, setSuccessNotice] = useState(location.state?.successMessage || null)
 
   const handleStartIntroFlow = () => {
     if (!introConfig) {
@@ -392,8 +395,23 @@ function CadastroLandingPage({ onStartForm, onStartFlowIntro, addFichaForms, sta
     onStartFlowIntro(introConfig.type)
   }
 
+  const handleCloseSnackbar = () => {
+    setSuccessNotice(null)
+    // Avoid re-showing the snackbar if the user refreshes
+    window.history.replaceState({}, document.title)
+  }
+
   return (
     <PageWrapper maxWidth={1440} spacing={3}>
+      <Snackbar
+        open={Boolean(successNotice)}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ mt: 7 }}
+      >
+      </Snackbar>
+
       <PageSection
         eyebrow="Novo registro"
         title="Como você deseja iniciar o atendimento?"
@@ -678,7 +696,7 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
           onFinish={() => {
             clearFlowDrafts(flowDraftStorageKey)
             setFlowDrafts({})
-            navigate('/dashboard/cadastro')
+            navigate('/dashboard/cadastro', { state: { successMessage: 'Prontuário criado e salvo com sucesso!' } })
           }}
           onSelectFlowForm={(nextFormId) => navigateToForm(nextFormId)}
           pdfDownloadContext={{

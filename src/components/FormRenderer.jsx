@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
 import {
   Box,
   Checkbox,
@@ -26,6 +27,7 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import { useCepLookup } from '../hooks/useCepLookup'
 import { useCitiesByUf } from '../hooks/useCitiesByUf'
+import { useAuth } from '../contexts/AuthContext'
 import {
   ActionButton,
   ButtonLoading,
@@ -68,13 +70,14 @@ import {
 } from '../pages/ui/uiStyles'
 import { isValidCpf } from '../utils/formatters'
 import apiClient from '../lib/apiClient'
+import { PLANO_FAMILIAR_FORM_ID } from '../data/formFlows'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
     return field.valor_padrao
   }
 
-  if ((field.id === 'data_assinatura' || field.id === 'data_matricula') && field.tipo === 'date') {
+  if ((field.id === 'data_assinatura' || field.id === 'data_matricula' || field.id === 'data_elaboracao') && field.tipo === 'date') {
     const now = new Date()
     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
     const [year, month, day] = localDate.toISOString().slice(0, 10).split('-')
@@ -784,9 +787,9 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, 
   }
 
   const handleChange = (index, fieldId, nextValue) => {
-    const current = fields[index] ?? {}
-    const updated = { ...current, [fieldId]: nextValue }
-    update(index, updated)
+    // We only call onChangeRow which updates the parent state (draft).
+    // This prevents focus loss that often happens when calling update() from useFieldArray on every keystroke.
+    // The RHF sync is handled best-effort by FieldInput's rhfSetValue or onBlur if passed.
     onChangeRow(index, fieldId, nextValue)
   }
 
@@ -806,13 +809,15 @@ function RepeatableSection({ section, rows, onAddRow, onRemoveRow, onChangeRow, 
             <FormGrid variant={getRepeatableGridVariant(section)}>
               {columns.map((field) => {
                 const errorKey = getRowFieldErrorKey(section.id, rowIndex, field.id)
+                // Use rows prop for latest value to ensure UI is in sync without needing update()
+                const value = rows[rowIndex]?.[field.id] ?? ''
 
                 return (
                 <FormField key={field.id} span={getFieldSpan(field, section)}>
                   <FieldInput
                     field={field}
                     rowNumber={rowIndex + 1}
-                    value={fieldObj[field.id] ?? ''}
+                    value={value}
                     onChange={(nextValue) => handleChange(rowIndex, field.id, nextValue)}
                     required={isFieldRequired(field)}
                     error={Boolean(validationErrors[errorKey])}
@@ -870,9 +875,6 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
   }
 
   const handleChange = (index, fid, nextValue) => {
-    const current = fields[index] ?? {}
-    const updated = { ...current, [fid]: nextValue }
-    update(index, updated)
     onChangeRow(index, fid, nextValue)
   }
 
@@ -893,11 +895,12 @@ function NumberedListSection({ section, rows, onAddRow, onRemoveRow, onChangeRow
           >
             {(() => {
               const errorKey = getRowFieldErrorKey(section.id, rowIndex, itemField.id)
+              const value = rows[rowIndex]?.[itemField.id] ?? ''
 
               return (
             <FieldInput
               field={itemField}
-              value={fieldObj[itemField.id] ?? ''}
+              value={value}
               onChange={(nextValue) => handleChange(rowIndex, itemField.id, nextValue)}
               required={isFieldRequired(itemField)}
               error={Boolean(validationErrors[errorKey])}
@@ -1247,6 +1250,74 @@ export function FormRenderer({
     onDraftChange?.(form.id, draft)
   }, [draft, form.id, onDraftChange])
 
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const prontuarioId = searchParams.get('prontuarioId')
+
+  useEffect(() => {
+    if (form.id !== PLANO_FAMILIAR_FORM_ID || !prontuarioId) {
+      return
+    }
+
+    let active = true
+
+    apiClient.get(`/prontuario/${prontuarioId}`).then(async (prontuario) => {
+      if (!active || !prontuario) return
+
+      const familyId = prontuario.familiaId
+      const fichaId = prontuario.fichaCadastralDaFamiliaId
+
+      if (!fichaId) return
+
+      try {
+        const [ficha, family] = await Promise.all([
+          apiClient.get(`/fichacadastral/${fichaId}`).catch(() => null),
+          familyId ? apiClient.get(`/familia/${familyId}`).catch(() => null) : null,
+        ])
+
+        const representanteId = ficha?.representanteId
+        const representante = representanteId
+          ? await apiClient.get(`/representante/${representanteId}`).catch(() => null)
+          : null
+
+        if (!active) return
+
+        setDraft((currentDraft) => {
+          const nextDraft = { ...currentDraft }
+
+          // Preencher identificação (PDF)
+          if (nextDraft.identificacao_pdf) {
+            nextDraft.identificacao_pdf.nome_representante =
+              nextDraft.identificacao_pdf.nome_representante || representante?.nome || ''
+            nextDraft.identificacao_pdf.nis_bdc =
+              nextDraft.identificacao_pdf.nis_bdc || representante?.nisNitNb || ''
+            nextDraft.identificacao_pdf.rg =
+              nextDraft.identificacao_pdf.rg || representante?.rg || ''
+          }
+
+          // Preencher dados do plano
+          if (nextDraft.dados_plano) {
+            // Técnico associado à família (orientador) ou usuário atual se for técnico
+            const tecnicoNome =
+              family?.orientador?.nome ||
+              (user?.cargo === 'TECNICO' ? user?.nome : '')
+
+            nextDraft.dados_plano.tecnico_referencia =
+              nextDraft.dados_plano.tecnico_referencia || tecnicoNome || ''
+          }
+
+          return nextDraft
+        })
+      } catch (err) {
+        console.warn('Falha ao preencher dados do Plano Familiar:', err)
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [form.id, prontuarioId, user])
+
   const renderSection = (section) => {
     if (section.id === 'identificacao_servico' && Array.isArray(section.campos)) {
       return (
@@ -1269,6 +1340,9 @@ export function FormRenderer({
           {description && (
             <InlineFeedback severity="info" message={description} compact />
           )}
+          {section.id === 'endereco' && cepLoading && (
+            <InlineFeedback severity="info" message="Buscando endereço pelo CEP..." compact />
+          )}
           <FormGrid>
             {section.campos.filter(isVisibleField).map((field) => {
               const errorKey = getFieldErrorKey(section.id, field.id)
@@ -1280,12 +1354,15 @@ export function FormRenderer({
                   value={draft[section.id]?.[field.id] ?? ''}
                   onChange={(nextValue) => updateField(section.id, field.id, nextValue)}
                   helperText={field.id === 'cep' && cepError ? cepError : undefined}
-                  disabled={section.id === 'endereco' && cepLoading && ['uf', 'cidade', 'bairro', 'endereco'].includes(field.id)}
+                  disabled={cepLoading && (
+                    (section.id === 'endereco' && ['uf', 'cidade', 'bairro', 'endereco'].includes(field.id)) ||
+                    (section.id === 'dados_representante' && field.id === 'uf')
+                  )}
                   endAdornment={field.id === 'cep' && cepLoading ? <InputAdornment position="end"><CircularProgress size={16} /></InputAdornment> : null}
                   required={isFieldRequired(field)}
                   error={Boolean(validationErrors[errorKey])}
                   errorMessage={validationErrors[errorKey]}
-                  rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+                  rhfSetValue={rhfSetValue}
                 />
               </FormField>
               )
@@ -1306,7 +1383,7 @@ export function FormRenderer({
               onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
               onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
               validationErrors={validationErrors}
-              rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+              rhfSetValue={rhfSetValue}
               control={control}
         />
       )
@@ -1320,7 +1397,7 @@ export function FormRenderer({
           values={draft[section.id] ?? {}}
           onChange={(fieldId, nextValue) => updateField(section.id, fieldId, nextValue)}
           validationErrors={validationErrors}
-          rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+          rhfSetValue={rhfSetValue}
         />
       )
     }
@@ -1336,7 +1413,7 @@ export function FormRenderer({
               onRemoveRow={(rowIndex) => removeRow(section.id, rowIndex)}
               onChangeRow={(rowIndex, fieldId, nextValue) => updateRowField(section.id, rowIndex, fieldId, nextValue)}
               validationErrors={validationErrors}
-              rhfSetValue={section.id === 'endereco' ? rhfSetValue : null}
+              rhfSetValue={rhfSetValue}
               control={control}
         />
       )

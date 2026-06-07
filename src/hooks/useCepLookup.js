@@ -32,8 +32,9 @@ export function useCepLookup({ debounceMs = 500 } = {}) {
         return;
       }
 
+      setLoading(true);
+
       timerRef.current = setTimeout(async () => {
-        setLoading(true);
         setError(null);
         try {
           // services currently use fetch via apiClient; we don't pass signal there

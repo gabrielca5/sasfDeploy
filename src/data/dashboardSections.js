@@ -6,7 +6,7 @@ export const dashboardSections = [
     description: 'Ações rápidas do painel para operações mais frequentes.',
   },
   {
-    label: 'Famílias',
+    label: 'Acompanhar famílias',
     slug: 'familias',
     title: 'Famílias',
     description: 'Espaço para evolução dos dados de acompanhamento das famílias.',
