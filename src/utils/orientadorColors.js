@@ -12,7 +12,7 @@ export const ORIENTADOR_COLORS = {
   },
   AMARELO: {
     backgroundColor: '#FEF9C3',
-    color: '#A16207',
+    color: '#FFD700',
     label: 'Amarelo'
   },
   VERDE: {
@@ -32,12 +32,12 @@ export const ORIENTADOR_COLORS = {
   },
   LARANJA: {
     backgroundColor: '#FFEDD5',
-    color: '#C2410C',
+    color: '#FFA500 ',
     label: 'Laranja'
   },
   ROSA: {
     backgroundColor: '#FCE7F3',
-    color: '#BE185D',
+    color: '#F789D0',
     label: 'Rosa'
   },
   MARROM: {

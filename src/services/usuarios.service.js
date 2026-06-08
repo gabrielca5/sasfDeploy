@@ -30,6 +30,11 @@ export async function listUsuarios() {
   })
 }
 
+export async function listTecnicos() {
+  const res = await apiClient.get('/tecnico?size=2000').catch(() => ({ content: [] }))
+  return Array.isArray(res) ? res : res?.content || []
+}
+
 export async function getUsuario(id) {
   return apiClient.get(`/usuario/${id}`)
 }

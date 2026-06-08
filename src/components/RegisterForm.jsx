@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Box, Stack, Tooltip, Typography } from '@mui/material'
+import { useState, useEffect } from 'react'
+import { Box, Stack, Tooltip, Typography, Grid } from '@mui/material'
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded'
 import { useNavigate } from 'react-router-dom'
@@ -29,6 +29,7 @@ import {
 } from '../pages/ui'
 import { formatCpf, isValidCpf, onlyDigits } from '../utils/formatters'
 import { useAuth } from '../contexts/AuthContext'
+import { ORIENTADOR_COLORS } from '../utils/orientadorColors'
 
 const passwordRequirementsMessage = 'Confira os requisitos da senha.'
 const passwordRequirements = [
@@ -84,19 +85,26 @@ const registerSchema = z.object({
   cargo: z.enum(['ADMIN', 'GESTOR', 'TECNICO', 'ORIENTADOR'], { required_error: 'Selecione o cargo' }),
   endereco: z.string().min(3, 'Informe o endereço'),
   repetirSenha: z.string(),
-  corIndex: z.number().optional(),
+  cor: z.string().optional(),
+  especialidade: z.string().optional(),
 }).refine((d) => d.senha === d.repetirSenha, {
   message: 'As senhas não conferem',
   path: ['repetirSenha'],
 }).refine((d) => {
-  if (CARGOS_COM_COR.includes(d.cargo)) {
-    return d.corIndex !== undefined
-  }
-  return true
-}, {
-  message: 'Selecione uma cor para identificação',
-  path: ['corIndex'],
-})
+  // Validação da Cor (Mantendo o padrão do Main que parece ser mais genérico)
+   if (d.cargo === 'ORIENTADOR' && !d.cor) return false
+   return true
+ }, {
+   message: 'Selecione uma cor para identificação',
+   path: ['cor'],
+ }).refine((d) => {
+   // Validação da Especialidade (Sua nova funcionalidade)
+   if (d.cargo === 'TECNICO' && (!d.especialidade || d.especialidade.trim().length === 0)) return false
+   return true
+ }, {
+   message: 'Informe a especialidade do técnico',
+   path: ['especialidade'],
+ })
 
 function PasswordRequirementsChecklist({ password, visible }) {
   if (!visible) return null
@@ -187,6 +195,11 @@ function ColorPicker({ value, onChange, error }) {
 function RegisterForm() {
   const { register, control, handleSubmit, formState: { errors, isSubmitted } } = useForm({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      cargo: '',
+      cor: '',
+      especialidade: '',
+    }
   })
   const cpfField = register('cpf')
   const password = useWatch({ control, name: 'senha', defaultValue: '' })
@@ -207,21 +220,30 @@ function RegisterForm() {
     setIsLoading(true)
     setError(null)
     const today = new Date().toISOString().split('T')[0]
-    const cor = data.corIndex !== undefined ? COR_PALETTE[data.corIndex] : null
+    
+    const payload = {
+      name: data.nome,
+      email: data.email,
+      senha: data.senha,
+      cargo: data.cargo,
+      cpf: data.cpf,
+      telefone: data.telefone,
+      endereco: data.endereco,
+      dataDeInclusao: today,
+      ultimaAtualizacao: today,
+      ativo: true,
+    }
+
+    if (data.cargo === 'ORIENTADOR') {
+      payload.cor = data.cor
+    }
+
+    if (data.cargo === 'TECNICO') {
+      payload.especialidade = data.especialidade
+    }
+
     try {
-      await registerUser({
-        name: data.nome,
-        email: data.email,
-        senha: data.senha,
-        cargo: data.cargo,
-        cpf: data.cpf,
-        telefone: data.telefone,
-        endereco: data.endereco,
-        dataDeInclusao: today,
-        ultimaAtualizacao: today,
-        ativo: true,
-        ...(cor ? { corFundo: cor.backgroundColor, corTexto: cor.color } : {}),
-      })
+      await registerUser(payload)
       navigate('/login', { state: { registered: true } })
     } catch (e) {
       setError(
@@ -284,33 +306,68 @@ function RegisterForm() {
           helperText={errors.email?.message}
           placeholder="seu@unas.org.br"
         />
+
         <Controller
           name="cargo"
           control={control}
           render={({ field }) => (
-            <FormControl fullWidth error={!!errors.cargo} size="small">
-              <InputLabel id="cargo-label">Cargo</InputLabel>
-              <Select {...field} labelId="cargo-label" label="Cargo">
-                {CARGOS.map((c) => (
-                  <MenuItem key={c.value} value={c.value}>{c.label}</MenuItem>
-                ))}
-              </Select>
-              {errors.cargo && <FormHelperText>{errors.cargo.message}</FormHelperText>}
-            </FormControl>
+            <AuthTextField
+              {...field}
+              select
+              label="Cargo"
+              error={!!errors.cargo}
+              helperText={errors.cargo?.message}
+            >
+              {CARGOS.map((c) => (
+                <MenuItem key={c.value} value={c.value}>{c.label}</MenuItem>
+              ))}
+            </AuthTextField>
           )}
         />
 
-        {showColorPicker && (
+        {cargo === 'ORIENTADOR' && (
           <Controller
-            name="corIndex"
+            name="cor"
             control={control}
             render={({ field }) => (
-              <ColorPicker
-                value={field.value}
-                onChange={field.onChange}
-                error={errors.corIndex?.message}
-              />
+              <AuthTextField
+                {...field}
+                select
+                label="Cor de Identificação"
+                error={!!errors.cor}
+                helperText={errors.cor?.message}
+              >
+                {Object.entries(ORIENTADOR_COLORS).map(([key, value]) => (
+                  <MenuItem key={key} value={key} sx={{ py: 1 }}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '4px',
+                          bgcolor: value.color,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {value.label}
+                      </Typography>
+                    </Stack>
+                  </MenuItem>
+                ))}
+              </AuthTextField>
             )}
+          />
+        )}
+
+        {cargo === 'TECNICO' && (
+          <AuthTextField
+            {...register('especialidade')}
+            label="Especialidade"
+            placeholder="Ex: Psicólogo, Assistente Social..."
+            error={!!errors.especialidade}
+            helperText={errors.especialidade?.message}
           />
         )}
 
