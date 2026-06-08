@@ -21,11 +21,11 @@ function encodePathSegment(value) {
 
 function buildFichaPdfPath({ prontuarioId, tipoFicha, fichaId }) {
   if (!prontuarioId) {
-    throw new Error('Prontuario nao informado para baixar o PDF.')
+    throw new Error('Prontuario nao informado para acessar o PDF.')
   }
 
   if (!tipoFicha) {
-    throw new Error('Tipo de ficha nao informado para baixar o PDF.')
+    throw new Error('Tipo de ficha nao informado para acessar o PDF.')
   }
 
   const basePath = `/prontuarios/${encodePathSegment(prontuarioId)}/fichas/${encodePathSegment(tipoFicha)}`
@@ -35,7 +35,7 @@ function buildFichaPdfPath({ prontuarioId, tipoFicha, fichaId }) {
   }
 
   if (!fichaId) {
-    throw new Error('Ficha nao informada para baixar o PDF.')
+    throw new Error('Ficha nao informada para acessar o PDF.')
   }
 
   return `${basePath}/${encodePathSegment(fichaId)}/pdf`
@@ -91,7 +91,78 @@ function triggerBlobDownload(blob, filename) {
   }
 }
 
-export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId, print = false }) {
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+function openBlankPdfPreviewWindow() {
+  const previewWindow = window.open('', '_blank')
+
+  if (!previewWindow) {
+    throw new Error('Nao foi possivel abrir a visualizacao. Permita pop-ups para este site e tente novamente.')
+  }
+
+  previewWindow.opener = null
+  previewWindow.document.open()
+  previewWindow.document.write(`<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Carregando PDF</title>
+  </head>
+  <body>
+    <p style="font-family: system-ui, sans-serif; padding: 24px;">Carregando PDF...</p>
+  </body>
+</html>`)
+  previewWindow.document.close()
+
+  return previewWindow
+}
+
+function writePdfPreview(previewWindow, objectUrl, filename) {
+  const safeFilename = escapeHtml(filename)
+  const safeObjectUrl = escapeHtml(objectUrl)
+
+  previewWindow.document.open()
+  previewWindow.document.write(`<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>${safeFilename}</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #111827;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe title="${safeFilename}" src="${safeObjectUrl}"></iframe>
+  </body>
+</html>`)
+  previewWindow.document.close()
+}
+
+function scheduleObjectUrlRevoke(objectUrl) {
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 10 * 60 * 1000)
+}
+
+async function getFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId }) {
   const path = buildFichaPdfPath({ prontuarioId, tipoFicha, fichaId })
   const { blob, headers } = await getBlob(path, {
     headers: {
@@ -100,6 +171,18 @@ export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fich
   })
   const headerFilename = getFilenameFromContentDisposition(headers.get('Content-Disposition'))
   const filename = normalizePdfFilename(headerFilename, tipoFicha)
+
+  return { blob, filename }
+}
+
+export async function getFichaProntuarioPdfData({ prontuarioId, tipoFicha, fichaId }) {
+  const { blob, filename } = await getFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId })
+  const url = URL.createObjectURL(blob)
+  return { url, filename }
+}
+
+export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId, print = false }) {
+  const { blob, filename } = await getFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId })
 
   if (print) {
     const objectUrl = URL.createObjectURL(blob)
@@ -116,4 +199,24 @@ export async function downloadFichaProntuarioPdf({ prontuarioId, tipoFicha, fich
   return { filename }
 }
 
-export default { downloadFichaProntuarioPdf, FICHA_PDF_TYPES }
+export async function viewFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId }) {
+  const previewWindow = openBlankPdfPreviewWindow()
+
+  try {
+    const { blob, filename } = await getFichaProntuarioPdf({ prontuarioId, tipoFicha, fichaId })
+    const objectUrl = URL.createObjectURL(blob)
+
+    writePdfPreview(previewWindow, objectUrl, filename)
+    scheduleObjectUrlRevoke(objectUrl)
+
+    return { filename }
+  } catch (err) {
+    if (!previewWindow.closed) {
+      previewWindow.close()
+    }
+
+    throw err
+  }
+}
+
+export default { downloadFichaProntuarioPdf, viewFichaProntuarioPdf, FICHA_PDF_TYPES }

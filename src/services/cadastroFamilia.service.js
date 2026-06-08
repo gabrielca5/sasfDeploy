@@ -33,7 +33,7 @@ const PROGRAMA_RENDA_MAP = {
 const BPC_MAP = {
   'Não recebe': 'NAO_RECEBE',
   'Idoso': 'IDOSO',
-  'Pessoa com deficiência': 'PCD',
+  'Pessoa com deficiência': 'PESSOA_COM_DEFICIENCIA',
 }
 
 const FATOR_RISCO_MAP = {
@@ -287,6 +287,18 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       informacoesComplementaresCriancasAdolescentesIds: [],
     })
       fichaCadastralId = fichaCadastral.id
+
+      // 8. Atualiza a família com o representante (vínculo direto para listagem)
+      //    e o prontuário com a ficha cadastral vinculada.
+      if (representanteId) {
+        await apiClient.put(`/familia/${familia.id}`, {
+          ativo: true,
+          prioridade: 'MEDIA',
+          representanteId,
+          membrosIds: membroIds,
+        }).catch(err => console.warn('Não foi possível vincular representante à família:', err?.message))
+      }
+
       // Preserva quaisquer documentos já vinculados (importante no modo
       // completar, onde o prontuário pode já ter plano/folha/pdu).
       await apiClient.put(`/prontuario/${prontuario.id}`, {
@@ -312,6 +324,7 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
 
 async function saveFichaCadastralComplementar(draft, context) {
   const demandas = Array.isArray(draft.demanda_encaminhamentos) ? draft.demanda_encaminhamentos : []
+  const criancasRaw = Array.isArray(draft.informacoes_complementares) ? draft.informacoes_complementares : []
   const dados = draft.dados_atendimento ?? {}
   const user = getUser()
 
@@ -330,19 +343,52 @@ async function saveFichaCadastralComplementar(draft, context) {
   try {
     // 1. Cria registro de prosseguimento (histórico)
     if (textoFormatado.trim()) {
-      await apiClient.post('/registroprosseguimento', {
+      await apiClient.post('/folhaprosseguimento', {
+        prontuarioId: context.prontuarioId,
         dataRegistro: toIsoDateOrToday(dados.data_atendimento),
         demanda: textoFormatado,
         tecnicoResponsavelId: user?.userId ?? null,
       })
     }
 
-    // 2. Atualiza a Ficha Cadastral com a demanda (conclusão da ficha)
-    if (context.fichaCadastralId && textoFormatado.trim()) {
+    // 2. Cria as entidades de Crianças (detalhamento)
+    const criancaIds = []
+    for (const row of criancasRaw) {
+      if (!row.nome?.trim()) continue
+      try {
+        const crianca = await apiClient.post('/crianca', {
+          nome: row.nome.trim(),
+          dataNascimento: toIsoDate(row.data_nascimento),
+          estuda: row.estuda === 'Sim',
+          grauInstrucao: toEnum(row.grau_instrucao, {
+            'Analfabeto': 'ANALFABETO',
+            'Ensino Fundamental Completo': 'ENSINO_FUNDAMENTAL_COMPLETO',
+            'Ensino Fundamental Incompleto': 'ENSINO_FUNDAMENTAL_INCOMPLETO',
+            'Ensino Médio Completo': 'ENSINO_MEDIO_COMPLETO',
+            'Ensino Médio Incompleto': 'ENSINO_MEDIO_INCOMPLETO',
+            'Ensino Superior Completo': 'ENSINO_SUPERIOR_COMPLETO',
+            'Ensino Superior Incompleto': 'ENSINO_SUPERIOR_INCOMPLETO',
+          }),
+          inseridoCca: row.inserido_cca === 'Sim',
+          inseridoCj: row.inserido_cj === 'Sim',
+          inseridoCedesp: row.inserido_cedesp === 'Sim',
+          inseridoNci: row.inserido_nci === 'Sim',
+          outrosServicos: row.outros_servicos || null,
+          familiaId: context.familiaId,
+        })
+        criancaIds.push(crianca.id)
+      } catch (err) {
+        console.warn('Falha ao criar criança:', row.nome, err?.message)
+      }
+    }
+
+    // 3. Atualiza a Ficha Cadastral com a demanda e as crianças (conclusão da ficha)
+    if (context.fichaCadastralId) {
       const currentFicha = await apiClient.get(`/fichacadastral/${context.fichaCadastralId}`)
       await apiClient.put(`/fichacadastral/${context.fichaCadastralId}`, {
         ...currentFicha,
-        demandaApresentadaOrientacoesEncaminhamentos: textoFormatado,
+        demandaApresentadaOrientacoesEncaminhamentos: textoFormatado || currentFicha.demandaApresentadaOrientacoesEncaminhamentos,
+        informacoesComplementaresCriancasAdolescentesIds: criancaIds.length > 0 ? criancaIds : (currentFicha.informacoesComplementaresCriancasAdolescentesIds ?? []),
       })
     }
   } catch (err) {

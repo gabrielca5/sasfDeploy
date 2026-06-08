@@ -415,7 +415,7 @@ function FamilyAdminDetailPanel({ family, onAction, isMutating, onClose }) {
     NAO_RECEBE: 'Não recebe', RENDA_MINIMA: 'Renda Mínima', BOLSA_FAMILIA: 'Bolsa Família',
     RENDA_CIDADA: 'Renda Cidadã', ACAO_JOVEM: 'Ação Jovem', PETI: 'PETI',
   }
-  const bpcLabel = { NAO_RECEBE: 'Não recebe', IDOSO: 'Idoso', PCD: 'Pessoa com deficiência' }
+  const bpcLabel = { NAO_RECEBE: 'Não recebe', IDOSO: 'Idoso', PESSOA_COM_DEFICIENCIA: 'Pessoa com deficiência' }
   const label = (map, val) => map[val] ?? val
 
   return (

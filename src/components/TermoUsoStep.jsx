@@ -3,7 +3,9 @@ import { Box, Typography } from '@mui/material'
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded'
-import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded'
+import { downloadFichaProntuarioPdf, getFichaProntuarioPdfData, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
+import PdfViewerModal from './PdfViewerModal'
 import {
   ActionButton,
   ButtonLoading,
@@ -34,8 +36,10 @@ function TermoUsoStep({
 }) {
   const prontuarioId = pdfDownloadContext?.prontuarioId
   const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [viewingPdf, setViewingPdf] = useState(false)
   const [downloadError, setDownloadError] = useState(null)
   const [creatingTermo, setCreatingTermo] = useState(false)
+  const [pdfModal, setPdfModal] = useState({ open: false, url: '', filename: '' })
 
   const handleContinueAction = async () => {
     setCreatingTermo(true)
@@ -46,7 +50,7 @@ function TermoUsoStep({
     }
   }
 
-  const handlePdfAction = async () => {
+  const handleDownloadPdfAction = async () => {
     if (!prontuarioId) return
 
     setDownloadingPdf(true)
@@ -62,6 +66,31 @@ function TermoUsoStep({
     } finally {
       setDownloadingPdf(false)
     }
+  }
+
+  const handleViewPdfAction = async () => {
+    if (!prontuarioId) return
+
+    setViewingPdf(true)
+    setDownloadError(null)
+    try {
+      const { url, filename } = await getFichaProntuarioPdfData({
+        prontuarioId,
+        tipoFicha: FICHA_PDF_TYPES.TERMO_AUTORIZACAO_IMAGEM,
+      })
+      setPdfModal({ open: true, url, filename })
+    } catch (err) {
+      setDownloadError(err?.message || 'Não foi possível visualizar o PDF. Tente novamente.')
+    } finally {
+      setViewingPdf(false)
+    }
+  }
+
+  const handleClosePdfModal = () => {
+    if (pdfModal.url) {
+      URL.revokeObjectURL(pdfModal.url)
+    }
+    setPdfModal({ open: false, url: '', filename: '' })
   }
 
   return (
@@ -142,23 +171,38 @@ function TermoUsoStep({
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 500 }}>
                 O termo de autorização de uso de imagem e áudio utiliza os dados já preenchidos na triagem.
-                Clique no botão abaixo para baixar o arquivo PDF.
+                Visualize ou baixe o arquivo PDF antes da coleta da assinatura.
               </Typography>
             </Box>
 
-            <ButtonLoading
-              type="button"
-              variant="outlined"
-              size="large"
-              startIcon={<GetAppRoundedIcon />}
-              loading={downloadingPdf}
-              loadingLabel="Gerando PDF..."
-              onClick={handlePdfAction}
-              disabled={!prontuarioId}
-              sx={{ minWidth: 280, height: 56, borderRadius: 2 }}
-            >
-              Baixar Termo (PDF)
-            </ButtonLoading>
+            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <ButtonLoading
+                type="button"
+                variant="outlined"
+                size="large"
+                startIcon={<VisibilityRoundedIcon />}
+                loading={viewingPdf}
+                loadingLabel="Abrindo PDF..."
+                onClick={handleViewPdfAction}
+                disabled={!prontuarioId || downloadingPdf}
+                sx={{ minWidth: 220, height: 56, borderRadius: 2 }}
+              >
+                Visualizar Termo
+              </ButtonLoading>
+              <ButtonLoading
+                type="button"
+                variant="outlined"
+                size="large"
+                startIcon={<GetAppRoundedIcon />}
+                loading={downloadingPdf}
+                loadingLabel="Gerando PDF..."
+                onClick={handleDownloadPdfAction}
+                disabled={!prontuarioId || viewingPdf}
+                sx={{ minWidth: 220, height: 56, borderRadius: 2 }}
+              >
+                Baixar Termo
+              </ButtonLoading>
+            </Box>
 
             <InlineFeedback
               severity="info"
@@ -168,6 +212,13 @@ function TermoUsoStep({
           </Box>
         </FormCard>
       </PageSection>
+
+      <PdfViewerModal
+        open={pdfModal.open}
+        onClose={handleClosePdfModal}
+        pdfUrl={pdfModal.url}
+        filename={pdfModal.filename}
+      />
     </FormFlowLayout>
   )
 }

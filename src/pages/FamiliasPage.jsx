@@ -15,11 +15,12 @@ import {
 } from '@mui/material'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
+import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded'
 import GraphicEqOutlinedIcon from '@mui/icons-material/GraphicEqOutlined'
 import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded'
-import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded'
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded'
 import ViewModuleRoundedIcon from '@mui/icons-material/ViewModuleRounded'
@@ -28,11 +29,12 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import { useNavigate } from 'react-router-dom'
 
 import useFamilias from '../hooks/useFamilias'
-import { getOrientadorColors, ORIENTADOR_COLORS } from '../utils/orientadorColors'
+import { getOrientadorColors } from '../utils/orientadorColors'
 import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
 import { useTranscricoes, useSalvarTranscricao } from '../hooks/useTranscricoes'
-import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
+import { downloadFichaProntuarioPdf, getFichaProntuarioPdfData, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
 import { processarEntrevista } from '../services/whisper.service'
+import PdfViewerModal from '../components/PdfViewerModal'
 import {
   ActionButton,
   ActionCard,
@@ -391,7 +393,15 @@ function buildDownloadDocs(prontuario, termos = [], fallbackDocs = []) {
   })
 }
 
-function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [], onDownloadPdf, downloadingFichaKey }) {
+function DocTracking({
+  documentacao = [],
+  prontuarioDetalhe,
+  termos = [],
+  onDownloadPdf,
+  onViewPdf,
+  downloadingFichaKey,
+  viewingFichaKey,
+}) {
   // Se temos o prontuário do lazy load, recalcula os docs com dados frescos
   const docs = prontuarioDetalhe
     ? buildDownloadDocs(prontuarioDetalhe, termos, documentacao)
@@ -415,16 +425,30 @@ function DocTracking({ documentacao = [], prontuarioDetalhe, termos = [], onDown
                   fit
                 />
                 {doc.canDownload && (
-                  <ButtonLoading
-                    size="small"
-                    startIcon={<PictureAsPdfRoundedIcon />}
-                    loading={downloadingFichaKey === doc.downloadKey}
-                    loadingLabel="Baixando..."
-                    onClick={() => onDownloadPdf?.(doc)}
-                    sx={{ minHeight: 32 }}
-                  >
-                    PDF
-                  </ButtonLoading>
+                  <>
+                    <ButtonLoading
+                      size="small"
+                      startIcon={<VisibilityRoundedIcon />}
+                      loading={viewingFichaKey === doc.downloadKey}
+                      loadingLabel="Abrindo..."
+                      onClick={() => onViewPdf?.(doc)}
+                      disabled={downloadingFichaKey === doc.downloadKey}
+                      sx={{ minHeight: 32 }}
+                    >
+                      Visualizar
+                    </ButtonLoading>
+                    <ButtonLoading
+                      size="small"
+                      startIcon={<GetAppRoundedIcon />}
+                      loading={downloadingFichaKey === doc.downloadKey}
+                      loadingLabel="Baixando..."
+                      onClick={() => onDownloadPdf?.(doc)}
+                      disabled={viewingFichaKey === doc.downloadKey}
+                      sx={{ minHeight: 32 }}
+                    >
+                      Baixar
+                    </ButtonLoading>
+                  </>
                 )}
               </PageToolbar>
             }
@@ -549,7 +573,7 @@ function RichDataSection({ detalhe, loadingDetalhe }) {
     NAO_RECEBE: 'Não recebe', RENDA_MINIMA: 'Renda Mínima', BOLSA_FAMILIA: 'Bolsa Família',
     RENDA_CIDADA: 'Renda Cidadã', ACAO_JOVEM: 'Ação Jovem', PETI: 'PETI',
   }
-  const bpcLabel = { NAO_RECEBE: 'Não recebe', IDOSO: 'Idoso', PCD: 'Pessoa com deficiência' }
+  const bpcLabel = { NAO_RECEBE: 'Não recebe', IDOSO: 'Idoso', PESSOA_COM_DEFICIENCIA: 'Pessoa com deficiência' }
   const label = (map, val) => map[val] ?? val
 
   return (
@@ -669,7 +693,9 @@ function RichDataSection({ detalhe, loadingDetalhe }) {
 function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNovaAtualizacao }) {
   const { data: detalhe, isLoading: loadingDetalhe } = useFamiliaDetalhe(family?.prontuarioId)
   const [downloadingFichaKey, setDownloadingFichaKey] = useState(null)
-  const [downloadError, setDownloadError] = useState(null)
+  const [viewingFichaKey, setViewingFichaKey] = useState(null)
+  const [pdfActionError, setPdfActionError] = useState(null)
+  const [pdfModal, setPdfModal] = useState({ open: false, url: '', filename: '' })
 
   if (!family) return null
 
@@ -685,7 +711,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
   const handleDownloadFichaPdf = async ({ tipoFicha, fichaId, downloadKey }) => {
     const activeKey = downloadKey ?? `${tipoFicha}:${fichaId ?? 'unique'}`
     setDownloadingFichaKey(activeKey)
-    setDownloadError(null)
+    setPdfActionError(null)
 
     try {
       await downloadFichaProntuarioPdf({
@@ -694,10 +720,36 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         fichaId,
       })
     } catch (err) {
-      setDownloadError(err?.message || 'Não foi possível baixar o PDF da ficha. Tente novamente.')
+      setPdfActionError(err?.message || 'Não foi possível baixar o PDF da ficha. Tente novamente.')
     } finally {
       setDownloadingFichaKey(null)
     }
+  }
+
+  const handleViewFichaPdf = async ({ tipoFicha, fichaId, downloadKey }) => {
+    const activeKey = downloadKey ?? `${tipoFicha}:${fichaId ?? 'unique'}`
+    setViewingFichaKey(activeKey)
+    setPdfActionError(null)
+
+    try {
+      const { url, filename } = await getFichaProntuarioPdfData({
+        prontuarioId: family.prontuarioId,
+        tipoFicha,
+        fichaId,
+      })
+      setPdfModal({ open: true, url, filename })
+    } catch (err) {
+      setPdfActionError(err?.message || 'Não foi possível visualizar o PDF da ficha. Tente novamente.')
+    } finally {
+      setViewingFichaKey(null)
+    }
+  }
+
+  const handleClosePdfModal = () => {
+    if (pdfModal.url) {
+      URL.revokeObjectURL(pdfModal.url)
+    }
+    setPdfModal({ open: false, url: '', filename: '' })
   }
 
   const handleWhatsApp = (telefone) => {
@@ -769,8 +821,8 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         </ActionButton>
       </ActionCard>
 
-      {downloadError && (
-        <InlineFeedback severity="error" message={downloadError} compact />
+      {pdfActionError && (
+        <InlineFeedback severity="error" message={pdfActionError} compact />
       )}
 
       <PageGrid variant="detail2">
@@ -783,7 +835,9 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         prontuarioDetalhe={prontuarioDetalhe}
         termos={detalhe?.termos ?? []}
         downloadingFichaKey={downloadingFichaKey}
+        viewingFichaKey={viewingFichaKey}
         onDownloadPdf={handleDownloadFichaPdf}
+        onViewPdf={handleViewFichaPdf}
       />
 
       <RichDataSection detalhe={detalhe} loadingDetalhe={loadingDetalhe} />
@@ -814,6 +868,13 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
       )}
 
       <EntrevistasSection familiaId={family.id} />
+
+      <PdfViewerModal
+        open={pdfModal.open}
+        onClose={handleClosePdfModal}
+        pdfUrl={pdfModal.url}
+        filename={pdfModal.filename}
+      />
     </PageStack>
   )
 }

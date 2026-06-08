@@ -4,7 +4,8 @@ import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
 import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded'
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded'
-import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
+import { downloadFichaProntuarioPdf, getFichaProntuarioPdfData, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
+import PdfViewerModal from './PdfViewerModal'
 import {
   ActionButton,
   ButtonLoading,
@@ -33,11 +34,13 @@ function PlanoFamiliarPrintStep({
   stepperSubtitle,
 }) {
   const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [viewingPdf, setViewingPdf] = useState(false)
   const [downloadError, setDownloadError] = useState(null)
+  const [pdfModal, setPdfModal] = useState({ open: false, url: '', filename: '' })
 
   const canDownloadPdf = Boolean(pdfDownloadContext?.prontuarioId && pdfDownloadContext?.fichaId)
 
-  const handlePdfAction = async () => {
+  const handleDownloadPdfAction = async () => {
     if (!canDownloadPdf) return
 
     setDownloadingPdf(true)
@@ -54,6 +57,32 @@ function PlanoFamiliarPrintStep({
     } finally {
       setDownloadingPdf(false)
     }
+  }
+
+  const handleViewPdfAction = async () => {
+    if (!canDownloadPdf) return
+
+    setViewingPdf(true)
+    setDownloadError(null)
+    try {
+      const { url, filename } = await getFichaProntuarioPdfData({
+        prontuarioId: pdfDownloadContext.prontuarioId,
+        tipoFicha: FICHA_PDF_TYPES.PLANO_DESENVOLVIMENTO_FAMILIAR,
+        fichaId: pdfDownloadContext.fichaId,
+      })
+      setPdfModal({ open: true, url, filename })
+    } catch (err) {
+      setDownloadError(err?.message || 'Não foi possível visualizar o PDF do plano familiar. Tente novamente.')
+    } finally {
+      setViewingPdf(false)
+    }
+  }
+
+  const handleClosePdfModal = () => {
+    if (pdfModal.url) {
+      URL.revokeObjectURL(pdfModal.url)
+    }
+    setPdfModal({ open: false, url: '', filename: '' })
   }
 
   return (
@@ -133,23 +162,38 @@ function PlanoFamiliarPrintStep({
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 500 }}>
                 O Plano de Desenvolvimento Familiar utiliza os dados já preenchidos nas etapas anteriores.
-                Clique no botão abaixo para baixar o arquivo PDF.
+                Visualize ou baixe o arquivo PDF antes da coleta das assinaturas.
               </Typography>
             </Box>
 
-            <ButtonLoading
-              type="button"
-              variant="outlined"
-              size="large"
-              startIcon={<GetAppRoundedIcon />}
-              loading={downloadingPdf}
-              loadingLabel="Gerando PDF..."
-              onClick={handlePdfAction}
-              disabled={!canDownloadPdf}
-              sx={{ minWidth: 280, height: 56, borderRadius: 2 }}
-            >
-              Baixar Plano Familiar (PDF)
-            </ButtonLoading>
+            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <ButtonLoading
+                type="button"
+                variant="outlined"
+                size="large"
+                startIcon={<VisibilityRoundedIcon />}
+                loading={viewingPdf}
+                loadingLabel="Abrindo PDF..."
+                onClick={handleViewPdfAction}
+                disabled={!canDownloadPdf || downloadingPdf}
+                sx={{ minWidth: 220, height: 56, borderRadius: 2 }}
+              >
+                Visualizar Plano
+              </ButtonLoading>
+              <ButtonLoading
+                type="button"
+                variant="outlined"
+                size="large"
+                startIcon={<GetAppRoundedIcon />}
+                loading={downloadingPdf}
+                loadingLabel="Gerando PDF..."
+                onClick={handleDownloadPdfAction}
+                disabled={!canDownloadPdf || viewingPdf}
+                sx={{ minWidth: 220, height: 56, borderRadius: 2 }}
+              >
+                Baixar Plano
+              </ButtonLoading>
+            </Box>
 
             <InlineFeedback
               severity="info"
@@ -159,6 +203,13 @@ function PlanoFamiliarPrintStep({
           </Box>
         </FormCard>
       </PageSection>
+
+      <PdfViewerModal
+        open={pdfModal.open}
+        onClose={handleClosePdfModal}
+        pdfUrl={pdfModal.url}
+        filename={pdfModal.filename}
+      />
     </FormFlowLayout>
   )
 }
