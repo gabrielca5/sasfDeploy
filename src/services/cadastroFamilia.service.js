@@ -134,7 +134,21 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
     : await apiClient.post('/familia', {
         ativo: true,
         prioridade: 'MEDIA',
+        orientadorId: draft.orientadorId || null,
       })
+
+  // Vincula o orientador selecionado à família, se informado (via PUT conforme sugerido)
+  if (draft.orientadorId && familia.id) {
+    try {
+      const currentFamilia = await apiClient.get(`/familia/${familia.id}`).catch(() => null)
+      await apiClient.put(`/familia/${familia.id}`, {
+        ...(currentFamilia ?? { ativo: true, prioridade: 'MEDIA' }),
+        orientadorId: draft.orientadorId,
+      })
+    } catch (err) {
+      console.warn('Não foi possível vincular orientador à família:', err?.message)
+    }
+  }
 
   // 2. Cria o prontuário vinculado à família (ou reutiliza o existente)
   const prontuario = isCompletar

@@ -35,6 +35,11 @@ export async function listTecnicos() {
   return Array.isArray(res) ? res : res?.content || []
 }
 
+export async function listOrientadores() {
+  const res = await apiClient.get('/orientador?size=2000').catch(() => ({ content: [] }))
+  return Array.isArray(res) ? res : res?.content || []
+}
+
 export async function getUsuario(id) {
   return apiClient.get(`/usuario/${id}`)
 }

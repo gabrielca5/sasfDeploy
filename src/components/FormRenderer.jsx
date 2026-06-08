@@ -11,6 +11,7 @@ import {
   FormHelperText,
   FormLabel,
   CircularProgress,
+  InputLabel,
   MenuItem,
   InputAdornment,
   Select,
@@ -70,7 +71,8 @@ import {
 } from '../pages/ui/uiStyles'
 import { isValidCpf } from '../utils/formatters'
 import apiClient from '../lib/apiClient'
-import { PLANO_FAMILIAR_FORM_ID } from '../data/formFlows'
+import { PLANO_FAMILIAR_FORM_ID, TRIAGEM_FORM_ID } from '../data/formFlows'
+import { listOrientadores } from '../services/usuarios.service'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
@@ -977,6 +979,7 @@ export function FormRenderer({
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState(null)
   const [validationErrors, setValidationErrors] = useState({})
+  const [orientadores, setOrientadores] = useState([])
   const { lookup: lookupCep, loading: cepLoading, error: cepError } = useCepLookup()
   const { setValue: rhfSetValue, control } = useForm()
   const lastCepLookupRef = useRef(0)
@@ -985,6 +988,13 @@ export function FormRenderer({
   const previousFlowForm = currentFlowIndex > 0 ? flowSteps[currentFlowIndex - 1] : undefined
   const nextFlowForm = currentFlowIndex >= 0 && currentFlowIndex < flowSteps.length - 1 ? flowSteps[currentFlowIndex + 1] : undefined
   const nextFlowLabel = isNextSheet(form, nextFlowForm) ? 'Próxima folha' : 'Próxima etapa'
+
+  useEffect(() => {
+    const isFicha = form.id === 'ficha_cadastral_familia' || form.id === TRIAGEM_FORM_ID
+    if (isFicha) {
+      listOrientadores().then(setOrientadores).catch(console.error)
+    }
+  }, [form.id])
 
   useEffect(() => {
     let active = true
@@ -1466,15 +1476,41 @@ export function FormRenderer({
             footer={
               <FormActionsFooter
                 leading={
-                  <ActionButton
-                    type="button"
-                    variant="outlined"
-                    startIcon={<ArrowBackRoundedIcon />}
-                    onClick={() => previousFlowForm && onSelectFlowForm?.(previousFlowForm.id)}
-                    disabled={!previousFlowForm || !onSelectFlowForm}
-                  >
-                    Etapa anterior
-                  </ActionButton>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <ActionButton
+                      type="button"
+                      variant="outlined"
+                      startIcon={<ArrowBackRoundedIcon />}
+                      onClick={() => previousFlowForm && onSelectFlowForm?.(previousFlowForm.id)}
+                      disabled={!previousFlowForm || !onSelectFlowForm}
+                    >
+                      Etapa anterior
+                    </ActionButton>
+
+                    {(form.id === 'ficha_cadastral_familia' || form.id === TRIAGEM_FORM_ID) && (
+                      <FormControl variant="outlined" size="small" sx={{ minWidth: 240 }}>
+                        <InputLabel id="orientador-select-label">Orientador Responsável</InputLabel>
+                        <Select
+                          labelId="orientador-select-label"
+                          id="orientador-select"
+                          value={draft.orientadorId ?? ''}
+                          onChange={(e) => {
+                            setDraft(curr => ({ ...curr, orientadorId: e.target.value }))
+                          }}
+                          label="Orientador Responsável"
+                        >
+                          <MenuItem value="">
+                            <em>Nenhum</em>
+                          </MenuItem>
+                          {orientadores.map((o) => (
+                            <MenuItem key={o.id} value={o.id}>
+                              {o.name || o.nome || 'Orientador sem nome'}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  </Box>
                 }
                 actions={
                   <PageToolbar
