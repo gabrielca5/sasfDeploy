@@ -677,8 +677,12 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
       }
 
       if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === TRIAGEM_FORM_ID) {
-        // 1. Persistência Imediata da Triagem
+        // 1. Persistência Imediata da Triagem (Família, Prontuário, Representante e Ficha)
         newContext = await saveFormStep('ficha_cadastral_familia', draft, formContext)
+
+        // 2. Persistência do Termo (para que o PDF possa ser gerado na próxima etapa)
+        const termDraft = buildTermDraftFromTriagem(draft)
+        await saveFormStep(TERMO_USO_FORM_ID, termDraft, newContext)
       } else if (activeFlowId === NOVO_PRONTUARIO_FLOW_ID && currentForm.id === DEMANDA_FORM_ID) {
         // 2. Conclusão da Ficha Cadastral com a Demanda
         await saveFormStep('ficha_cadastral_complementar', draft, formContext)
