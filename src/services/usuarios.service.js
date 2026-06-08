@@ -54,6 +54,7 @@ export async function updateUsuario(id, payload, currentUser = {}) {
     corFundo: payload.corFundo || currentUser.corFundo,
     corTexto: payload.corTexto || currentUser.corTexto,
     cor: payload.cor || currentUser.cor,
+    tecnicoId: payload.tecnicoId || currentUser.tecnicoId || (currentUser.tecnico && currentUser.tecnico.id) || (currentUser.orientador && currentUser.orientador.tecnico && currentUser.orientador.tecnico.id),
   }
 
   const endpoint = fullPayload.cargo === 'ORIENTADOR' ? `/orientador/${id}` : `/usuario/${id}`
@@ -74,6 +75,7 @@ export async function updateStatusUsuario(id, status, currentUser = {}) {
     status: status,
     ativo: status === 'ATIVO',
     cor: currentUser.cor,
+    tecnicoId: currentUser.tecnicoId || (currentUser.tecnico && currentUser.tecnico.id) || (currentUser.orientador && currentUser.orientador.tecnico && currentUser.orientador.tecnico.id),
   }
 
   // Regras específicas de ativação/desativação

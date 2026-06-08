@@ -29,7 +29,7 @@ import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { listUsuarios, updateUsuario, updateStatusUsuario, deleteUsuario } from '../services/usuarios.service'
+import { listUsuarios, updateUsuario, updateStatusUsuario, deleteUsuario, listTecnicos } from '../services/usuarios.service'
 import { listFamilias, updateFamilia } from '../services/familias.service'
 import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
 import { ORIENTADOR_COLORS, getOrientadorColors } from '../utils/orientadorColors'
@@ -219,10 +219,11 @@ function FamilyAdminCard({ family, onClick, onAction, isMutating }) {
   )
 }
 
-function UserDetailPanel({ user, onAction, onUpdate, isMutating, onClose }) {
+function UserDetailPanel({ user, tecnicos = [], onAction, onUpdate, isMutating, onClose }) {
   const [formData, setFormData] = useState({
     cargo: user.cargo,
     cor: user.cor || '',
+    tecnicoId: user.tecnicoId || (user.tecnico && user.tecnico.id) || (user.orientador && user.orientador.tecnico && user.orientador.tecnico.id) || '',
   })
 
   const info = getOrientadorInfo(user)
@@ -233,7 +234,8 @@ function UserDetailPanel({ user, onAction, onUpdate, isMutating, onClose }) {
 
   const hasChanges =
     formData.cargo !== user.cargo ||
-    formData.cor !== (user.cor || '')
+    formData.cor !== (user.cor || '') ||
+    formData.tecnicoId !== (user.tecnicoId || (user.tecnico && user.tecnico.id) || (user.orientador && user.orientador.tecnico && user.orientador.tecnico.id) || '')
 
   const handleSave = () => {
     onUpdate(formData)
@@ -287,35 +289,54 @@ function UserDetailPanel({ user, onAction, onUpdate, isMutating, onClose }) {
           </FormControl>
 
           {formData.cargo === 'ORIENTADOR' && (
-            <FormControl fullWidth>
-              <InputLabel>Cor do Orientador</InputLabel>
-              <Select
-                value={formData.cor}
-                label="Cor do Orientador"
-                size="small"
-                onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
-                renderValue={(selected) => {
-                  if (!selected) return <em>Selecione uma cor</em>
-                  const p = ORIENTADOR_COLORS[selected]
-                  if (!p) return selected
-                  return (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: p.backgroundColor, border: '1px solid divider' }} />
-                      {p.label}
-                    </Box>
-                  )
-                }}
-              >
-                {Object.entries(ORIENTADOR_COLORS).map(([key, p]) => (
-                  <MenuItem key={key} value={key}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: p.backgroundColor, border: '1px solid divider' }} />
-                      {p.label}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <>
+              <FormControl fullWidth>
+                <InputLabel>Cor do Orientador</InputLabel>
+                <Select
+                  value={formData.cor}
+                  label="Cor do Orientador"
+                  size="small"
+                  onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                  renderValue={(selected) => {
+                    if (!selected) return <em>Selecione uma cor</em>
+                    const p = ORIENTADOR_COLORS[selected]
+                    if (!p) return selected
+                    return (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: p.backgroundColor, border: '1px solid divider' }} />
+                        {p.label}
+                      </Box>
+                    )
+                  }}
+                >
+                  {Object.entries(ORIENTADOR_COLORS).map(([key, p]) => (
+                    <MenuItem key={key} value={key}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: p.backgroundColor, border: '1px solid divider' }} />
+                        {p.label}
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth>
+                <InputLabel>Técnico Responsável</InputLabel>
+                <Select
+                  value={formData.tecnicoId}
+                  label="Técnico Responsável"
+                  size="small"
+                  onChange={(e) => setFormData({ ...formData, tecnicoId: e.target.value })}
+                >
+                  <MenuItem value=""><em>Nenhum</em></MenuItem>
+                  {tecnicos.map((t) => (
+                    <MenuItem key={t.id || t.userId} value={t.id || t.userId}>
+                      {t.name || t.nome || t.email}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </>
           )}
         </PageGrid>
 
@@ -595,6 +616,11 @@ function GestorUsuariosPage() {
   const { data: users = [], isLoading: loadingUsers, isError: errorUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['usuarios'],
     queryFn: listUsuarios,
+  })
+
+  const { data: tecnicos = [], isLoading: loadingTecnicos } = useQuery({
+    queryKey: ['tecnicos'],
+    queryFn: listTecnicos,
   })
 
   const { data: families = [], isLoading: loadingFamilies, isError: errorFamilies, refetch: refetchFamilies } = useQuery({
@@ -957,6 +983,7 @@ function GestorUsuariosPage() {
         {selectedUser && (
           <UserDetailPanel
             user={selectedUser}
+            tecnicos={tecnicos}
             onAction={handleUserAction}
             onClose={() => setSelectedUser(null)}
             onUpdate={(payload) => mutationUpdateUser.mutate({ 

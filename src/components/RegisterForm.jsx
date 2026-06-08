@@ -231,11 +231,13 @@ function RegisterForm() {
       endereco: data.endereco,
       dataDeInclusao: today,
       ultimaAtualizacao: today,
+      status: 'PENDENTE',
       ativo: true,
     }
 
     if (data.cargo === 'ORIENTADOR') {
       payload.cor = data.cor
+      payload.tecnicoId = null
     }
 
     if (data.cargo === 'TECNICO') {
@@ -246,11 +248,9 @@ function RegisterForm() {
       await registerUser(payload)
       navigate('/login', { state: { registered: true } })
     } catch (e) {
-      setError(
-        e.status === 409
-          ? 'Este email já está cadastrado.'
-          : e.message || 'Erro ao criar conta. Tente novamente.',
-      )
+      console.error('Erro no cadastro:', e)
+      const backendMessage = e.data?.mensagem || e.data?.message || e.message
+      setError(backendMessage || 'Erro ao criar conta. Tente novamente.')
     } finally {
       setIsLoading(false)
     }

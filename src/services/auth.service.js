@@ -1,5 +1,6 @@
+import apiClient from '../lib/apiClient'
+
 const TOKEN_KEY = 'sasf_token'
-const BASE = import.meta.env.VITE_API_URL || ''
 
 function decodeToken(token) {
   try {
@@ -25,36 +26,25 @@ export function getUser() {
 }
 
 export async function login(email, senha) {
-  const res = await fetch(`${BASE}/usuario/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, senha }),
-  })
-  const data = await res.json()
-  if (!res.ok) {
-    const err = new Error(data?.mensagem || 'Credenciais inválidas')
-    err.status = res.status
-    throw err
-  }
+  const data = await apiClient.post('/usuario/login', { email, senha })
   localStorage.setItem(TOKEN_KEY, data.token)
   return getUser()
 }
 
 export async function register(payload) {
-  const res = await fetch(`${BASE}/usuario`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  const data = await res.json()
-  if (!res.ok) {
-    const err = new Error(data?.mensagem || 'Erro ao cadastrar')
-    err.status = res.status
-    throw err
-  }
-  return data
+  // Tentamos o endpoint genérico de usuário primeiro, pois o de orientador
+  // pode estar com restrições de integridade (como falta de campo senha no DTO)
+  return apiClient.post('/usuario', payload)
 }
 
 export function logout() {
   localStorage.removeItem(TOKEN_KEY)
+}
+
+export default {
+  getToken,
+  getUser,
+  login,
+  register,
+  logout,
 }
