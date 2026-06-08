@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import {
   Box,
   Chip,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -1023,7 +1024,10 @@ function FamiliesPage() {
               <PageText variant="subtitle2" color="primary" fontWeight={800}>
                 Famílias encontradas
               </PageText>
-              {!isLoading && <StatusChip label={`${sortedFamilies.length}`} />}
+              {isLoading
+                ? <CircularProgress size={16} thickness={5} />
+                : <StatusChip label={`${sortedFamilies.length}`} />
+              }
               {sortedFamilies.length > PAGE_SIZE && (
                 <PageText variant="caption">
                   Página {currentPage} de {totalPages}
