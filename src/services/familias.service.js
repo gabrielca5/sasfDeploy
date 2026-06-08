@@ -145,15 +145,25 @@ async function getContatoByProntuario(prontuario, prontuarioId) {
 }
 
 export async function listFamilias(params = {}) {
-  const [familias, membros, prontuarios] = await Promise.all([
+  const [familias, membros, prontuarios, orientadores] = await Promise.all([
     apiClient.get(withPageSize('/familia', params)),
     apiClient.get(withPageSize('/membro')).catch(() => []),
     apiClient.get(withPageSize('/prontuario')).catch(() => []),
+    apiClient.get('/orientador?size=2000').catch(() => []),
   ])
   const famArray = asArray(familias)
   const memArray = asArray(membros)
   const prontuarioArray = asArray(prontuarios)
-  const normalized = famArray.map((f) => normalizeFamilia(f, memArray, prontuarioArray, []))
+  const orientadorArray = asArray(orientadores)
+
+  const normalized = famArray.map((f) => {
+    const family = normalizeFamilia(f, memArray, prontuarioArray, [])
+    // Encontrar o orientador completo para pegar a cor e outros dados
+    if (f.orientadorId) {
+      family.orientador = orientadorArray.find(o => (o.id === f.orientadorId || o.userId === f.orientadorId)) || { id: f.orientadorId }
+    }
+    return family
+  })
 
   return Promise.all(normalized.map(async (family) => {
     const prontuario = prontuarioArray.find((p) => p.id === family.prontuarioId || p.familiaId === family.id)

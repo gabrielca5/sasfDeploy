@@ -31,6 +31,7 @@ import useFamilias from '../hooks/useFamilias'
 import CadastrarUsuarioPage from '../pages/CadastrarUsuarioPage'
 import CalendarioPage from '../pages/CalendarioPage'
 import FamiliasPage from '../pages/FamiliasPage'
+import GestorUsuariosPage from '../pages/GestorUsuariosPage'
 import ProntuarioFlowIntroContent from '../pages/ProntuarioFlowIntroContent'
 import ProntuarioFlowIntroDialog from '../pages/ProntuarioFlowIntroDialog'
 import ProntuarioFlowIntroPage from '../pages/ProntuarioFlowIntroPage'
@@ -583,9 +584,14 @@ function DashboardContent({ sectionSlug, formId, actionSlug }) {
   const isGraficosSection = currentSection.slug === 'graficos'
   const isVisaoGeralSection = currentSection.slug === 'visao-geral'
   const isPerfilSection = currentSection.slug === 'perfil'
+  const isUsuariosSection = currentSection.slug === 'usuarios'
 
   if (isFamiliasSection) {
     return <FamiliasPage />
+  }
+
+  if (isUsuariosSection) {
+    return <GestorUsuariosPage />
   }
 
   if (isCalendarioSection) {

@@ -31,6 +31,13 @@ export const dashboardSections = [
     description: 'Informações do usuário autenticado.',
   },
   {
+    label: 'Administração',
+    slug: 'usuarios',
+    title: 'Administração',
+    description: 'Gestão de usuários e controle de acesso das famílias.',
+    roles: ['ADMIN', 'GESTOR'],
+  },
+  {
     label: 'Gráficos',
     slug: 'graficos',
     title: 'Gráficos',

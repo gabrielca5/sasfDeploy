@@ -16,6 +16,7 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded'
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined'
 import logoPng from '../assets/chicoLogo.png'
 import DashboardContent from './DashboardContent'
 import { dashboardSections } from '../data/dashboardSections'
@@ -29,6 +30,7 @@ const sectionIcons = {
   cadastro: <AddCircleOutlineRoundedIcon fontSize="small" />,
   calendario: <CalendarMonthOutlinedIcon fontSize="small" />,
   perfil: <AccountCircleOutlinedIcon fontSize="small" />,
+  usuarios: <AdminPanelSettingsOutlinedIcon fontSize="small" />,
 }
 
 const cargoLabels = {
@@ -57,7 +59,11 @@ const SIDEBAR_ICON_SELECTED = '#60a5fa'
 const SIDEBAR_DIVIDER = 'rgba(255,255,255,0.08)'
 
 function SidebarContent({ sectionSlug, onNavigate, onClose, user }) {
-  const visibleSections = dashboardSections.filter((s) => !s.hidden)
+  const visibleSections = dashboardSections.filter((s) => {
+    if (s.hidden) return false
+    if (s.roles && !s.roles.includes(user?.cargo)) return false
+    return true
+  })
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: SIDEBAR_BG }}>

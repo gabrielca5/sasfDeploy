@@ -22,7 +22,8 @@ async function request(path, opts = {}) {
     data = text
   }
   if (!res.ok) {
-    const err = new Error(res.statusText || 'HTTP error')
+    const message = data?.mensagem || data?.message || res.statusText || 'HTTP error'
+    const err = new Error(message)
     err.status = res.status
     err.data = data
     throw err

@@ -28,6 +28,7 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
 import { useNavigate } from 'react-router-dom'
 
 import useFamilias from '../hooks/useFamilias'
+import { getOrientadorColors, ORIENTADOR_COLORS } from '../utils/orientadorColors'
 import useFamiliaDetalhe from '../hooks/useFamiliaDetalhe'
 import { useTranscricoes, useSalvarTranscricao } from '../hooks/useTranscricoes'
 import { downloadFichaProntuarioPdf, FICHA_PDF_TYPES } from '../services/prontuarioPdf.service'
@@ -70,46 +71,33 @@ const sortOptions = [
 
 const PAGE_SIZE = 32
 
-const orientadorPalette = [
-  { id: 'orientador1', backgroundColor: '#FDECEC', color: '#B91C1C' },
-  { id: 'orientador2', backgroundColor: '#FEF9C3', color: '#A16207' },
-  { id: 'orientador3', backgroundColor: '#DCFCE7', color: '#15803D' },
-  { id: 'orientador4', backgroundColor: '#DBEAFE', color: '#1D4ED8' },
-  { id: 'orientador5', backgroundColor: '#F3E8FF', color: '#7E22CE' },
-  { id: 'orientador6', backgroundColor: '#FFEDD5', color: '#C2410C' },
-  { id: 'orientador7', backgroundColor: '#FCE7F3', color: '#BE185D' },
-  { id: 'orientador8', backgroundColor: '#EFE2D6', color: '#7C2D12' },
-]
-
-function getOrientadorLabel(seed) {
-  const value = String(seed || '')
-  let hash = 0
-
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash + value.charCodeAt(i) * (i + 1)) % 2147483647
-  }
-
-  return orientadorPalette[hash % orientadorPalette.length]
-}
-
 function getOrientadorInfo(family) {
   const fromApi = family?.orientador
-  if (fromApi?.corFundo && fromApi?.corTexto) {
+  
+  // 1. Tentar pegar a cor estruturada (enum) do backend
+  // O orientador pode estar direto no objeto family ou dentro de family.orientador
+  const corEnum = fromApi?.cor || family?.cor
+  const seed = fromApi?.nome || fromApi?.id || family?.nome_representante || family?.id
+
+  const colors = getOrientadorColors(corEnum, seed)
+
+  // 2. Fallback para hexadecimais legados caso o backend ainda envie assim
+  if (fromApi?.corFundo && fromApi?.corTexto && !fromApi?.cor) {
     return {
       id: fromApi.nome ?? fromApi.id ?? 'Orientador',
       backgroundColor: fromApi.corFundo,
       color: fromApi.corTexto,
+      label: fromApi.nome || 'Orientador',
       isFallback: false,
     }
   }
 
-  // TODO: usar cor do orientador quando o backend expor no prontuario-controller.
-  const fallback = getOrientadorLabel(fromApi?.id ?? fromApi?.nome ?? family?.nome_representante)
   return {
-    id: fromApi?.nome ?? fallback.id,
-    backgroundColor: fallback.backgroundColor,
-    color: fallback.color,
-    isFallback: true,
+    id: fromApi?.nome || colors.label,
+    backgroundColor: colors.backgroundColor,
+    color: colors.color,
+    label: colors.label,
+    isFallback: colors.isFallback,
   }
 }
 
@@ -502,7 +490,7 @@ function FamilyPreviewCard({ family, selected, onSelect }) {
         {family.status === 'Inativo' && <StatusChip status={family.status} />}
         <StatusChip label={`Prioridade ${family.prioridade}`} {...prioProps} />
         <StatusChip
-          label={orientador.id}
+          label={orientador.label}
           customColor={orientador.backgroundColor}
           customTextColor={orientador.color}
         />
@@ -544,7 +532,7 @@ function FamilyListItem({ family, selected, onSelect }) {
         <PageText noWrap>
           {formatDate(family.ultima_visita)}
         </PageText>
-        <StatusChip label={orientador.id} customColor={orientador.backgroundColor} customTextColor={orientador.color} fit />
+        <StatusChip label={orientador.label} customColor={orientador.backgroundColor} customTextColor={orientador.color} fit />
       </PageGrid>
     </PageListItem>
   )
@@ -733,7 +721,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
             <StatusChip label={`Prioridade ${family.prioridade}`} {...prioPropsDetail} />
             {family.cras && family.cras !== '—' && <StatusChip label={family.cras} />}
             <StatusChip
-              label={orientadorRepresentante.id}
+              label={orientadorRepresentante.label}
               customColor={orientadorRepresentante.backgroundColor}
               customTextColor={orientadorRepresentante.color}
             />
@@ -804,7 +792,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
         <SectionBlock title="Composição Familiar" variant="plain">
           <PageList variant="embedded">
             {family.composicao_familiar.map((member) => {
-              const orientadorMembro = getOrientadorLabel(`${family.id}-${member.nome}`)
+              const orientadorMembro = getOrientadorColors(null, `${family.id}-${member.nome}`)
               return (
                 <PageListItem
                   key={`${family.id}-${member.nome}`}
@@ -813,7 +801,7 @@ function FamilyDetailPanel({ family, onStartRegistro, onCompletarCadastro, onNov
                   variant="compact"
                   footer={
                     <PageToolbar justifyContent="flex-start">
-                      <StatusChip label={orientadorMembro.id} customColor={orientadorMembro.backgroundColor} customTextColor={orientadorMembro.color} />
+                      <StatusChip label={orientadorMembro.label} customColor={orientadorMembro.backgroundColor} customTextColor={orientadorMembro.color} />
                       <StatusChip label={`Renda ${member.renda === '—' ? 'não informada' : `R$ ${member.renda}`}`} />
                       {member.fator && member.fator !== '—' && <StatusChip label={member.fator} />}
                     </PageToolbar>
@@ -878,7 +866,7 @@ function FamiliesPage() {
       const matchesOrientador =
         orientadorFilter === 'Todos' ||
         family.orientador?.nome === orientadorFilter ||
-        getOrientadorInfo(family).id === orientadorFilter
+        getOrientadorInfo(family).label === orientadorFilter
 
       return matchesQuery && matchesStatus && matchesPriority && matchesDistrict && matchesStreet && matchesBenefit && matchesOrientador
     })
@@ -890,7 +878,7 @@ function FamiliesPage() {
     const values = new Set()
     familiasList.forEach((family) => {
       if (family.orientador?.nome) values.add(family.orientador.nome)
-      values.add(getOrientadorInfo(family).id)
+      values.add(getOrientadorInfo(family).label)
     })
     return ['Todos', ...Array.from(values)]
   }, [familiasList])

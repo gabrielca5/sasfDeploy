@@ -47,7 +47,7 @@ function App() {
           path="/dashboard/usuarios"
           element={
             <ProtectedRoute allowedRoles={ADMIN_GESTOR}>
-              <DashboardPage />
+              <DashboardLayout sectionSlug="usuarios" />
             </ProtectedRoute>
           }
         />
