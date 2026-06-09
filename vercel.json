@@ -5,6 +5,10 @@
       "destination": "http://98.89.223.51/api/:path*"
     },
     {
+      "source": "/whisper/:path*",
+      "destination": "http://98.89.223.51:8000/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

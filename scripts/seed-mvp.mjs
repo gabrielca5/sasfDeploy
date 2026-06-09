@@ -74,7 +74,7 @@ function asArray(r) {
 }
 
 // ------------------------------------------------------------ RNG seedado ----
-let _seed = 20260605
+let _seed = Date.now() & 0x7fffffff
 function rnd() {
   _seed = (_seed * 1103515245 + 12345) & 0x7fffffff
   return _seed / 0x7fffffff
@@ -114,8 +114,12 @@ const SITUACAO_HAB = ['FAVELA', 'FAVELA', 'CORTICO', 'LOTEAMENTO_IRREGULAR']
 const PROGRAMAS_RENDA = ['BOLSA_FAMILIA', 'RENDA_MINIMA', 'RENDA_CIDADA', 'ACAO_JOVEM', 'PETI']
 const BPC = ['IDOSO', 'PCD']
 
-const TECNICOS = ['Ana Paula Martins', 'Ricardo Santos', 'Cláudia Ferreira', 'Marcos Oliveira', 'Patrícia Lima', 'Eduardo Costa']
-const ORIENTADORES = ['Orientador A — CRAS Heliópolis', 'Orientador B — CRAS Sacomã', 'Orientador C — CRAS São João Clímaco']
+const TECNICOS_FALLBACK = ['Ana Paula Martins', 'Ricardo Santos', 'Cláudia Ferreira', 'Marcos Oliveira', 'Patrícia Lima', 'Eduardo Costa']
+const ORIENTADORES_FALLBACK = ['Orientador A — CRAS Heliópolis', 'Orientador B — CRAS Sacomã', 'Orientador C — CRAS São João Clímaco']
+
+// Preenchidos no main() a partir de GET /usuario
+let tecnicoUsers = []   // { id, name, cargo: 'TECNICO' }
+let orientadorUsers = [] // { id, name, cargo: 'ORIENTADOR' }
 
 const ANALISES_DIAGNOSTICAS = [
   'Família em situação de vulnerabilidade socioeconômica, com histórico de desemprego e dificuldade de acesso a serviços básicos. Apresenta relações familiares preservadas e interesse na participação das atividades da UNAS.',
@@ -145,6 +149,25 @@ const SINTESES_PDU = [
   'Usuária idosa com limitações físicas e dependência de cuidador informal. Não acessa o BPC. Necessita de orientação jurídica e encaminhamentos para serviços de saúde e reabilitação.',
   'Usuário egresso do sistema prisional em processo de reintegração social. Enfrenta dificuldades de empregabilidade e retomada de vínculos familiares. Demanda acompanhamento intensivo.',
   'Usuária com filhos menores sob risco de trabalho infantil. Renda familiar insuficiente. Demanda ações de proteção às crianças e orientação sobre direitos e benefícios disponíveis.',
+]
+
+const OBJETIVOS_VISITA = [
+  'Verificar as condições gerais da família e atualizar informações cadastrais.',
+  'Acompanhar cumprimento das metas do Plano de Desenvolvimento Familiar.',
+  'Verificar situação escolar das crianças e condicionalidades do Bolsa Família.',
+  'Avaliar situação habitacional e encaminhar para serviço de regularização.',
+  'Acompanhar a pessoa idosa dependente e orientar o cuidador familiar.',
+  'Verificar situação de saúde dos membros e encaminhar para UBS se necessário.',
+  'Fortalecer vínculos e orientar a família sobre direitos socioassistenciais.',
+]
+const DEMANDAS_VISITA = [
+  'Família orientada sobre documentação para acesso ao Bolsa Família. Crianças matriculadas na escola. Próxima visita agendada.',
+  'Representante relatou dificuldades financeiras. Encaminhada para programa de qualificação profissional do CRAS.',
+  'Situação habitacional apresenta risco. Família encaminhada para SEHAB para regularização fundiária.',
+  'Crianças com vacinação em atraso. Orientação sobre UBS e agendamento de consultas realizado.',
+  'Pessoa idosa sem acesso ao BPC. Iniciado processo de documentação para solicitação do benefício.',
+  'Situação de violência intrafamiliar relatada. Encaminhamento para CREAS e orientação jurídica realizados.',
+  'Família participou de grupo socioeducativo. Mantida na agenda de acompanhamento mensal.',
 ]
 
 const OBSERVACOES_FOLHA = [
@@ -181,11 +204,22 @@ function ageIn2026(dataNasc) {
 
 // --------------------------------------------------------------- Wipe --------
 async function wipe() {
-  // Sem cascade no backend: apaga cada entidade. Ordem dos filhos -> pais.
+  // folhaProsseguimento e fichaAttQuadro têm unique constraint em id_tecnico_responsavel no DB
+  // (constraint legada — não visível no Java). O soft-delete não zera o FK, impedindo novos inserts.
+  // Fix: PUT com tecnicoResponsavelId: null antes do soft-delete (backend aceita após fix de updateEntity).
+  for (const ep of ['folhaprosseguimento', 'fichaattquadro']) {
+    let itens
+    try { itens = asArray(await get(`/${ep}?size=2000`)) } catch { itens = [] }
+    for (const it of itens) {
+      try { await put(`/${ep}/${it.id}`, { tecnicoResponsavelId: null }) } catch { /* best effort */ }
+    }
+  }
+
+  // Ordem filhos -> pais para evitar FK blocker no soft-delete
   const ordem = [
     'membro', 'fichavisita', 'termo', 'folhaprosseguimento', 'pdu',
     'pdf', 'fichaattquadro', 'fichacadastral', 'prontuario',
-    'familia', 'representante', 'endereco', 'orientador',
+    'familia', 'representante', 'endereco',
   ]
   for (const ent of ordem) {
     let itens
@@ -398,6 +432,7 @@ async function criarFamilia(idx) {
     await post('/termo', {
       prontuarioId: prontuario.id,
       usuarioAutorizanteId: null,
+      nomeAutorizante: chefeNome,
       numeroCedulaIdentidade: chefeRg,
       cpf: chefeCpf,
       nomesCriancasAutorizadas: criancaNomes,
@@ -427,7 +462,7 @@ async function criarFamilia(idx) {
       observacoes: null,
       itensPlanoIds: [],
       assinaturaResponsavelFamilia: null,
-      tecnicoReferenciaId: null,
+      tecnicoReferenciaId: tecnicoUsers.length ? pick(tecnicoUsers).id : null,
     })
     if (plano?.id) { planoIds.push(plano.id); docsOk.push('plano') }
   } catch (e) {
@@ -449,12 +484,31 @@ async function criarFamilia(idx) {
     console.warn(`    (aviso) folha prosseguimento falhou p/ ${chefeNome}: ${e.status ?? ''}`)
   }
 
-  // 10) PDU — plano de desenvolvimento do usuário
+  // 10) ficha de visita domiciliar
+  try {
+    const orientadorId = orientadorUsers.length ? pick(orientadorUsers).id : null
+    await post('/fichavisita', {
+      prontuarioId: prontuario.id,
+      orientadorResponsavelId: orientadorId,
+      representanteVisitadoId: representante.id,
+      dataVisita: new Date(`${dateBetween('2024-06-01', '2026-05-15')}T10:${int(0,5)*10}:00.000Z`).toISOString(),
+      objetivoDaVisita: pick(OBJETIVOS_VISITA),
+      pessoasFamiliaQueConversaram: chefeNome + (chance(0.5) ? ` e ${pick(membros.filter(m => m.parentescoOuVinculo !== 'Representante'))?.nome || ''}`.trimEnd() : ''),
+      demandasOrientacoesEncaminhamentos: pick(DEMANDAS_VISITA),
+    })
+    docsOk.push('visita')
+  } catch (e) {
+    console.warn(`    (aviso) fichavisita falhou p/ ${chefeNome}: ${e.status ?? ''}`)
+  }
+
+  // 11) PDU — plano de desenvolvimento do usuário
   try {
     const pdu = await post('/pdu', {
       familiaId: familia.id,
-      representanteId: null,
-      tecnicoAcompanhamentoId: null,
+      representanteId: representante.id,
+      beneficiarioId: pick(membrosCriados).id,
+      tipoBeneficiario: pick(['IDOSO', 'DEFICIENTE_ADULTO', 'DEFICIENTE_CRIANCA', 'DEFICIENTE_ADOLESCENTE']),
+      assinaturaResponsavelFamilia: false,
       sinteseSituacaoApresentada: pick(SINTESES_PDU),
       situacoesAgravoIdentificadas: [],
       outrasSituacoesAgravo: null,
@@ -469,15 +523,14 @@ async function criarFamilia(idx) {
     })
     if (pdu?.id) { pduIds.push(pdu.id); docsOk.push('pdu') }
   } catch (e) {
-    console.warn(`    (aviso) PDU falhou p/ ${chefeNome}: ${e.status ?? ''}`)
+    console.warn(`    (aviso) PDU falhou p/ ${chefeNome}: ${e.status ?? ''} — ${e.message?.slice(0, 400)}`)
   }
 
-  // 11) ficha de atualização do quadro situacional
+  // 12) ficha de atualização do quadro situacional
   try {
     const fichaAtt = await post('/fichaattquadro', {
       prontuarioId: prontuario.id,
       familiaId: familia.id,
-      tecnicoResponsavelId: null,
       matricula: String(int(1000, 9999)),
       rf: null,
       nis: representante.nisNitNb ?? String(int(10000000000, 99999999999)),
@@ -530,8 +583,8 @@ async function criarFamilia(idx) {
       observacoes: pick(OBSERVACOES_FOLHA),
       tipoPlano: [],
       dataRegistro: dateBetween('2024-06-01', '2026-05-01'),
-      tecnico: pick(TECNICOS),
-      orientador: pick(ORIENTADORES),
+      tecnico: tecnicoUsers.length ? pick(tecnicoUsers).name : pick(TECNICOS_FALLBACK),
+      orientador: orientadorUsers.length ? pick(orientadorUsers).name : pick(ORIENTADORES_FALLBACK),
       responsavel: chefeNome,
     })
     if (fichaAtt?.id) { fichaAtualizacaoIds.push(fichaAtt.id); docsOk.push('fichaAtt') }
@@ -539,7 +592,7 @@ async function criarFamilia(idx) {
     console.warn(`    (aviso) fichaAttQuadro falhou p/ ${chefeNome}: ${e.status ?? ''}`)
   }
 
-  // 12) vincula todos os documentos ao prontuário em um único PUT
+  // 13) vincula todos os documentos ao prontuário em um único PUT
   await put(`/prontuario/${prontuario.id}`, {
     familiaId: familia.id,
     fichaCadastralDaFamiliaId: fichaId,
@@ -549,7 +602,7 @@ async function criarFamilia(idx) {
     planosDesenvolvimentoUsuarioIds: pduIds,
   })
 
-  // 13) fecha o vínculo: membros/prontuário na família
+  // 14) fecha o vínculo: membros/prontuário na família
   await put(`/familia/${familia.id}`, {
     representanteId: representante.id,
     membrosIds: membrosCriados.map((m) => m.id),
@@ -558,6 +611,7 @@ async function criarFamilia(idx) {
     prioridade,
     ultimaVisita: familia.ultimaVisita,
     proximaVisita: familia.proximaVisita,
+    orientadorId: orientadorUsers.length ? pick(orientadorUsers).id : null,
   })
 
   console.log(`  [${idx + 1}/${N_FAMILIAS}] ${chefeNome} — ${membrosCriados.length} membros, prioridade ${prioridade}, docs: [${docsOk.join(', ')}]`)
@@ -574,6 +628,16 @@ async function main() {
   const login = await post('/usuario/login', { email: EMAIL, senha: SENHA })
   token = login.token
   console.log('Login OK')
+
+  // Busca usuários cadastrados para vincular técnicos e orientadores
+  try {
+    const usuarios = asArray(await get('/usuario?size=2000'))
+    tecnicoUsers = usuarios.filter(u => u.cargo === 'TECNICO' && u.ativo !== false)
+    orientadorUsers = usuarios.filter(u => u.cargo === 'ORIENTADOR' && u.ativo !== false)
+    console.log(`Usuários: ${tecnicoUsers.length} técnico(s), ${orientadorUsers.length} orientador(es)`)
+  } catch (e) {
+    console.warn('Não foi possível buscar usuários — técnico/orientador sem vínculo de ID:', e.message?.slice(0, 60))
+  }
 
   if (WIPE || WIPE_ONLY) {
     console.log('Limpando dados existentes...')
@@ -596,7 +660,7 @@ async function main() {
 
   // resumo
   console.log('\nResumo final:')
-  for (const e of ['familia', 'representante', 'membro', 'prontuario', 'fichacadastral', 'pdf', 'folhaprosseguimento', 'pdu', 'fichaattquadro', 'termo', 'endereco']) {
+  for (const e of ['familia', 'representante', 'membro', 'prontuario', 'fichacadastral', 'pdf', 'folhaprosseguimento', 'fichavisita', 'pdu', 'fichaattquadro', 'termo', 'endereco']) {
     try {
       console.log(`  ${e}: ${asArray(await get(`/${e}?size=2000`)).length}`)
     } catch {
