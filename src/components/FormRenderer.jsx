@@ -71,8 +71,8 @@ import {
 } from '../pages/ui/uiStyles'
 import { isValidCpf } from '../utils/formatters'
 import apiClient from '../lib/apiClient'
-import { PLANO_FAMILIAR_FORM_ID, TRIAGEM_FORM_ID } from '../data/formFlows'
-import { listOrientadores } from '../services/usuarios.service'
+import { PLANO_FAMILIAR_FORM_ID, TRIAGEM_FORM_ID, TERMO_USO_FORM_ID } from '../data/formFlows'
+import { listOrientadores, listTecnicos } from '../services/usuarios.service'
 
 function getInitialFieldValue(field) {
   if (field.valor_padrao !== undefined) {
@@ -980,7 +980,10 @@ export function FormRenderer({
   const [pendingAction, setPendingAction] = useState(null)
   const [validationErrors, setValidationErrors] = useState({})
   const [orientadores, setOrientadores] = useState([])
+  const [tecnicos, setTecnicos] = useState([])
+  const [selectedTecnicoId, setSelectedTecnicoId] = useState(null)
   const [loadingOrientadores, setLoadingOrientadores] = useState(false)
+  const { user } = useAuth()
   const { lookup: lookupCep, loading: cepLoading, error: cepError } = useCepLookup()
   const { setValue: rhfSetValue, control } = useForm()
   const lastCepLookupRef = useRef(0)
@@ -999,12 +1002,18 @@ export function FormRenderer({
 
     if (isFicha) {
       setLoadingOrientadores(true)
-      listOrientadores()
-        .then(setOrientadores)
+      Promise.all([
+        listOrientadores().then(setOrientadores),
+        listTecnicos().then(setTecnicos),
+      ])
         .catch(console.error)
         .finally(() => setLoadingOrientadores(false))
+
+      if (user?.cargo === 'TECNICO') {
+        setSelectedTecnicoId(user.userId)
+      }
     }
-  }, [form.id, form.titulo])
+  }, [form.id, form.titulo, user])
 
   useEffect(() => {
     let active = true
@@ -1270,9 +1279,12 @@ export function FormRenderer({
     onDraftChange?.(form.id, draft)
   }, [draft, form.id, onDraftChange])
 
-  const { user } = useAuth()
+  const orientadoresFiltrados = selectedTecnicoId
+    ? orientadores.filter(o => (o.tecnicoId ?? o.tecnico?.id) === selectedTecnicoId)
+    : orientadores
   const [searchParams] = useSearchParams()
   const prontuarioId = searchParams.get('prontuarioId')
+  const fichaCadastralIdParam = searchParams.get('fichaCadastralId')
 
   useEffect(() => {
     if (form.id !== PLANO_FAMILIAR_FORM_ID || !prontuarioId) {
@@ -1337,6 +1349,53 @@ export function FormRenderer({
       active = false
     }
   }, [form.id, prontuarioId, user])
+
+  useEffect(() => {
+    if (form.id !== TERMO_USO_FORM_ID) return
+
+    const familiaIdParam = searchParams.get('familiaId')
+    if (!fichaCadastralIdParam && !familiaIdParam) return
+
+    let active = true
+
+    ;(async () => {
+      try {
+        // Tenta obter representanteId pela ficha cadastral ou pela família
+        let representanteId = null
+
+        if (fichaCadastralIdParam) {
+          const ficha = await apiClient.get(`/fichacadastral/${fichaCadastralIdParam}`).catch(() => null)
+          representanteId = ficha?.representanteId ?? null
+        }
+
+        if (!representanteId && familiaIdParam) {
+          const familia = await apiClient.get(`/familia/${familiaIdParam}`).catch(() => null)
+          representanteId = familia?.representanteId ?? null
+        }
+
+        if (!active || !representanteId) return
+
+        const representante = await apiClient.get(`/representante/${representanteId}`).catch(() => null)
+        if (!active || !representante) return
+
+        setDraft((currentDraft) => {
+          const nextDraft = { ...currentDraft }
+          const da = nextDraft.dados_autorizante ?? {}
+          nextDraft.dados_autorizante = {
+            ...da,
+            nome_autorizante: da.nome_autorizante || representante.nome || '',
+            rg_autorizante: da.rg_autorizante || representante.rg || '',
+            cpf_autorizante: da.cpf_autorizante || representante.cpf || '',
+          }
+          return nextDraft
+        })
+      } catch (err) {
+        console.warn('Falha ao pré-preencher termo de autorização:', err)
+      }
+    })()
+
+    return () => { active = false }
+  }, [form.id, fichaCadastralIdParam, searchParams])
 
   const renderSection = (section) => {
     if (section.id === 'identificacao_servico' && Array.isArray(section.campos)) {
@@ -1498,37 +1557,80 @@ export function FormRenderer({
                     </ActionButton>
 
                     {(form.id === 'ficha_cadastral_familia' || form.id === TRIAGEM_FORM_ID) && (
-                      <FormControl variant="outlined" size="small" sx={{ minWidth: 240 }}>
-                        <InputLabel id="orientador-select-label">Orientador Responsável</InputLabel>
-                        <Select
-                          labelId="orientador-select-label"
-                          id="orientador-select"
-                          value={draft.orientadorId ?? ''}
-                          onChange={(e) => {
-                            setDraft(curr => ({ ...curr, orientadorId: e.target.value }))
-                          }}
-                          label="Orientador Responsável"
-                        >
-                          {loadingOrientadores ? (
-                            <MenuItem disabled value="">
-                              <em>Carregando orientadores...</em>
-                            </MenuItem>
-                          ) : orientadores.length === 0 ? (
-                            <MenuItem disabled value="">
-                              <em>Nenhum orientador encontrado</em>
-                            </MenuItem>
-                          ) : (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <FormControl variant="outlined" size="small" sx={{ minWidth: 240 }}>
+                          <InputLabel id="tecnico-select-label" shrink>Técnico Responsável</InputLabel>
+                          <Select
+                            labelId="tecnico-select-label"
+                            id="tecnico-select"
+                            value={selectedTecnicoId ?? ''}
+                            displayEmpty
+                            renderValue={(val) => {
+                              if (!val) return <em style={{ color: 'rgba(0,0,0,0.42)' }}>— Selecione um técnico —</em>
+                              const t = tecnicos.find(t => t.id === val)
+                              return t ? (t.name || t.nome || 'Técnico sem nome') : val
+                            }}
+                            onChange={(e) => {
+                              setSelectedTecnicoId(e.target.value || null)
+                              setDraft(curr => ({ ...curr, orientadorId: '' }))
+                            }}
+                            label="Técnico Responsável"
+                            disabled={user?.cargo === 'TECNICO'}
+                          >
                             <MenuItem value="">
-                              <em>Selecione um orientador</em>
+                              <em>— Nenhum —</em>
                             </MenuItem>
+                            {tecnicos.map((t) => (
+                              <MenuItem key={t.id} value={t.id}>
+                                {t.name || t.nome || 'Técnico sem nome'}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+
+                        <FormControl variant="outlined" size="small" sx={{ minWidth: 240 }}>
+                          <InputLabel id="orientador-select-label" shrink>Orientador Responsável</InputLabel>
+                          <Select
+                            labelId="orientador-select-label"
+                            id="orientador-select"
+                            value={draft.orientadorId ?? ''}
+                            displayEmpty
+                            renderValue={(val) => {
+                              if (!val) return <em style={{ color: 'rgba(0,0,0,0.42)' }}>— Nenhum —</em>
+                              const o = orientadoresFiltrados.find(o => o.id === val)
+                              return o ? (o.name || o.nome || 'Orientador sem nome') : val
+                            }}
+                            onChange={(e) => {
+                              setDraft(curr => ({ ...curr, orientadorId: e.target.value }))
+                            }}
+                            label="Orientador Responsável"
+                          >
+                            <MenuItem value="">
+                              <em>— Nenhum —</em>
+                            </MenuItem>
+                            {orientadoresFiltrados.map((o) => (
+                              <MenuItem key={o.id} value={o.id}>
+                                {o.name || o.nome || 'Orientador sem nome'}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {loadingOrientadores && (
+                            <FormHelperText>Carregando orientadores...</FormHelperText>
                           )}
-                          {orientadores.map((o) => (
-                            <MenuItem key={o.id} value={o.id}>
-                              {o.nome}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                          {!loadingOrientadores && selectedTecnicoId && orientadoresFiltrados.length === 0 && (
+                            <FormHelperText error>
+                              {user?.cargo === 'TECNICO'
+                                ? 'Você não possui orientadores vinculados. Contate um administrador.'
+                                : 'Este técnico não possui orientadores vinculados.'}
+                            </FormHelperText>
+                          )}
+                          {!loadingOrientadores && selectedTecnicoId && orientadoresFiltrados.length > 0 && !draft.orientadorId && (
+                            <FormHelperText>
+                              Selecione um orientador responsável antes de continuar.
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Box>
                     )}
                   </Box>
                 }
@@ -1562,7 +1664,15 @@ export function FormRenderer({
                       variant="contained"
                       endIcon={<ArrowForwardRoundedIcon />}
                       onClick={() => nextFlowForm && onSelectFlowForm?.(nextFlowForm.id)}
-                      disabled={!nextFlowForm || !onSelectFlowForm}
+                      disabled={
+                        !nextFlowForm ||
+                        !onSelectFlowForm ||
+                        (
+                          (form.id === 'ficha_cadastral_familia' || form.id === TRIAGEM_FORM_ID) &&
+                          user?.cargo === 'TECNICO' &&
+                          orientadoresFiltrados.length === 0
+                        )
+                      }
                     >
                       {nextFlowLabel}
                     </ActionButton>
