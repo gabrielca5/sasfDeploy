@@ -203,10 +203,8 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
 
   const endereco = draft.endereco ?? {}
 
-  // 4 & 5. Cria endereço e representante — envolvidos em try/catch porque
-  //        /api/endereco ainda pode estar instável.
-  //        Se falharem, o fluxo continua sem representanteId na ficha.
-  let representanteId = null
+  // 4. Cria endereço (não-fatal se falhar)
+  let enderecoId = null
   try {
     const enderecoObj = await apiClient.post('/endereco', {
       logradouro: endereco.endereco || null,
@@ -217,6 +215,15 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
       bairro: endereco.bairro || null,
       distrito: endereco.distrito || null,
     })
+    enderecoId = enderecoObj?.id ?? null
+  } catch (err) {
+    console.warn('Não foi possível criar endereço (não-fatal):', err?.message)
+  }
+
+  // 5. Cria representante — separado do endereço para garantir que mesmo se o
+  //    endereço falhar, o representante seja criado (o PDF do termo depende dele).
+  let representanteId = null
+  try {
     const representanteObj = await apiClient.post('/representante', {
       nome: representante.nome_representante || null,
       dataNascimento: toIsoDate(representante.data_nascimento),
@@ -256,14 +263,14 @@ async function saveFichaCadastralFamilia(draft, context = {}) {
         'Aposentado': 'APOSENTADO', 'Pensionista': 'PENSIONISTA',
       }),
       renda: toNumeric(representante.renda),
-      enderecoId: enderecoObj.id,
+      enderecoId,
       telefoneResidencial: endereco.telefone_residencial || null,
       telefoneCelular: endereco.telefone_celular || null,
       telefone: endereco.telefone_outro || null,
     })
-    representanteId = representanteObj.id
+    representanteId = representanteObj?.id ?? null
   } catch (err) {
-    console.warn('Não foi possível criar endereço/representante:', err?.message)
+    console.warn('Não foi possível criar representante:', err?.message)
   }
 
   // 6 & 7. Cria a ficha cadastral e vincula ao prontuário (idempotente).
@@ -510,6 +517,7 @@ async function saveTermo(draft, context) {
     await apiClient.post('/termo', {
       prontuarioId: context.prontuarioId,
       usuarioAutorizanteId: user?.userId ?? null,
+      nomeAutorizante: campos.nome_autorizante || null,
       numeroCedulaIdentidade: campos.rg_autorizante || null,
       cpf: campos.cpf_autorizante || null,
       nomesCriancasAutorizadas: nomes,
