@@ -1,12 +1,18 @@
+import { getToken } from './auth.service'
+
 const WHISPER_URL = import.meta.env.VITE_WHISPER_URL || 'http://98.89.223.51:8000'
 
 export async function processarEntrevista(file) {
   const formData = new FormData()
   formData.append('file', file)
 
+  const token = getToken()
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
   const res = await fetch(`${WHISPER_URL}/processar-entrevista/`, {
     method: 'POST',
     body: formData,
+    headers,
   })
 
   const text = await res.text()
