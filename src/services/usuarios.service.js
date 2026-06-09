@@ -9,25 +9,30 @@ import apiClient from '../lib/apiClient'
  */
 
 export async function listUsuarios() {
-  const [resUsuarios, resOrientadores] = await Promise.all([
-    apiClient.get('/usuario?size=2000'),
-    apiClient.get('/orientador?size=2000').catch(() => ({ content: [] }))
-  ])
+  try {
+    const [resUsuarios, resOrientadores] = await Promise.all([
+      apiClient.get('/usuario?size=2000').catch(() => ({ content: [] })),
+      apiClient.get('/orientador?size=2000').catch(() => ({ content: [] }))
+    ])
 
-  const usuarios = Array.isArray(resUsuarios) ? resUsuarios : resUsuarios?.content || []
-  const orientadores = Array.isArray(resOrientadores) ? resOrientadores : resOrientadores?.content || []
+    const usuarios = Array.isArray(resUsuarios) ? resUsuarios : resUsuarios?.content || []
+    const orientadores = Array.isArray(resOrientadores) ? resOrientadores : resOrientadores?.content || []
 
-  // Mesclar dados específicos de orientador (como 'cor') na lista principal de usuários
-  return usuarios.map(u => {
-    if (u.cargo === 'ORIENTADOR') {
-      const uId = u.id || u.userId || u.id_usuario
-      const o = orientadores.find(ord => (ord.id === uId || ord.userId === uId || ord.id_usuario === uId))
-      if (o) {
-        return { ...u, ...o }
+    // Mesclar dados específicos de orientador (como 'cor') na lista principal de usuários
+    return usuarios.map(u => {
+      if (u.cargo === 'ORIENTADOR') {
+        const uId = u.id || u.userId || u.id_usuario
+        const o = orientadores.find(ord => (ord.id === uId || ord.userId === uId || ord.id_usuario === uId))
+        if (o) {
+          return { ...u, ...o }
+        }
       }
-    }
-    return u
-  })
+      return u
+    })
+  } catch (err) {
+    console.error('Erro ao listar usuários:', err)
+    return []
+  }
 }
 
 export async function listTecnicos() {
@@ -36,8 +41,32 @@ export async function listTecnicos() {
 }
 
 export async function listOrientadores() {
-  const res = await apiClient.get('/orientador?size=2000').catch(() => ({ content: [] }))
-  return Array.isArray(res) ? res : res?.content || []
+  // Tenta primeiro o endpoint específico de orientadores
+  let orientadores = []
+  try {
+    const res = await apiClient.get('/orientador?size=2000')
+    orientadores = Array.isArray(res) ? res : res?.content || []
+  } catch (err) {
+    console.warn('Falha ao buscar /orientador:', err)
+  }
+
+  // Se estiver vazio, tenta buscar via usuários filtrando pelo cargo
+  if (orientadores.length === 0) {
+    try {
+      const res = await apiClient.get('/usuario?size=2000')
+      const users = Array.isArray(res) ? res : res?.content || []
+      orientadores = users.filter(u => String(u.cargo || '').toUpperCase() === 'ORIENTADOR')
+    } catch (err) {
+      console.warn('Falha ao buscar /usuario para orientadores:', err)
+    }
+  }
+
+  // Garante que cada objeto tenha um id consistente para o Select
+  return orientadores.map(o => ({
+    ...o,
+    id: o.id || o.userId || o.id_usuario,
+    nome: o.nome || o.name || o.email || 'Orientador sem nome'
+  }))
 }
 
 export async function getUsuario(id) {

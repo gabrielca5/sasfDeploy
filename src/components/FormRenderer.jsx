@@ -980,6 +980,7 @@ export function FormRenderer({
   const [pendingAction, setPendingAction] = useState(null)
   const [validationErrors, setValidationErrors] = useState({})
   const [orientadores, setOrientadores] = useState([])
+  const [loadingOrientadores, setLoadingOrientadores] = useState(false)
   const { lookup: lookupCep, loading: cepLoading, error: cepError } = useCepLookup()
   const { setValue: rhfSetValue, control } = useForm()
   const lastCepLookupRef = useRef(0)
@@ -990,11 +991,20 @@ export function FormRenderer({
   const nextFlowLabel = isNextSheet(form, nextFlowForm) ? 'Próxima folha' : 'Próxima etapa'
 
   useEffect(() => {
-    const isFicha = form.id === 'ficha_cadastral_familia' || form.id === TRIAGEM_FORM_ID
+    const isFicha =
+      form.id === 'ficha_cadastral_familia' ||
+      form.id === TRIAGEM_FORM_ID ||
+      form.titulo?.toLowerCase().includes('cadastral') ||
+      form.titulo?.toLowerCase().includes('triagem')
+
     if (isFicha) {
-      listOrientadores().then(setOrientadores).catch(console.error)
+      setLoadingOrientadores(true)
+      listOrientadores()
+        .then(setOrientadores)
+        .catch(console.error)
+        .finally(() => setLoadingOrientadores(false))
     }
-  }, [form.id])
+  }, [form.id, form.titulo])
 
   useEffect(() => {
     let active = true
@@ -1499,12 +1509,22 @@ export function FormRenderer({
                           }}
                           label="Orientador Responsável"
                         >
-                          <MenuItem value="">
-                            <em>Nenhum</em>
-                          </MenuItem>
+                          {loadingOrientadores ? (
+                            <MenuItem disabled value="">
+                              <em>Carregando orientadores...</em>
+                            </MenuItem>
+                          ) : orientadores.length === 0 ? (
+                            <MenuItem disabled value="">
+                              <em>Nenhum orientador encontrado</em>
+                            </MenuItem>
+                          ) : (
+                            <MenuItem value="">
+                              <em>Selecione um orientador</em>
+                            </MenuItem>
+                          )}
                           {orientadores.map((o) => (
                             <MenuItem key={o.id} value={o.id}>
-                              {o.name || o.nome || 'Orientador sem nome'}
+                              {o.nome}
                             </MenuItem>
                           ))}
                         </Select>
